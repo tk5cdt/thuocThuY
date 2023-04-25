@@ -1,20 +1,18 @@
 import express from 'express'
 import configViewEngine from './configs/viewEngine'
-require('dotenv').config()
-const port = process.env.PORT || 3000
+
+require('dotenv').config();
+let port = process.env.PORT || 8080;
 
 const app = express()
 
-
 configViewEngine(app)
+
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+  res.render('index.ejs')
 })
 
-app.get('/', function(req, res) {
-    res.sendFile(path.join(__dirname, './FE/4T.html'));
-  });
-
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  //callback
+  console.log("Backend Nodejs is running on the port: " + port);
 })
