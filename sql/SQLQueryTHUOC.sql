@@ -9,6 +9,9 @@ GO
 --mặc định kiểu ngày tháng
 SET DATEFORMAT DMY
 
+--khởi tạo quỹ tại cửa hàng
+DECLARE @quy MONEY = 120000000
+
 --tạo bảng thuốc
 CREATE TABLE THUOC
 (
@@ -106,7 +109,7 @@ CREATE TABLE NHAPTHUOC
     MADONHANG VARCHAR(10) NOT NULL,
     THUOC VARCHAR(10) NOT NULL,
     SOLUONG INT,
-    DONVITINH NVARCHAR(10),
+    DONVITINH NVARCHAR(20),
     THANHTIEN MONEY
     PRIMARY KEY(MADONHANG, THUOC)
 )
@@ -117,7 +120,7 @@ CREATE TABLE XUATTHUOC
     MADONHANG VARCHAR(10) NOT NULL,
     THUOC VARCHAR(10) NOT NULL,
     SOLUONG INT,
-    DONVITINH NVARCHAR(10),
+    DONVITINH NVARCHAR(20),
     THANHTIEN MONEY
     PRIMARY KEY(MADONHANG, THUOC)
 )
@@ -126,12 +129,11 @@ CREATE TABLE XUATTHUOC
 CREATE TABLE KHOHANG
 (
     MATHUOC VARCHAR(10) NOT NULL,
-    LANNHAP INT,
     NGAYNHAP DATE,
     NGAYSX DATE,
     NGAYHETHAN DATE,
-    SOLUONG INT
-    PRIMARY KEY(MATHUOC, LANNHAP)
+    SOLUONG INT,
+    PRIMARY KEY(MATHUOC, NGAYNHAP)
 )
 
 --tạo khóa ngoại bảng thuốc và nhóm thuốc
@@ -197,6 +199,10 @@ GO
 --tạo điều kiện ngày hết hạn của kho hàng
 ALTER TABLE KHOHANG
 ADD CONSTRAINT CK_NGAYHETHAN CHECK (NGAYHETHAN > NGAYSX)
+
+--tạo điều kiện ngày sản xuất của kho hàng
+ALTER TABLE KHOHANG
+ADD CONSTRAINT CK_NGAYSANXUAT CHECK (NGAYSX < NGAYNHAP)
 
 --tạo điều kiện số lượng của bảng xuất thuốc
 ALTER TABLE XUATTHUOC
@@ -430,6 +436,69 @@ VALUES ('DX001', 'HCM-X4-25', 2),
        ('DX030', 'HCM-X2-16', 3),
        ('DX030', 'HCM-X2-164', 1)
 
+--thêm thông tin cho bảng kho hàng
+INSERT INTO KHOHANG(MATHUOC, NGAYNHAP, NGAYSX, NGAYHETHAN)
+VALUES ('HCM-X4-25', '22/12/2022', '19/12/2022', '20/1/2024'),
+       ('HCM-X4-79','22/12/2022', '10/12/2022', '29/12/2023'),
+       ('HCM-X2-16', '24/12/2022', '01/12/2022', '01/12/2023'),
+       ('HCM-X2-164','24/12/2022', '03/02/2022', '03/02/2023'),
+       ('HCM-X2-198', '24/12/2022', '12/01/2022', '12/01/2023'),
+       ('BN.TS2-15', '26/12/2022','13/01/2022', '13/01/2023'),
+       ('BN.TS2-51', '26/12/2022', '20/12/2022', '20/12/2023'),
+       ('ETT-163', '26/12/2022', '12/12/2022', '12/12/2023'),
+       ('ETT-165', '26/12/2022', '12/12/2022', '12/12/2023'),
+       ('ETT-50', '26/12/2022', '12/12/2022', '12/12/2023'),
+       ('ETT-94', '26/12/2022', '12/12/2022', '12/12/2023'),
+       ('GDA-10', '26/12/2022', '12/12/2022', '12/12/2023'),
+       ('CME-3','29/12/2022', '30/11/2022', '30/11/2023'),
+       ('LBF-1','29/12/2022', '30/11/2022', '30/11/2023'),
+       ('SAK-118','29/12/2022', '28/11/2022', '28/11/2023'),
+       ('SAK-169','29/12/2022', '28/11/2022', '28/11/2023'),
+       ('SAK-185','29/12/2022', '28/11/2022', '28/11/2023'),
+       ('SAK-37','29/12/2022', '28/11/2022', '28/11/2023'),
+       ('BD.TS5-19', '01/01/2023', '23/12/2022', '23/12/2023'),
+       ('BD.TS5-4', '01/01/2023', '23/12/2022', '23/12/2023'),
+       ('BD.TS5-5', '01/01/2023', '20/12/2022', '20/12/2023'),
+       ('UV-2', '12/01/2023', '10/01/2023', '10/01/2024'),
+       ('UV-65', '12/01/2023', '10/01/2023', '10/01/2024'),
+       ('HCM-X4-25', '18/01/2023', '02/12/2022', '02/12/2023'),
+       ('HCM-X4-79', '18/01/2023', '02/12/2022', '02/12/2023'),
+       ('HCM-X2-16', '23/01/2023', '07/12/2022', '07/12/2023'),
+       ('HCM-X2-164', '23/01/2023', '07/12/2022', '07/12/2023'),
+       ('ETT-163', '02/02/2023', '19/06/2022', '19/06/2023'),
+       ('ETT-165', '02/02/2023', '19/06/2022', '19/06/2023'),
+       ('BN.TS2-15', '02/02/2023', '15/12/2022', '15/01/2024'),
+       ('BN.TS2-51', '02/02/2023', '17/12/2022', '17/01/2024'),
+       ('SAK-118', '09/02/2023', '02/12/2022', '02/12/2023'),
+       ('SAK-185', '09/02/2023', '12/11/2022', '12/05/2024'),
+       ('HCM-X4-25', '19/03/2023', '11/11/2022', '11/11/2023'),
+       ('HCM-X4-79', '19/03/2023', '11/11/2022', '11/11/2023')
+
+--cập nhật dữ liệu số lượng cho kho hàng
+UPDATE KHOHANG
+SET SOLUONG = (
+        SELECT SOLUONG FROM NHAPTHUOC
+        WHERE MATHUOC = (
+            SELECT MATHUOC FROM DONHANGNHAP
+            WHERE KHOHANG.MATHUOC = NHAPTHUOC.THUOC
+            AND KHOHANG.NGAYNHAP = DONHANGNHAP.NGAYLAP
+            AND NHAPTHUOC.MADONHANG = DONHANGNHAP.MADONHANG
+        )
+    )
+GO
+
+--cập nhật lại số lượng thuốc cho kho hàng sau khi xuất hàng
+UPDATE KHOHANG
+SET SOLUONG -= 
+    (
+        SELECT SUM(SOLUONG) FROM XUATTHUOC
+        WHERE XUATTHUOC.THUOC = KHOHANG.MATHUOC
+    )
+    WHERE NGAYNHAP = (
+        SELECT MIN(NGAYNHAP) FROM KHOHANG
+    )
+GO
+
 --cập nhật dữ liệu cho thuộc giá sỉ và giá lẻ của bảng thuốc
 UPDATE THUOC
 SET GIASI = GIANHAP + GIANHAP * 7/100,
@@ -461,13 +530,28 @@ GO
 --cập nhật dữ liệu cho thuộc tính thành tiền của bảng xuất thuốc
 UPDATE XUATTHUOC
 SET THANHTIEN = SOLUONG * (
-        SELECT GIASI FROM THUOC T
-        WHERE XUATTHUOC.THUOC = T.MATHUOC
-    ) WHERE (
-        SELECT MAKH FROM DONHANGXUAT D
-        WHERE XUATTHUOC.MADONHANG = D.MADONHANG
-        ) IN ( SELECT MAKH FROM KHACHHANG K
-            WHERE K.LOAIKH = N'Khách sỉ'
+            CASE 
+            WHEN(
+                SELECT MAKH FROM DONHANGXUAT D
+                WHERE XUATTHUOC.MADONHANG = D.MADONHANG
+                ) IN ( SELECT MAKH FROM KHACHHANG K
+                    WHERE K.LOAIKH = N'Khách lẻ'
+                ) 
+                THEN (
+                SELECT GIALE FROM THUOC T
+                WHERE XUATTHUOC.THUOC = T.MATHUOC
+            )
+            WHEN(
+                SELECT MAKH FROM DONHANGXUAT D
+                WHERE XUATTHUOC.MADONHANG = D.MADONHANG
+                ) IN ( SELECT MAKH FROM KHACHHANG K
+                    WHERE K.LOAIKH = N'Khách sỉ'
+                ) 
+                THEN (
+                SELECT GIASI FROM THUOC T
+                WHERE XUATTHUOC.THUOC = T.MATHUOC
+            )
+            END
         )
 GO
 
@@ -535,3 +619,4 @@ GO
 --SELECT * FROM DONHANGXUAT
 --SELECT * FROM NHAPTHUOC
 --SELECT * FROM XUATTHUOC
+--SELECT * FROM KHOHANG
