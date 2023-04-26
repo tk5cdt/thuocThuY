@@ -1,11 +1,15 @@
+--tạo database
 CREATE DATABASE QL_NHATHUOCTY
 GO
 
+--sử dụng database
 USE QL_NHATHUOCTY
 GO
 
+--mặc định kiểu ngày tháng
 SET DATEFORMAT DMY
 
+--tạo bảng thuốc
 CREATE TABLE THUOC
 (
     MATHUOC VARCHAR(10) NOT NULL,
@@ -23,6 +27,7 @@ CREATE TABLE THUOC
     PRIMARY KEY(MATHUOC)
 )
 
+--tạo bảng nhóm thuốc
 CREATE TABLE NHOMTHUOC
 (
     MANHOM VARCHAR(5) NOT NULL,
@@ -31,16 +36,18 @@ CREATE TABLE NHOMTHUOC
     PRIMARY KEY(MANHOM)
 )
 
+--tạo bảng nhà cung cấp
 CREATE TABLE NHACUNGCAP
 (
     MANCC VARCHAR(10) NOT NULL,
     TENNCC NVARCHAR(50),
     DIACHI NVARCHAR(80),
-    DIENTHOAI NCHAR(11),
+    DIENTHOAI NCHAR(11) UNIQUE,
     CONGNO MONEY,
     PRIMARY KEY(MANCC)
 )
 
+--tạo bảng nhân viên
 CREATE TABLE NHANVIEN
 (
     MANV VARCHAR(10) NOT NULL,
@@ -54,17 +61,19 @@ CREATE TABLE NHANVIEN
     PRIMARY KEY(MANV)
 )
 
+--tạo bảng khách hàng
 CREATE TABLE KHACHHANG
 (
     MAKH VARCHAR(10) NOT NULL,
     TENKHACH NVARCHAR(30),
     DIACHI NVARCHAR(80),
-    DIENTHOAI NCHAR(11),
+    DIENTHOAI NCHAR(11) UNIQUE,
     LOAIKH NVARCHAR(15),
     CONGNO MONEY,
     PRIMARY KEY(MAKH)
 )
 
+--tạo bảng đơn hàng xuất
 CREATE TABLE DONHANGXUAT
 (
     MADONHANG VARCHAR(10) NOT NULL,
@@ -78,6 +87,7 @@ CREATE TABLE DONHANGXUAT
     PRIMARY KEY(MADONHANG)
 )
 
+--tạo bảng đơn hàng nhập
 CREATE TABLE DONHANGNHAP
 (
     MADONHANG VARCHAR(10) NOT NULL,
@@ -90,6 +100,7 @@ CREATE TABLE DONHANGNHAP
     PRIMARY KEY(MADONHANG)
 )
 
+--tạo bảng nhập thuốc
 CREATE TABLE NHAPTHUOC
 (
     MADONHANG VARCHAR(10) NOT NULL,
@@ -100,6 +111,7 @@ CREATE TABLE NHAPTHUOC
     PRIMARY KEY(MADONHANG, THUOC)
 )
 
+--tạo bảng xuất thuốc
 CREATE TABLE XUATTHUOC
 (
     MADONHANG VARCHAR(10) NOT NULL,
@@ -110,6 +122,7 @@ CREATE TABLE XUATTHUOC
     PRIMARY KEY(MADONHANG, THUOC)
 )
 
+--tạo bảng kho hàng
 CREATE TABLE KHOHANG
 (
     MATHUOC VARCHAR(10) NOT NULL,
@@ -121,56 +134,71 @@ CREATE TABLE KHOHANG
     PRIMARY KEY(MATHUOC, LANNHAP)
 )
 
+--tạo khóa ngoại bảng thuốc và nhóm thuốc
 ALTER TABLE THUOC
 ADD CONSTRAINT FK_THUOC_NHOMTHUOC FOREIGN KEY(MANHOM)
 REFERENCES NHOMTHUOC(MANHOM)
 GO
 
+--tạo khóa ngoại bảng thuốc và nhà cung cấp
 ALTER TABLE THUOC
 ADD CONSTRAINT FK_THUOC_NHACC FOREIGN KEY(MANCC)
 REFERENCES NHACUNGCAP(MANCC)
 GO
 
+--tạo khóa ngoại bảng đơn hàng xuất và khách hàng
 ALTER TABLE DONHANGXUAT
 ADD CONSTRAINT FK_DONHANGXUAT_KHACHHANG FOREIGN KEY(MAKH)
 REFERENCES KHACHHANG(MAKH)
 GO
 
+--tạo khóa ngoại bảng đơn hàng xuất và nhân viên
 ALTER TABLE DONHANGXUAT
 ADD CONSTRAINT FK_DONHANGXUAT_NHANVIEN FOREIGN KEY(MANV)
 REFERENCES NHANVIEN(MANV)
 GO
 
+--tạo khóa ngoại bảng đơn hàng nhập và nhà cung cấp
 ALTER TABLE DONHANGNHAP
 ADD CONSTRAINT FK_DONHANGNHAP_NHACUNGCAP FOREIGN KEY(MANCC)
 REFERENCES NHACUNGCAP(MANCC)
 GO
 
+--tạo khóa ngoại bảng kho hàng và thuốc
 ALTER TABLE KHOHANG
 ADD CONSTRAINT FK_KHOHANG_THUOC FOREIGN KEY(MATHUOC)
 REFERENCES THUOC(MATHUOC)
 GO
 
+--tạo khóa ngoại bảng xuất thuốc và đơn hàng xuất
 ALTER TABLE XUATTHUOC
 ADD CONSTRAINT FK_XUATTHUOC_DONHANGXUAT FOREIGN KEY(MADONHANG)
 REFERENCES DONHANGXUAT(MADONHANG)
 GO
 
+--tạo khóa ngoại bảng nhập thuốc và đơn hàng nhập
 ALTER TABLE NHAPTHUOC
 ADD CONSTRAINT FK_NHAPTHUOC_DONHANGNHAP FOREIGN KEY(MADONHANG)
 REFERENCES DONHANGNHAP(MADONHANG)
 GO
 
+--tạo khóa ngoại bảng xuất thuố và thuốc
 ALTER TABLE XUATTHUOC
 ADD CONSTRAINT FK_XUATTHUOC_THUOC FOREIGN KEY(THUOC)
 REFERENCES THUOC(MATHUOC)
 GO
 
+--tạo khóa ngoại bảng nhập thuốc và thuốc
 ALTER TABLE NHAPTHUOC
 ADD CONSTRAINT FK_NHAPTHUOC_THUOC FOREIGN KEY(THUOC)
 REFERENCES THUOC(MATHUOC)
 GO
 
+--tạo điều kiện ngày hết hạn của kho hàng
+ALTER TABLE KHOHANG
+ADD CONSTRAINT CK_NGAYHETHAN CHECK (NGAYHETHAN > NGAYSX)
+
+--thêm dữ liệu cho bảng nhóm thuốc
 INSERT INTO NHOMTHUOC(MANHOM, TENNHOM)
 VALUES ('N001', N'Chế phẩm sinh học'),
        ('N002', N'Dược phẩm'),
@@ -178,6 +206,7 @@ VALUES ('N001', N'Chế phẩm sinh học'),
        ('N004', N'Hóa chất thú y'),
        ('N005', N'Vi sinh vật')
 
+--thêm dữ liệu cho bảng nhà cung cấp
 INSERT INTO NHACUNGCAP(MANCC, TENNCC, DIACHI, DIENTHOAI)
 VALUES ('3600278732', N'Công ty TNHH Minh Huy', N'Số 528 đường 21 tháng 4, Phường Xuân Bình, Thành phố Long khánh, Đồng Nai', '02513876071'),
        ('0311987413', N'Công ty cổ phần Sài Gòn V.E.T', N'Số 315 đường Nam Kỳ Khởi Nghĩa, Phường 17, Quận 3, TP.HCM', '0838466888'),
@@ -186,6 +215,7 @@ VALUES ('3600278732', N'Công ty TNHH Minh Huy', N'Số 528 đường 21 tháng 
        ('0301460240', N'Công ty TM & SX thuốc thú Thịnh Á', N'220 Phạm Thế Hiển, Phường 2, Quận 8, Thành phố Hồ Chí Minh', '02838515503'),
        ('0305110871', N'Công ty cổ phần UV', N'Lô số 18, Đường D1, khu công nghiệp An Hạ, Xã Phạm Văn Hai, Bình Chánh, TP.HCM', '02837685370')
 
+--thêm dữ liệu cho bảng thuốc
 INSERT INTO THUOC(MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG)
 VALUES ('HCM-X4-25', N'Terramycin Egg Formula', 'N001', N'Gia cầm', N'Oxytetracyclin, Vitamin A, C, D, E, B1' ,'3600278732', 50000, N'Bột', N'Lọ 100g', N'Nâng cao năng suất trứng, phòng các bệnh ở gia cầm.'),
        ('HCM-X4-79', N'Anticoc', 'N002', N'Gia cầm', N'Sulfamethoxazol, Diaveridine' ,'3600278732', 35000, N'Bột', N'Gói 100g', N'Phòng và trị bệnh cầu trùng.'),
@@ -211,18 +241,14 @@ VALUES ('HCM-X4-25', N'Terramycin Egg Formula', 'N001', N'Gia cầm', N'Oxytetra
        ('UV-2', N'Ecolus', 'N005', N'Thủy sản', N'Bacillus subtilis, Bacillus megaterium' ,'0305110871', 200000, 'Bột', 'Thùng 5kg', 'Phân hủy nhanh chất thải, phân tôm, xác tảo và thức ăn dư thừa.'),
        ('ETT-50', N'Eco-Terra egg', 'N001', N'Gia cầm', N'Oxytetracyclin, Neomycin' ,'0102137268', 30000, N'Bột', N'Gói 10g', N'Tăng trọng nhanh, giảm tỷ lệ tiêu tốn thức ăn, rút ngắn thời gian nuôi')
 
-UPDATE THUOC
-SET GIASI = GIANHAP + GIANHAP * 7/100,
-    GIALE = GIANHAP + GIANHAP * 10/100
-
-
-SET DATEFORMAT DMY
+--thêm dữ liệu cho bảng nhân viên
 INSERT INTO NHANVIEN
 VALUES ('NV001', N'Nguyễn Quốc Thái', '26/12/1989', N'Dược sĩ đại học', N'49/1 Tân Trụ, Phường 15, Quận Tân Bình, TP HCM', N'Nam', N'Nhân viên', N'Kho'),
        ('NV002', N'Cù Đức Trường', '08/07/1994', N'Dược sĩ đại học', N'30/1 TMT 13, Phường Trung Mỹ Tây, Quận 12, TP HCM', N'Nam', N'Trưởng bộ phận', N'Bán hàng'),
        ('NV003', N'Võ Thị Thanh Trúc', '03/07/1990', N'Thạc sĩ', N'193/2/7 Đường Số 6, Phường Bình Hưng Hòa B, Quận Bình Tân, TP HCM', N'Nữ', N'Nhân viên', N'Bán hàng'),
        ('NV004', N'Lê Trương Trọng Tấn', '18/10/1995', N'Dược sĩ đại học', N'18 Tân Thới Nhất 17, Phường Tân Thới Nhất, Quận 12, TP HCM', N'Nam', N'Nhân viên', N'Quản lý')
 
+--thêm dữ liệu cho bảng khách hàng
 INSERT INTO KHACHHANG(MAKH, TENKHACH, DIACHI, DIENTHOAI, LOAIKH)
 VALUES ('KH001', N'Trần Thành Luân', N'48/1 Đỗ Nhuận, Phường Sơn Kỳ, Quận Tân Phú, TP HCM', '0367512498', N'Khách sỉ'),
        ('KH002', N'Bùi Phan Bảo Ngọc', N'48/1 Đỗ Nhuận, Phường Sơn Kỳ, Quận Tân Phú, TP HCM', '0379699529', N'Khách lẻ'),
@@ -231,7 +257,7 @@ VALUES ('KH001', N'Trần Thành Luân', N'48/1 Đỗ Nhuận, Phường Sơn K�
        ('KH005', N'Huỳnh Vũ Chí Thiện', N'100 Lê Văn Sỹ, Phường 2, Quận Tân Bình, TP HCM', '0908655684', N'Khách sỉ'),
        ('KH006', N'Khách vãn lai', NULL, NULL, N'Khách lẻ')
 
-
+--thêm dữ liệu cho bảng đơn hàng nhập
 INSERT INTO DONHANGNHAP(MADONHANG, MANCC, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
 VALUES ('DN001', '3600278732', N'Đã nhận', '22/12/2022', 2550000),
        ('DN002', '0311987413', N'Đã nhận', '24/12/2022', 4650000),
@@ -250,7 +276,7 @@ VALUES ('DN001', '3600278732', N'Đã nhận', '22/12/2022', 2550000),
        ('DN015', '0102137268', N'Đang vận chuyển', '10/04/2023', 0),
        ('DN016', '0311987413', N'NCC đang chuẩn bị', '26/04/2023', 0)
 
-
+--thêm dữ liệu cho bảng đơn hàng xuất
 INSERT INTO DONHANGXUAT(MADONHANG, MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
 VALUES ('DX001', 'KH001','NV002', N'Đã giao', '22/02/2023', 0),
        ('DX002', 'KH002','NV002', N'Đã giao', '24/02/2023', 275000),
@@ -283,6 +309,7 @@ VALUES ('DX001', 'KH001','NV002', N'Đã giao', '22/02/2023', 0),
        ('DX029', 'KH006','NV003', N'Đã giao', '19/03/2023', 275000),
        ('DX030', 'KH001','NV004', N'Giao không thành công', '28/03/2023', 0)
 
+--thêm dữ liệu cho bảng nhập thuốc
 INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG)
 VALUES ('DN001', 'HCM-X4-25', 30),
        ('DN001', 'HCM-X4-79', 30),
@@ -330,7 +357,7 @@ VALUES ('DN001', 'HCM-X4-25', 30),
        ('DN016', 'HCM-X2-164', 30),
        ('DN016', 'HCM-X2-198', 10)
        
-
+--thêm dữ liệu cho bảng xuất thuốc
 INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
 VALUES ('DX001', 'HCM-X4-25', 2),
        ('DX001', 'HCM-X4-79', 3),
@@ -387,6 +414,12 @@ VALUES ('DX001', 'HCM-X4-25', 2),
        ('DX030', 'HCM-X2-16', 3),
        ('DX030', 'HCM-X2-164', 1)
 
+--cập nhật dữ liệu cho thuộc giá sỉ và giá lẻ của bảng thuốc
+UPDATE THUOC
+SET GIASI = GIANHAP + GIANHAP * 7/100,
+    GIALE = GIANHAP + GIANHAP * 10/100
+
+--cập nhật dữ liệu cho thuộc tính đơn vị tính của bảng nhập thuốc
 UPDATE NHAPTHUOC
 SET DONVITINH = (
     SELECT QCDONGGOI FROM THUOC T
@@ -394,6 +427,7 @@ SET DONVITINH = (
     )
 GO
 
+--cập nhật dữ liệu cho thuộc tính thành tiền của bảng nhập thuốc
 UPDATE NHAPTHUOC
 SET THANHTIEN = SOLUONG * (
     SELECT GIANHAP FROM THUOC T
@@ -401,12 +435,14 @@ SET THANHTIEN = SOLUONG * (
 )
 GO
 
+--cập nhật dữ liệu cho thuộc tính đơn vị tính của bảng xuất thuốc
 UPDATE XUATTHUOC
 SET DONVITINH = (SELECT QCDONGGOI FROM THUOC t
                     WHERE XUATTHUOC.THUOC = T.MATHUOC
                 )
 GO
 
+--cập nhật dữ liệu cho thuộc tính thành tiền của bảng xuất thuốc
 UPDATE XUATTHUOC
 SET THANHTIEN = SOLUONG * (
         SELECT GIASI FROM THUOC T
@@ -431,6 +467,7 @@ SET THANHTIEN = SOLUONG * (
         )
 GO
 
+--cập nhật tổng tiền cho bảng đơn hàng nhập
 UPDATE DONHANGNHAP
 SET TONGTIEN = (
     SELECT SUM(THANHTIEN) FROM NHAPTHUOC N
@@ -438,11 +475,13 @@ SET TONGTIEN = (
 )
 GO
 
+--cập nhật công nợ cho bảng đơn hàng nhập
 UPDATE DONHANGNHAP
 SET CONGNO = TONGTIEN - DATHANHTOAN
 WHERE TRANGTHAIDH = N'Đã nhận'
 GO
 
+--cập nhật tổng tiền cho đơn hàng xuất
 UPDATE DONHANGXUAT
 SET TONGTIEN = (
     SELECT SUM(THANHTIEN) FROM XUATTHUOC X
@@ -450,11 +489,13 @@ SET TONGTIEN = (
 )
 GO
 
+--cập nhật công nợ cho đơn hàng xuất
 UPDATE DONHANGXUAT
 SET CONGNO = TONGTIEN - DATHANHTOAN
 WHERE TRANGTHAIDH = N'Đã giao'
 GO
 
+--cập nhật công nợ của cửa hàng với nhà cung cấp
 UPDATE NHACUNGCAP
 SET CONGNO = (
     SELECT SUM(d.CONGNO) FROM DONHANGNHAP d
@@ -462,6 +503,7 @@ SET CONGNO = (
     )
 GO
 
+--cập nhật công nợ của khách hàng với cửa hàng
 UPDATE KHACHHANG
 SET CONGNO = (
     SELECT SUM(d.CONGNO) FROM DONHANGXUAT d
