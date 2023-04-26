@@ -1,16 +1,17 @@
 import express from 'express'
 import configViewEngine from './configs/viewEngine'
+import initWebRoutes from './route/web'
 
 require('dotenv').config();
 let port = process.env.PORT || 8080;
 
 const app = express()
 
+//config view engine
 configViewEngine(app)
 
-app.get('/', (req, res) => {
-  res.render('index.ejs')
-})
+//init web routes
+initWebRoutes(app)
 
 app.listen(port, () => {
   //callback
