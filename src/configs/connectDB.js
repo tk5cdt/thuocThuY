@@ -1,24 +1,20 @@
-const sql = require('tedious');
+import sql from 'mssql';
 const config = {
-    server: 'Truong.database.windows.net',
-    authentication: {
-        type: 'default',
-        options: {
-            userName: 'your_username',
-            password: 'your_password'
-        }
-    },
+    user: 'sa',
+    password: '123',
+    server: 'TRUONG',
+    database: 'QL_NHATHUOCTY',
     options: {
-        database: 'QL_NHATHUOCTHUY',
-        encrypt: true
+        encrypt: true, // for azure
+        trustServerCertificate: true // change to true for local dev / self-signed certs
     }
 };
 
-const connection = new sql.Connection(config);
-connection.on('connect', function(err) {
-    if (err) {
+export async function connectDB() {
+    try{
+        const pool = await sql.connect(config);
+        return pool;
+    }catch(err){
         console.log(err);
-    } else {
-        console.log('Connected');
     }
-});
+}

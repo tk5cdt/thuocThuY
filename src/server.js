@@ -1,6 +1,7 @@
 import express from 'express'
 import configViewEngine from './configs/viewEngine'
 import initWebRoutes from './route/web'
+import './configs/connectDB'
 
 require('dotenv').config();
 let port = process.env.PORT || 8080;
