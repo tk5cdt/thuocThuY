@@ -6,11 +6,66 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>db</title>
+    <style>
+        table {
+          font-family: arial, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+        }
+        
+        td, th {
+          border: 1px solid #dddddd;
+          text-align: left;
+          padding: 8px;
+        }
+        
+        tr:nth-child(even) {
+          background-color: #ccc;
+        }
+        thead {
+            background-color: #ccc;
+        }
+        tr:hover {
+            background-color: #ddd;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>HELLO GUYS</h1>
-    <%= THUOC %>
+    <table>
+        <thead>
+            <th>Mã thuốc</th>
+            <th>Tên thuốc</th>
+            <th>Mã nhóm</th>
+            <th>Loại sử dụng</th>
+            <th>Thành phần</th>
+            <th>Mã nhà cung cấp</th>
+            <th>Giá sỉ</th>
+            <th>Giá lẻ</th>
+            <th>Giá nhập</th>
+            <th>Dạng bảo chế</th>
+            <th>Quy cách đóng gói</th>
+            <th>Công dụng</th>
+        </thead>
+        <tbody>
+            <% for( let index = 0; index < THUOC.length; index++ ) { %>
+            <tr>
+                <td><%= THUOC[index].MATHUOC %></td>
+                <td><%= THUOC[index].TENTHUOC %></td>
+                <td><%= THUOC[index].MANHOM %></td>
+                <td><%= THUOC[index].LOAISD %></td>
+                <td><%= THUOC[index].THANHPHAN %></td>
+                <td><%= THUOC[index].MANCC %></td>
+                <td><%= THUOC[index].GIASI %></td>
+                <td><%= THUOC[index].GIALE %></td>
+                <td><%= THUOC[index].GIANHAP %></td>
+                <td><%= THUOC[index].DANGBAOCHE %></td>
+                <td><%= THUOC[index].QCDONGGOI %></td>
+                <td><%= THUOC[index].CONGDUNG %></td>
+            </tr>
+            <% } %>
+        </tbody>
+    </table>
 </body>
 
 </html>
