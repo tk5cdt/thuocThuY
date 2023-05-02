@@ -430,48 +430,37 @@ BEGIN
     AND XUATTHUOC.MADONHANG = inserted.MADONHANG
     
     --cập nhật kho hàng
-    UPDATE KHOHANG
-	SET TONKHO -= inserted.SOLUONG
-      FROM KHOHANG, inserted
-	WHERE NGAYHETHAN = (
-		SELECT MIN(NGAYHETHAN) FROM KHOHANG K
-		WHERE KHOHANG.MATHUOC = K.MATHUOC
-		)
-      AND inserted.MADONHANG = KHOHANG.DONNHAP
-      AND inserted.THUOC = KHOHANG.MATHUOC
+    DECLARE @MINNGAYHETHAN DATE
+    SELECT @MINNGAYHETHAN = MIN(NGAYHETHAN) FROM KHOHANG, inserted WHERE KHOHANG.MATHUOC = inserted.THUOC
+    DECLARE @MINTONKHO INT
+    SELECT @MINTONKHO = TONKHO FROM KHOHANG WHERE NGAYHETHAN = @MINNGAYHETHAN
 
--- 	UPDATE KHOHANG
--- 	SET TONKHO += (
--- 		SELECT TONKHO FROM KHOHANG K
--- 		WHERE K.NGAYHETHAN = (
--- 			SELECT MIN(k1.NGAYHETHAN) FROM KHOHANG K1
--- 			WHERE K.MATHUOC = K1.MATHUOC
--- 		) 
--- 		AND KHOHANG.MATHUOC = K.MATHUOC
--- 	)
--- 	WHERE (
--- 			SELECT TONKHO FROM KHOHANG K
--- 			WHERE K.NGAYHETHAN = (
--- 				SELECT MIN(K1.NGAYHETHAN) FROM KHOHANG K1
--- 				WHERE K.MATHUOC = K1.MATHUOC
--- 			)
--- 			AND KHOHANG.MATHUOC = K.MATHUOC
--- 		) < 0
--- 	AND NGAYHETHAN = (
--- 			SELECT MIN(NGAYHETHAN) FROM KHOHANG K
--- 			WHERE K.NGAYHETHAN != (
--- 				SELECT MIN(K1.NGAYHETHAN) FROM KHOHANG K1
--- 				WHERE K.MATHUOC = K1.MATHUOC
--- 			)
--- 			AND KHOHANG.MATHUOC = K.MATHUOC
--- 		)
+      IF @MINTONKHO > (SELECT SOLUONG FROM inserted)
+      BEGIN
+            UPDATE KHOHANG
+            SET TONKHO -= inserted.SOLUONG
+            FROM inserted
+            WHERE NGAYHETHAN = @MINNGAYHETHAN
+            AND KHOHANG.MATHUOC = inserted.THUOC
+      END
 
--- 	DELETE KHOHANG
--- 	WHERE TONKHO < 0 
--- 	AND NGAYHETHAN = (
--- 		SELECT MIN(NGAYHETHAN) FROM KHOHANG K
--- 		WHERE KHOHANG.MATHUOC = K.MATHUOC
--- 	)
+      ELSE IF @MINTONKHO <= (SELECT SOLUONG FROM inserted)
+      BEGIN
+            UPDATE KHOHANG
+            SET TONKHO = TONKHO - (inserted.SOLUONG - @MINTONKHO)
+            FROM inserted
+            WHERE NGAYHETHAN = (
+                        SELECT MIN(NGAYHETHAN) FROM KHOHANG K
+                        WHERE K.NGAYHETHAN != @MINNGAYHETHAN
+                        AND KHOHANG.MATHUOC = K.MATHUOC
+                  )
+                  
+            UPDATE KHOHANG
+            SET TONKHO = 0
+            FROM inserted
+            WHERE NGAYHETHAN = @MINNGAYHETHAN
+            AND KHOHANG.MATHUOC = inserted.THUOC
+      END
 END
 GO
 
@@ -509,26 +498,26 @@ VALUES ('3600278732', N'Công ty TNHH Minh Huy', N'Số 528 đường 21 tháng 
 
 --thêm dữ liệu cho bảng thuốc
 INSERT INTO THUOC(MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG)
-VALUES ('HCM-X4-25', N'Terramycin Egg Formula', 'N001', N'Gia cầm', N'Oxytetracyclin, Vitamin A, C, D, E, B1' ,'3600278732', 50000, N'Bột', N'Lọ 100g', N'Nâng cao năng suất trứng, phòng các bệnh ở gia cầm.'),
+VALUES ('HCM-X4-25', N'Terramycin Egg Formula', 'N001', N'Gia cầm', N'Oxytetracyclin, Vitamin A, C, D, E, B1' ,'3600278732', 50000, N'Bột', N'Chai 100g', N'Nâng cao năng suất trứng, phòng các bệnh ở gia cầm.'),
        ('HCM-X4-79', N'Anticoc', 'N002', N'Gia cầm', N'Sulfamethoxazol, Diaveridine' ,'3600278732', 35000, N'Bột', N'Gói 100g', N'Phòng và trị bệnh cầu trùng.'),
-       ('HCM-X2-16', N'Iron Dextran B12', 'N002', N'Gia súc', N'Sắt, Vitamin B12' ,'0311987413', 50000, N'Dung dịch', N'Lọ 100ml', N'Phòng chống thiếu máu do thiếu sắt.'),
-       ('HCM-X2-164', N'Tylosin 200', 'N002', N'Gia súc', N'Tylosin tartrate, Dexamethasone acetate' ,'0311987413', 55000, N'Dung dịch tiêm', N'Lọ 100ml', N'Trị viêm phổi, viêm tử cung, bệnh lepto, viêm ruột'),
-       ('HCM-X2-198', N'Tiacotin', 'N002', N'Gia súc', N'Tiamulin hydrogen fumarate' ,'0311987413', 20000, N'Dung dịch', N'Lọ 100ml', N'Trị bệnh đường hô hấp, tiêu hóa.'),
-       ('GDA-10', N'NVDC-JXA1 Strain', 'N003', N'Gia súc', N'Virus chủng NVDC-JXA1 vô hoạt' ,'0102137268', 27000, N'Dung dịch tiêm', N'Lọ 100ml', N'Phòng bệnh lợn tai xanh'),
+       ('HCM-X2-16', N'Iron Dextran B12', 'N002', N'Gia súc', N'Sắt, Vitamin B12' ,'0311987413', 50000, N'Dung dịch', N'Chai 100ml', N'Phòng chống thiếu máu do thiếu sắt.'),
+       ('HCM-X2-164', N'Tylosin 200', 'N002', N'Gia súc', N'Tylosin tartrate, Dexamethasone acetate' ,'0311987413', 55000, N'Dung dịch tiêm', N'Chai 100ml', N'Trị viêm phổi, viêm tử cung, bệnh lepto, viêm ruột'),
+       ('HCM-X2-198', N'Tiacotin', 'N002', N'Gia súc', N'Tiamulin hydrogen fumarate' ,'0311987413', 20000, N'Dung dịch', N'Chai 100ml', N'Trị bệnh đường hô hấp, tiêu hóa.'),
+       ('GDA-10', N'NVDC-JXA1 Strain', 'N003', N'Gia súc', N'Virus chủng NVDC-JXA1 vô hoạt' ,'0102137268', 27000, N'Dung dịch tiêm', N'Chai 100ml', N'Phòng bệnh lợn tai xanh'),
        ('ETT-163', N'ECO Recicort', 'N002', N'Thú cưng', N'Recicort' ,'0102137268', 100000, N'Dung dịch', N'Chai 500ml', N'Trị viêm tai ngoài, viêm da tiết bã nhờn trên chó, mèo.'),
        ('UV-65', N'RODO-UV', 'N005', N'Thủy sản', N'Rhodopseudomonas' ,'0305110871',150000, N'Dung dịch', N'Can 5L', N'Ức chế vi khuẩn gây bệnh trong ao nuôi'),
        ('ETT-165', N'ECO Supprestral', 'N001', N'Thú cưng', N'Progesterone (Medroxy Progesterone)' ,'0102137268', 100000 , N'Dung dịch', N'Chai 500ml', N'Giảm co bóp, ổn định tử cung, an thai trong trường hợp đe dọa sẩy thai'),
        ('SAK-118', N'Sakan-Fipro', 'N004', N'Thú cưng', N'Fipronil' ,'0105298457', 60000, N'Dung dịch', N'Tuýp 20ml', N'Diệt ve, bọ rận, bọ chét và ghẻ trên chó mèo'),
        ('SAK-169', N'HZ-PETLOVE-2', 'N004', N'Thú cưng', N'Amitraz, Ketoconazole' ,'0105298457', 75000, N'Dung dịch', N'Tuýp 20ml', N'Làm mượt lông cho chó, mèo'),
-       ('SAK-185', N'Flzazol', 'N002', N'Thú cưng', N'Fluconazol' ,'0105298457', 40000, N'Dung dịch', N'Lọ 50ml', N'Trị nấm gây ra trên chó, mèo.'),
+       ('SAK-185', N'Flzazol', 'N002', N'Thú cưng', N'Fluconazol' ,'0105298457', 40000, N'Dung dịch', N'Chai 50ml', N'Trị nấm gây ra trên chó, mèo.'),
        ('BD.TS5-4', N'MD Selen E.W.S', 'N001', N'Thủy sản', N'Vitamin E, Sodium selenite' ,'0301460240', 300000, N'Viên nén', N'Bao 10kg', N'Giúp tăng sản lượng đẻ trứng ở cá. Cá ương đạt tỷ lệ cao hơn, giảm hao hụt'),
        ('BD.TS5-5', N'MD Bio Calcium', 'N001', N'Thủy sản', N'Biotin, Vitamin A, D3' ,'0301460240', 200000, N'Dung dịch', N'Can 5l', N'Thúc đẩy quá trình lột vỏ ở tôm và giúp mau cứng vỏ sau khi lột.'),
        ('BD.TS5-19', N'MD Protect', 'N004', N'Thủy sản', N'1,5 Pentanedial' ,'0301460240', 200000, N'Dung dịch', N'Can 5 lít', N'Diệt các loại vi khuẩn, nấm, vi sinh động vật trong nước ao nuôi'),
        ('BN.TS2-51', N'ECO-OMICD Fish', 'N004', N'Thủy sản', N'Benzalkonium chloride, Glutaraldehyde' ,'0102137268', 100000, N'Dung dịch', N'Chai 500ml', N'Sát trùng nguồn nước nuôi trồng thủy sản'),
        ('BN.TS2-15', N'ECO-Doxyfish Power 20%', 'N002', N'Thủy sản', N'Doxycyclin' ,'0102137268', 34000, N'Bột', N'Gói 500g', N'Trị bệnh đỏ thân trên tôm do vi khuẩn Vibrio alginolyticus'),
        ('SAK-37', N'Flormax', 'N002', N'Gia súc', N'Doxycycline hyclate, Tylosin tartrate' ,'0105298457', 43000, N'Bột', N'Gói 100g', N'Trị nhiễm trùng đường tiêu hóa, hô hấp trên heo, trâu, bò, dê, cừu.'),
-       ('CME-3', N'Vắc xin PRRS JXA1-R', 'N003', N'Gia súc', N'Virus PRRS nhược độc chủng JXA1-R' ,'0105298457',57000, N'Dung dịch tiêm', N'Lọ 50ml', N'Phòng hội chứng rối loạn hô hấp và sinh sản (PRRS) trên heo.'),
-       ('LBF-1', N'Foot And Mouth Disease Vaccine', 'N003', N'Gia súc', N'Virus Lở mồm Long móng type O, chủng O' ,'0105298457', 34000, N'Dung dịch tiêm', N'Lọ 100ml', N'Phòng bệnh Lở mồm long móng trên lợn'),
+       ('CME-3', N'Vắc xin PRRS JXA1-R', 'N003', N'Gia súc', N'Virus PRRS nhược độc chủng JXA1-R' ,'0105298457',57000, N'Dung dịch tiêm', N'Chai 50ml', N'Phòng hội chứng rối loạn hô hấp và sinh sản (PRRS) trên heo.'),
+       ('LBF-1', N'Foot And Mouth Disease Vaccine', 'N003', N'Gia súc', N'Virus Lở mồm Long móng type O, chủng O' ,'0105298457', 34000, N'Dung dịch tiêm', N'Chai 100ml', N'Phòng bệnh Lở mồm long móng trên lợn'),
        ('ETT-94', N'ECO Erycol 10', 'N002', N'Gia cầm', N'Erythromycin thiocynat, Colistin sulfate' ,'0102137268', 350000, N'Viên nén', N'Thùng 10kg', N'Trị nhiễm trùng đường tiêu hóa, hô hấp trên vịt, gà, ngan, ngỗng'),
        ('UV-2', N'Ecolus', 'N005', N'Thủy sản', N'Bacillus subtilis, Bacillus megaterium' ,'0305110871', 200000, 'Bột', 'Thùng 5kg', 'Phân hủy nhanh chất thải, phân tôm, xác tảo và thức ăn dư thừa.'),
        ('ETT-50', N'Eco-Terra egg', 'N001', N'Gia cầm', N'Oxytetracyclin, Neomycin' ,'0102137268', 30000, N'Bột', N'Gói 10g', N'Tăng trọng nhanh, giảm tỷ lệ tiêu tốn thức ăn, rút ngắn thời gian nuôi')
@@ -575,7 +564,7 @@ VALUES ('DN011', '0301460240', N'Đang vận chuyển', '20/02/2023', 0)
 INSERT INTO DONHANGNHAP(MADONHANG, MANCC, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
 VALUES ('DN012', '0305110871', N'NCC đang chuẩn bị', '06/03/2023', 0)
 INSERT INTO DONHANGNHAP(MADONHANG, MANCC, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
-VALUES ('DN013', '3600278732', N'Đã nhận', '19/03/2023', 1850000)
+VALUES ('DN013', '3600278732', N'Đã nhận', '19/03/2023', 1500000)
 INSERT INTO DONHANGNHAP(MADONHANG, MANCC, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
 VALUES ('DN014', '0311987413', N'Giao không thành công', '28/03/2023', 0)
 INSERT INTO DONHANGNHAP(MADONHANG, MANCC, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
@@ -695,11 +684,11 @@ VALUES ('DN006', 'UV-65', 50, '10/01/2023', '10/01/2024')
 INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
 VALUES ('DN007', 'HCM-X4-25', 20, '02/12/2022', '02/12/2023')
 INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
-VALUES ('DN007', 'HCM-X4-79', 40, '02/12/2022', '02/12/2023')
+VALUES ('DN007', 'HCM-X4-79', 40, '02/12/2022', '08/12/2023')
 INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
 VALUES ('DN008', 'HCM-X2-16', 30, '07/12/2022', '07/12/2023')
 INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
-VALUES ('DN008', 'HCM-X2-164', 10, '07/12/2022', '07/12/2023')
+VALUES ('DN008', 'HCM-X2-164', 10, '24/12/2022', '24/12/2023')
 INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
 VALUES ('DN009', 'ETT-163', 20, '19/06/2022', '19/06/2023')
 INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
