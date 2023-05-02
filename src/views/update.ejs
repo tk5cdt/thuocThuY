@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/4T.css">
+    <title>update</title>
+</head>
+<body>
+    <form action="/updateTHUOC" method="POST" style="display: flex; flex-direction: column; width: 30%;">
+        <input type="text" name="MATHUOC" value="<%= THUOC.MATHUOC %>">
+        <input type="text" name="TENTHUOC" value="<%= THUOC.TENTHUOC %>">
+        <input type="text" name="MANHOM" value="<%= THUOC.MANHOM %>">
+        <input type="text" name="LOAISD" value="<%= THUOC.LOAISD %>">
+        <input type="text" name="THANHPHAN" value="<%= THUOC.THANHPHAN %>">
+        <input type="text" name="MANCC" value="<%= THUOC.MANCC %>">
+        <input type="text" name="GIASI" value="<%= THUOC.GIASI %>">
+        <input type="text" name="GIALE" value="<%= THUOC.GIALE %>">
+        <input type="text" name="GIANHAP" value="<%= THUOC.GIANHAP %>">
+        <input type="text" name="DANGBAOCHE" value="<%= THUOC.DANGBAOCHE %>">
+        <input type="text" name="QCDONGGOI" value="<%= THUOC.QCDONGGOI %>">
+        <input type="text" name="CONGDUNG" value="<%= THUOC.CONGDUNG %>">
+        <input type="submit" value="Update">
+    </form>
+</body>
+</html>

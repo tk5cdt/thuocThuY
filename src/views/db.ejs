@@ -28,6 +28,19 @@
         tr:hover {
             background-color: #ddd;
         }
+        form {
+            display: flex;
+            flex-direction: column;
+            width: 30%;
+            margin: 0 auto;
+        }
+        input {
+            margin-bottom: 10px;
+        }
+        input[type="submit"] {
+            width: 50px;
+            margin: 0 auto;
+        }
     </style>
 </head>
 
@@ -46,6 +59,7 @@
             <th>Dạng bảo chế</th>
             <th>Quy cách đóng gói</th>
             <th>Công dụng</th>
+            <th>Chi tiết</th>
         </thead>
         <tbody>
             <% for( let index = 0; index < THUOC.length; index++ ) { %>
@@ -62,10 +76,48 @@
                 <td><%= THUOC[index].DANGBAOCHE %></td>
                 <td><%= THUOC[index].QCDONGGOI %></td>
                 <td><%= THUOC[index].CONGDUNG %></td>
+                <td style="display: flex; flex-direction: column;">
+                    <a href="/db/thuoc/<%= THUOC[index].MATHUOC %>">details</a>
+                    <form action="/deleteThuoc" method="post" style="margin: 0%;">
+                        <input type="hidden" name="MATHUOC" value="<%= THUOC[index].MATHUOC %>">
+                        <input type="submit" value="Xóa">
+                    </form>
+                    <form action="/editThuoc/<%= THUOC[index].MATHUOC %>" method="get" style="margin: 0%;">
+                        <input type="hidden" name="MATHUOC" value="<%= THUOC[index].MATHUOC %>">
+                        <input type="submit" value="sửa">
+                    </form>
+                </td>
             </tr>
             <% } %>
         </tbody>
     </table>
+    <form action="/createNewThuoc" method="post">
+        <label for="MATHUOC">Mã thuốc</label>
+        <input type="text" name="MATHUOC" placeholder="Mã thuốc">
+        <label for="TENTHUOC">Tên thuốc</label>
+        <input type="text" name="TENTHUOC" placeholder="Tên thuốc">
+        <label for="MANHOM">Mã nhóm</label>
+        <input type="text" name="MANHOM" placeholder="Mã nhóm">
+        <label for="LOAISD">Loại sử dụng</label>
+        <input type="text" name="LOAISD" placeholder="Loại sử dụng">
+        <label for="THANHPHAN">Thành phần</label>
+        <input type="text" name="THANHPHAN" placeholder="Thành phần">
+        <label for="MANCC">Mã nhà cung cấp</label>
+        <input type="text" name="MANCC" placeholder="Mã nhà cung cấp">
+        <label for="GIASI">Giá sỉ</label>
+        <input type="text" name="GIASI" placeholder="Giá sỉ">
+        <label for="GIALE">Giá lẻ</label>
+        <input type="text" name="GIALE" placeholder="Giá lẻ">
+        <label for="GIANHAP">Giá nhập</label>
+        <input type="text" name="GIANHAP" placeholder="Giá nhập">
+        <label for="DANGBAOCHE">Dạng bảo chế</label>
+        <input type="text" name="DANGBAOCHE" placeholder="Dạng bảo chế">
+        <label for="QCDONGGOI">Quy cách đóng gói</label>
+        <input type="text" name="QCDONGGOI" placeholder="Quy cách đóng gói">
+        <label for="CONGDUNG">Công dụng</label>
+        <input type="text" name="CONGDUNG" placeholder="Công dụng">
+        <input type="submit" value="Thêm">
+    </form>
 </body>
 
 </html>
