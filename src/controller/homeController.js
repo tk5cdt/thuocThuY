@@ -6,7 +6,7 @@ let getHompage = (req, res) => {
 
 let getConnect = async (req, res) => {
     const pool = await connectDB();
-    const result = await pool.request().query('select * from THUOC order by MATHUOC ASC').then((result) => {
+    const result = await pool.request().query('select * from THUOC').then((result) => {
         res.render("db.ejs", { THUOC: result.recordset});
     });
 }
@@ -32,7 +32,7 @@ let newTHUOC = async (req, res) => {
     let QCDONGGOI = req.body.QCDONGGOI;
     let CONGDUNG = req.body.CONGDUNG;
     const pool = await connectDB();
-    const result = await pool.request().query(`insert into THUOC(MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIASI, GIALE, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG) values ('${MATHUOC}', '${TENTHUOC}', '${MANHOM}', '${LOAISD}', '${THANHPHAN}', '${MANCC}', '${GIASI}', '${GIALE}', '${GIANHAP}', '${DANGBAOCHE}', '${QCDONGGOI}', '${CONGDUNG}')`)
+    const result = await pool.request().query(`insert into THUOC(MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIASI, GIALE, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG) values ('${MATHUOC}', N'${TENTHUOC}', '${MANHOM}', N'${LOAISD}', '${THANHPHAN}', '${MANCC}', '${GIASI}', '${GIALE}', '${GIANHAP}', N'${DANGBAOCHE}', N'${QCDONGGOI}', N'${CONGDUNG}')`)
     return res.redirect('/db/thuoc')
 }
 
