@@ -252,6 +252,23 @@ BEGIN
 END
 GO
 
+CREATE TRIGGER TRG_INSERT_NCC
+      ON NHACUNGCAP
+      FOR INSERT
+AS
+BEGIN
+      IF (SELECT CONGNO FROM inserted) != 0
+      BEGIN
+            PRINT N'CÔNG NỢ SẼ ĐƯỢC TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG NHẬP'
+            PRINT N'RESET CÔNG NỢ'
+            UPDATE NHACUNGCAP
+            SET CONGNO = 0
+            FROM inserted
+            WHERE NHACUNGCAP.MANCC = inserted.MANCC
+      END
+END
+GO
+
 -- tạo trigger khi thêm dữ liệu vào bảng DONHANGXUAT
 CREATE TRIGGER TRG_INSERT_DONHANGXUAT
       ON  DONHANGXUAT
@@ -459,18 +476,18 @@ BEGIN
       AND X.MADONHANG = inserted.MADONHANG
 
       --cập nhật số lượng tồn kho
-      DECLARE @MINNGAYHETHAN DATE
-      SELECT @MINNGAYHETHAN = MIN(NGAYHETHAN) FROM KHOHANG, inserted WHERE KHOHANG.MATHUOC = inserted.THUOC
+      DECLARE @NHHUUTIEN DATE
+      SELECT @NHHUUTIEN = MIN(NGAYHETHAN) FROM KHOHANG, inserted WHERE KHOHANG.MATHUOC = inserted.THUOC
 
       DECLARE @TONKHOUUTIEN INT
-      SELECT @TONKHOUUTIEN = TONKHO FROM KHOHANG, inserted WHERE NGAYHETHAN = @MINNGAYHETHAN AND KHOHANG.MATHUOC = inserted.THUOC
+      SELECT @TONKHOUUTIEN = TONKHO FROM KHOHANG, inserted WHERE NGAYHETHAN = @NHHUUTIEN AND KHOHANG.MATHUOC = inserted.THUOC
 
       IF @TONKHOUUTIEN > (SELECT SOLUONG FROM inserted)
       BEGIN
             UPDATE KHOHANG
             SET TONKHO -= inserted.SOLUONG
             FROM inserted JOIN KHOHANG
-            ON NGAYHETHAN = @MINNGAYHETHAN
+            ON NGAYHETHAN = @NHHUUTIEN
             AND KHOHANG.MATHUOC = inserted.THUOC
       END
 
@@ -482,12 +499,12 @@ BEGIN
             ON KHOHANG.MATHUOC = inserted.THUOC
             AND NGAYHETHAN = (
                   SELECT MIN(NGAYHETHAN) FROM KHOHANG K
-                  WHERE K.NGAYHETHAN != @MINNGAYHETHAN
+                  WHERE K.NGAYHETHAN != @NHHUUTIEN
                   AND KHOHANG.MATHUOC = K.MATHUOC
             )
 
             DELETE KHOHANG
-            WHERE NGAYHETHAN = @MINNGAYHETHAN
+            WHERE NGAYHETHAN = @NHHUUTIEN
             AND KHOHANG.MATHUOC = (SELECT THUOC FROM inserted)
       END
 END
@@ -538,12 +555,17 @@ VALUES ('N001', N'Chế phẩm sinh học'),
 
 --thêm dữ liệu cho bảng nhà cung cấp
 INSERT INTO NHACUNGCAP(MANCC, TENNCC, DIACHI, DIENTHOAI)
-VALUES ('3600278732', N'Công ty TNHH Minh Huy', N'Số 528 đường 21 tháng 4, Phường Xuân Bình, Thành phố Long khánh, Đồng Nai', '02513876071'),
-       ('0311987413', N'Công ty cổ phần Sài Gòn V.E.T', N'Số 315 đường Nam Kỳ Khởi Nghĩa, Phường 17, Quận 3, TP.HCM', '0838466888'),
-       ('0102137268', N'Công ty cổ phần thuốc thú y Toàn Thắng', N'Số 9 A3, đường Láng, Phường Láng Thượng, Đống Đa, Hà Nội', '0102137268'),
-       ('0105298457', N'Công ty đầu tư và phát triển công nghệ Sakan VN', N'Lô D1+D2+D3+D4, Xã Đông Thọ, Yên Phong, Bắc Ninh', '0105298457'),
-       ('0301460240', N'Công ty TM & SX thuốc thú Thịnh Á', N'220 Phạm Thế Hiển, Phường 2, Quận 8, Thành phố Hồ Chí Minh', '02838515503'),
-       ('0305110871', N'Công ty cổ phần UV', N'Lô số 18, Đường D1, khu công nghiệp An Hạ, Xã Phạm Văn Hai, Bình Chánh, TP.HCM', '02837685370')
+      VALUES ('3600278732', N'Công ty TNHH Minh Huy', N'Số 528 đường 21 tháng 4, Phường Xuân Bình, Thành phố Long khánh, Đồng Nai', '02513876071')
+INSERT INTO NHACUNGCAP(MANCC, TENNCC, DIACHI, DIENTHOAI)
+      VALUES ('0311987413', N'Công ty cổ phần Sài Gòn V.E.T', N'Số 315 đường Nam Kỳ Khởi Nghĩa, Phường 17, Quận 3, TP.HCM', '0838466888')
+INSERT INTO NHACUNGCAP(MANCC, TENNCC, DIACHI, DIENTHOAI)
+      VALUES ('0102137268', N'Công ty cổ phần thuốc thú y Toàn Thắng', N'Số 9 A3, đường Láng, Phường Láng Thượng, Đống Đa, Hà Nội', '0102137268')
+INSERT INTO NHACUNGCAP(MANCC, TENNCC, DIACHI, DIENTHOAI)
+      VALUES ('0105298457', N'Công ty đầu tư và phát triển công nghệ Sakan VN', N'Lô D1+D2+D3+D4, Xã Đông Thọ, Yên Phong, Bắc Ninh', '0105298457')
+INSERT INTO NHACUNGCAP(MANCC, TENNCC, DIACHI, DIENTHOAI)
+      VALUES ('0301460240', N'Công ty TM & SX thuốc thú Thịnh Á', N'220 Phạm Thế Hiển, Phường 2, Quận 8, Thành phố Hồ Chí Minh', '02838515503')
+INSERT INTO NHACUNGCAP(MANCC, TENNCC, DIACHI, DIENTHOAI)
+      VALUES ('0305110871', N'Công ty cổ phần UV', N'Lô số 18, Đường D1, khu công nghiệp An Hạ, Xã Phạm Văn Hai, Bình Chánh, TP.HCM', '02837685370')
 
 --thêm dữ liệu cho bảng thuốc
 INSERT INTO THUOC(MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG)
