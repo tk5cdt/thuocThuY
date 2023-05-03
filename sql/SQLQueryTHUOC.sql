@@ -252,15 +252,36 @@ BEGIN
 END
 GO
 
+--tạo trigger khi thêm dữ liệu vào bảng NHOMTHUOC
+CREATE TRIGGER TRG_INSERT_NHOMTHUOC
+      ON NHOMTHUOC
+      FOR INSERT
+AS
+BEGIN
+      --reset giá trị số lượng bằng 0 khi người dùng nhập dữ liệu khác
+      IF (SELECT SOLUONG FROM inserted) != 0
+      BEGIN
+            PRINT N'SỐ LƯỢNG THUỐC CỦA NHÓM TRONG KHO HÀNG SẼ ĐƯỢC TỰ ĐỘNG CẬP NHẬT TRONG QUÁ TRÌNH NHẬP XUẤT THUỐC'
+            PRINT N'RESET SỐ LƯỢNG = 0'
+            UPDATE NHOMTHUOC
+            SET SOLUONG = 0
+            FROM inserted
+            WHERE NHOMTHUOC.MANHOM = inserted.MANHOM
+      END
+END
+GO
+
+--tạo trigger khi them dữ liệu vào bảng NHACUNGCAP
 CREATE TRIGGER TRG_INSERT_NCC
       ON NHACUNGCAP
       FOR INSERT
 AS
 BEGIN
+      --reset giá trị công nợ bằng 0 khi người dùng nhập dữ liệu khác
       IF (SELECT CONGNO FROM inserted) != 0
       BEGIN
             PRINT N'CÔNG NỢ SẼ ĐƯỢC TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG NHẬP'
-            PRINT N'RESET CÔNG NỢ'
+            PRINT N'RESET CÔNG NỢ = 0'
             UPDATE NHACUNGCAP
             SET CONGNO = 0
             FROM inserted
@@ -269,10 +290,59 @@ BEGIN
 END
 GO
 
--- tạo trigger khi thêm dữ liệu vào bảng DONHANGXUAT
+--tạo trigger khi thêm dữ liệu vào bảng KHACHHANG
+CREATE TRIGGER TRG_INSERT_KHACHHANG
+      ON KHACHHANG
+      FOR INSERT
+AS
+BEGIN
+      --reset giá trị công nợ bằng 0 khi người dùng nhập dữ liệu khác
+      IF (SELECT CONGNO FROM inserted) != 0
+      BEGIN
+            PRINT N'CÔNG NỢ SẼ ĐƯỢC TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG NHẬP'
+            PRINT N'RESET CÔNG NỢ = 0'
+            UPDATE KHACHHANG
+            SET CONGNO = 0
+            FROM inserted
+            WHERE KHACHHANG.MAKH = inserted.MAKH
+      END
+END
+GO
+
+--tạo trigger khi thêm dữ liệu vào bảng DONHANGXUAT
 CREATE TRIGGER TRG_INSERT_DONHANGXUAT
+      ON DONHANGXUAT
+      FOR INSERT
+AS
+BEGIN
+      --reset giá trị tổng tiền về 0 khi người dùng nhập giá trị khác
+      IF(SELECT TONGTIEN FROM inserted) !=0
+      BEGIN
+            PRINT N'TỔNG TIỀN SẼ ĐƯỢC HỆ THỐNG TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG'
+            PRINT N'RESET TỔNG TIỀN'
+            UPDATE DONHANGXUAT
+            SET TONGTIEN = 0
+            FROM inserted
+            WHERE DONHANGXUAT.MADONHANG = inserted.MADONHANG
+      END
+
+      --reset giá trị công nợ về 0 khi người dùng nhập giá trị khác
+      IF(SELECT CONGNO FROM inserted) != 0
+      BEGIN
+            PRINT N'CÔNG NỢ SẼ ĐƯỢC HỆ THỐNG TỰ ĐỘNG CẬP NHẬT'
+            PRINT N'RESET CÔNG NỢ'
+            UPDATE DONHANGXUAT
+            SET CONGNO = 0
+            FROM inserted
+            WHERE DONHANGXUAT.MADONHANG = inserted.MADONHANG
+      END
+END
+GO
+
+-- tạo trigger khi thay đổi dữ liệu trong bảng DONHANGXUAT
+CREATE TRIGGER TRG_UPDATE_DONHANGXUAT
       ON  DONHANGXUAT
-      AFTER INSERT, UPDATE
+      FOR UPDATE
 AS
 BEGIN
       --cập nhật công nợ cho đơn hàng vừa thêm
@@ -292,10 +362,40 @@ BEGIN
 END
 GO
 
--- tạo trigger khi thay đổi dữ liệu của bảng DONHANGNHAP
+--tạo trigger khi thêm dữ liệu vào bảng DONHANGNHAP
 CREATE TRIGGER TRG_INSERT_DONHANGNHAP
+      ON DONHANGNHAP
+      FOR INSERT
+AS
+BEGIN
+      --reset giá trị tổng tiền về 0 khi người dùng nhập giá trị khác
+      IF(SELECT TONGTIEN FROM inserted) !=0
+      BEGIN
+            PRINT N'TỔNG TIỀN SẼ ĐƯỢC HỆ THỐNG TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG'
+            PRINT N'RESET TỔNG TIỀN'
+            UPDATE DONHANGNHAP
+            SET TONGTIEN = 0
+            FROM inserted
+            WHERE DONHANGNHAP.MADONHANG = inserted.MADONHANG
+      END
+
+      --reset giá trị công nợ về 0 khi người dùng nhập giá trị khác
+      IF(SELECT CONGNO FROM inserted) != 0
+      BEGIN
+            PRINT N'CÔNG NỢ SẼ ĐƯỢC HỆ THỐNG TỰ ĐỘNG CẬP NHẬT'
+            PRINT N'RESET CÔNG NỢ'
+            UPDATE DONHANGNHAP
+            SET CONGNO = 0
+            FROM inserted
+            WHERE DONHANGNHAP.MADONHANG = inserted.MADONHANG
+      END
+END
+GO
+
+-- tạo trigger khi thay đổi dữ liệu trong bảng DONHANGNHAP
+CREATE TRIGGER TRG_UPDATE_DONHANGNHAP
       ON  DONHANGNHAP
-      AFTER INSERT, UPDATE
+      AFTER UPDATE
 AS
 BEGIN
       --cập nhật công nợ của đơn hàng vừa thêm
@@ -335,7 +435,7 @@ GO
 --tạo trigger khi thêm dữ liệu cho bảng NHAPTHUOC
 CREATE TRIGGER TRG_INSERT_NHAPTHUOC
       ON NHAPTHUOC
-      FOR INSERT, UPDATE
+      FOR INSERT
 AS
 BEGIN
       --kiểm tra mã thuốc thuộc nhà cung cấp
@@ -351,6 +451,29 @@ BEGIN
       BEGIN
             PRINT N'THUỐC KHÔNG NẰM TRONG DANH MỤC THUỐC ĐƯỢC CUNG CẤP BỞI NHÀ CUNG CẤP THEO ĐƠN HÀNG!'
             PRINT N'VUI LÒNG KIỂM TRA LẠI!'
+            DELETE NHAPTHUOC
+            FROM inserted
+            WHERE NHAPTHUOC.MADONHANG = inserted.MADONHANG
+            AND NHAPTHUOC.THUOC = inserted.THUOC
+      END
+
+      ELSE IF(SELECT NGAYSX FROM inserted) > (
+            SELECT NGAYLAP FROM DONHANGNHAP, inserted
+            WHERE inserted.MADONHANG = DONHANGNHAP.MADONHANG
+      )
+      BEGIN
+            PRINT N'NGÀY SẢN XUẤT KHÔNG HỢP LỆ!'
+            PRINT N'VUI LÒNG KIỂM TRA LẠI!'
+            DELETE NHAPTHUOC
+            FROM inserted
+            WHERE NHAPTHUOC.MADONHANG = inserted.MADONHANG
+            AND NHAPTHUOC.THUOC = inserted.THUOC
+      END
+
+      ELSE IF(SELECT NGAYHETHAN FROM inserted) <= GETDATE()
+      BEGIN
+            PRINT N'SẢN PHẨM ĐÃ QUÁ HẠN SỬ DỤNG!'
+            PRINT N'VUI LÒNG KIỂM TRA LẠI VỚI NHÀ CUNG CẤP!'
             DELETE NHAPTHUOC
             FROM inserted
             WHERE NHAPTHUOC.MADONHANG = inserted.MADONHANG
@@ -379,6 +502,17 @@ BEGIN
             AND NHAPTHUOC.THUOC = inserted.THUOC
 
             --cập nhật dữ liệu cho thuộc tính thành tiền của bảng nhập thuốc
+            IF(SELECT THANHTIEN FROM inserted)!= NULL
+            BEGIN
+                  PRINT N'THÀNH TIỀN SẼ ĐƯỢC HỆ THỐNG TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG'
+                  PRINT N'UPDATE THÀNH TIỀN'
+                  UPDATE NHAPTHUOC
+                  SET THANHTIEN = 0
+                  FROM inserted
+                  WHERE NHAPTHUOC.MADONHANG = inserted.MADONHANG
+                  AND NHAPTHUOC.THUOC = inserted.THUOC
+            END
+
             UPDATE NHAPTHUOC
             SET THANHTIEN = inserted.SOLUONG * GIANHAP
             FROM NHAPTHUOC, THUOC T, inserted
@@ -438,6 +572,17 @@ BEGIN
       AND XUATTHUOC.THUOC = inserted.THUOC
 
       --cập nhật thành tiền
+      IF(SELECT THANHTIEN FROM inserted)!= NULL
+      BEGIN
+            PRINT N'THÀNH TIỀN SẼ ĐƯỢC HỆ THỐNG TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG'
+            PRINT N'UPDATE THÀNH TIỀN'
+            UPDATE XUATTHUOC
+            SET THANHTIEN = 0
+            FROM inserted
+            WHERE XUATTHUOC.MADONHANG = inserted.MADONHANG
+            AND XUATTHUOC.THUOC = inserted.THUOC
+      END
+
       UPDATE XUATTHUOC
       SET THANHTIEN = inserted.SOLUONG * (
             CASE 
@@ -510,7 +655,7 @@ BEGIN
 END
 GO
 
---tạo trigger khi xóa dữ liệu trong bảng xuất thuốc
+--tạo trigger khi xóa dữ liệu trong bảng XUATTHUOC
 CREATE TRIGGER TRG_DELETE_XUATTHUOC
       ON XUATTHUOC
       FOR DELETE
@@ -527,6 +672,7 @@ BEGIN
 END
 GO
 
+--tạo trigger khi xóa dữ liệu trong bảng KHOHANG
 CREATE TRIGGER TRG_DELETE_KHOHANG
       ON KHOHANG
       FOR DELETE
@@ -546,12 +692,16 @@ GO
 ---------------------------------------------THÊM DỮ LIỆU CHO CÁC BẢNG-----------------------------------------------
 
 --thêm dữ liệu cho bảng nhóm thuốc
-INSERT INTO NHOMTHUOC(MANHOM, TENNHOM)
-VALUES ('N001', N'Chế phẩm sinh học'),
-       ('N002', N'Dược phẩm'),
-       ('N003', N'Vaccine'),
-       ('N004', N'Hóa chất thú y'),
-       ('N005', N'Vi sinh vật')
+INSERT INTO NHOMTHUOC
+      VALUES ('N001', N'Chế phẩm sinh học', 0)
+INSERT INTO NHOMTHUOC
+      VALUES ('N002', N'Dược phẩm', 0)
+INSERT INTO NHOMTHUOC
+      VALUES ('N003', N'Vaccine', 0)
+INSERT INTO NHOMTHUOC
+      VALUES ('N004', N'Hóa chất thú y', 0)
+INSERT INTO NHOMTHUOC
+      VALUES ('N005', N'Vi sinh vật', 0)
 
 --thêm dữ liệu cho bảng nhà cung cấp
 INSERT INTO NHACUNGCAP(MANCC, TENNCC, DIACHI, DIENTHOAI)
@@ -601,13 +751,18 @@ VALUES ('NV001', N'Nguyễn Quốc Thái', '26/12/1989', N'Dược sĩ đại h�
        ('NV004', N'Lê Trương Trọng Tấn', '18/10/1995', N'Dược sĩ đại học', N'18 Tân Thới Nhất 17, Phường Tân Thới Nhất, Quận 12, TP HCM', N'Nam', N'Nhân viên', N'Quản lý')
 
 --thêm dữ liệu cho bảng khách hàng
-INSERT INTO KHACHHANG(MAKH, TENKHACH, DIACHI, DIENTHOAI, LOAIKH)
-VALUES ('KH001', N'Trần Thành Luân', N'48/1 Đỗ Nhuận, Phường Sơn Kỳ, Quận Tân Phú, TP HCM', '0367512498', N'Khách sỉ'),
-       ('KH002', N'Bùi Phan Bảo Ngọc', N'48/1 Đỗ Nhuận, Phường Sơn Kỳ, Quận Tân Phú, TP HCM', '0379699529', N'Khách lẻ'),
-       ('KH003', N'Bùi Phan Bảo Ngọc', N'66/9 Trần Văn Quang, Phường 10, Quận Tân Bình, TP HCM', '0334275096', N'Khách lẻ'),
-       ('KH004', N'Nguyễn Phan Như Quỳnh', N'48/1 Đỗ Nhuận, Phường Sơn Kỳ, Quận Tân Phú, TP HCM', '0913630913', N'Khách sỉ'),
-       ('KH005', N'Huỳnh Vũ Chí Thiện', N'100 Lê Văn Sỹ, Phường 2, Quận Tân Bình, TP HCM', '0908655684', N'Khách sỉ'),
-       ('KH006', N'Khách vãn lai', NULL, NULL, N'Khách lẻ')
+INSERT INTO KHACHHANG
+      VALUES ('KH001', N'Trần Thành Luân', N'48/1 Đỗ Nhuận, Phường Sơn Kỳ, Quận Tân Phú, TP HCM', '0367512498', N'Khách sỉ', 0)
+INSERT INTO KHACHHANG
+      VALUES ('KH002', N'Bùi Phan Bảo Ngọc', N'48/1 Đỗ Nhuận, Phường Sơn Kỳ, Quận Tân Phú, TP HCM', '0379699529', N'Khách lẻ', 0)
+INSERT INTO KHACHHANG
+      VALUES ('KH003', N'Bùi Phan Bảo Ngọc', N'66/9 Trần Văn Quang, Phường 10, Quận Tân Bình, TP HCM', '0334275096', N'Khách lẻ', 0)
+INSERT INTO KHACHHANG
+      VALUES ('KH004', N'Nguyễn Phan Như Quỳnh', N'48/1 Đỗ Nhuận, Phường Sơn Kỳ, Quận Tân Phú, TP HCM', '0913630913', N'Khách sỉ', 0)
+INSERT INTO KHACHHANG
+      VALUES ('KH005', N'Huỳnh Vũ Chí Thiện', N'100 Lê Văn Sỹ, Phường 2, Quận Tân Bình, TP HCM', '0908655684', N'Khách sỉ', 0)
+INSERT INTO KHACHHANG
+      VALUES ('KH006', N'Khách vãn lai', NULL, NULL, N'Khách lẻ', 0)
 
 --thêm dữ liệu cho bảng đơn hàng nhập
 INSERT INTO DONHANGNHAP(MADONHANG, MANCC, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
@@ -907,7 +1062,6 @@ INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
       VALUES ('DX030', 'HCM-X2-16', 3)
 INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
       VALUES ('DX030', 'HCM-X2-164', 1)
-
 
 -- SELECT * FROM THUOC
 -- SELECT * FROM NHOMTHUOC 
