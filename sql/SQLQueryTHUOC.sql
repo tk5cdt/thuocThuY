@@ -210,10 +210,6 @@ GO
 ALTER TABLE NHAPTHUOC
 ADD CONSTRAINT CK_NGAYHETHAN CHECK (NGAYHETHAN > NGAYSX)
 
---tạo điều kiện ngày sản xuất của kho hàng
-ALTER TABLE NHAPTHUOC
-ADD CONSTRAINT CK_NGAYSANXUAT CHECK (NGAYLAP > NGAYSX)
-
 --tạo điều kiện số lượng của bảng xuất thuốc
 ALTER TABLE XUATTHUOC
 ADD CONSTRAINT CK_XUATTHUOC_SOLUONG CHECK( SOLUONG > 0)
@@ -251,8 +247,8 @@ BEGIN
       UPDATE THUOC
       SET GIASI = inserted.GIANHAP + inserted.GIANHAP * 7/100,
           GIALE = inserted.GIANHAP + inserted.GIANHAP * 10/100
-      FROM THUOC, inserted
-      WHERE THUOC.MATHUOC = inserted.MATHUOC
+      FROM THUOC JOIN inserted
+      ON THUOC.MATHUOC = inserted.MATHUOC
 END
 GO
 
@@ -265,17 +261,17 @@ BEGIN
       --cập nhật công nợ cho đơn hàng vừa thêm
       UPDATE DONHANGXUAT
       SET CONGNO = inserted.TONGTIEN - inserted.DATHANHTOAN
-      FROM DONHANGXUAT, inserted
-      WHERE inserted.TRANGTHAIDH = N'Đã giao'
+      FROM DONHANGXUAT JOIN inserted
+      ON inserted.TRANGTHAIDH = N'Đã giao'
       AND inserted.MADONHANG = DONHANGXUAT.MADONHANG
 
       --cập nhật công nợ của khách hàng với cửa hàng
       UPDATE KHACHHANG
       SET CONGNO = (
-      SELECT SUM(CONGNO)
-      FROM DONHANGXUAT
-      WHERE KHACHHANG.MAKH = DONHANGXUAT.MAKH
-)
+            SELECT SUM(CONGNO)
+            FROM DONHANGXUAT
+            WHERE KHACHHANG.MAKH = DONHANGXUAT.MAKH
+      )
 END
 GO
 
@@ -287,18 +283,18 @@ AS
 BEGIN
       --cập nhật công nợ của đơn hàng vừa thêm
       UPDATE DONHANGNHAP
-            SET CONGNO = inserted.TONGTIEN - inserted.DATHANHTOAN
-      FROM DONHANGNHAP, inserted
-      WHERE inserted.TRANGTHAIDH = N'Đã nhận'
+      SET CONGNO = inserted.TONGTIEN - inserted.DATHANHTOAN
+      FROM DONHANGNHAP JOIN inserted
+      ON inserted.TRANGTHAIDH = N'Đã nhận'
       AND inserted.MADONHANG = DONHANGNHAP.MADONHANG
 
       --cập nhật công nợ của nhà cung cấp với cửa hàng
       UPDATE NHACUNGCAP
       SET CONGNO = (
-      SELECT SUM(CONGNO)
-      FROM DONHANGNHAP
-      WHERE NHACUNGCAP.MANCC = DONHANGNHAP.MANCC
-)
+            SELECT SUM(CONGNO)
+            FROM DONHANGNHAP
+            WHERE NHACUNGCAP.MANCC = DONHANGNHAP.MANCC
+      )
 END
 GO
 
@@ -311,10 +307,10 @@ BEGIN
       --cập nhật lại số lượng của nhóm thuốc
       UPDATE NHOMTHUOC
       SET NHOMTHUOC.SOLUONG -= deleted.SOLUONG
-      FROM NHOMTHUOC INNER JOIN deleted
+      FROM NHOMTHUOC JOIN deleted
       ON deleted.THUOC IN (
-            SELECT MATHUOC FROM THUOC
-            WHERE THUOC.MANHOM = NHOMTHUOC.MANHOM
+            SELECT MATHUOC FROM THUOC T
+            WHERE T.MANHOM = NHOMTHUOC.MANHOM
       )
 END
 GO
@@ -327,10 +323,10 @@ AS
 BEGIN
       --kiểm tra mã thuốc thuộc nhà cung cấp
       IF (SELECT THUOC FROM inserted) NOT IN (
-            SELECT MATHUOC FROM THUOC
-            WHERE THUOC.MANCC = (
-                  SELECT MANCC FROM DONHANGNHAP
-                  WHERE DONHANGNHAP.MADONHANG = (
+            SELECT MATHUOC FROM THUOC T
+            WHERE T.MANCC = (
+                  SELECT MANCC FROM DONHANGNHAP D
+                  WHERE D.MADONHANG = (
                         SELECT MADONHANG FROM inserted
                   )
             )
@@ -351,8 +347,8 @@ BEGIN
             SET NHOMTHUOC.SOLUONG += inserted.SOLUONG
             FROM NHOMTHUOC INNER JOIN inserted
             ON inserted.THUOC IN (
-                  SELECT MATHUOC FROM THUOC
-                  WHERE THUOC.MANHOM = NHOMTHUOC.MANHOM
+                  SELECT MATHUOC FROM THUOC T
+                  WHERE T.MANHOM = NHOMTHUOC.MANHOM
             )
 
             --cập nhật dữ liệu cho thuộc tính đơn vị tính của bảng nhập thuốc
@@ -361,25 +357,25 @@ BEGIN
                   SELECT QCDONGGOI FROM THUOC T
                   WHERE NHAPTHUOC.THUOC = T.MATHUOC
             )
-            FROM NHAPTHUOC, inserted
-            WHERE NHAPTHUOC.MADONHANG = inserted.MADONHANG
+            FROM NHAPTHUOC JOIN inserted
+            ON NHAPTHUOC.MADONHANG = inserted.MADONHANG
             AND NHAPTHUOC.THUOC = inserted.THUOC
 
             --cập nhật dữ liệu cho thuộc tính thành tiền của bảng nhập thuốc
             UPDATE NHAPTHUOC
             SET THANHTIEN = inserted.SOLUONG * GIANHAP
-            FROM NHAPTHUOC, THUOC, inserted
+            FROM NHAPTHUOC, THUOC T, inserted
             WHERE NHAPTHUOC.MADONHANG = inserted.MADONHANG
             AND NHAPTHUOC.THUOC = inserted.THUOC
-            AND NHAPTHUOC.THUOC = THUOC.MATHUOC
+            AND NHAPTHUOC.THUOC = T.MATHUOC
 
             --cập nhật tổng tiền cho bảng đơn hàng nhập
             UPDATE DONHANGNHAP
-                  SET TONGTIEN = TONGTIEN + NHAPTHUOC.THANHTIEN
-            FROM DONHANGNHAP, inserted, NHAPTHUOC
+            SET TONGTIEN = TONGTIEN + N.THANHTIEN
+            FROM DONHANGNHAP, inserted, NHAPTHUOC N
             WHERE DONHANGNHAP.MADONHANG = inserted.MADONHANG
-            AND NHAPTHUOC.THUOC = inserted.THUOC
-            AND NHAPTHUOC.MADONHANG = inserted.MADONHANG
+            AND N.THUOC = inserted.THUOC
+            AND N.MADONHANG = inserted.MADONHANG
 
             --thêm dữ liệu vào kho hàng
             INSERT INTO KHOHANG (MATHUOC, DONNHAP, TONKHO, NGAYHETHAN)
@@ -387,11 +383,10 @@ BEGIN
                   (
                         SELECT THUOC FROM inserted
                   ),(
-                        SELECT MADONHANG FROM DONHANGNHAP
-                        WHERE DONHANGNHAP.MADONHANG = (SELECT MADONHANG FROM inserted)
+                        SELECT MADONHANG FROM DONHANGNHAP D
+                        WHERE D.MADONHANG = (SELECT MADONHANG FROM inserted)
                   ), (
-                        SELECT inserted.SOLUONG
-                        FROM inserted   
+                        SELECT SOLUONG FROM inserted   
                   ), (
                         SELECT NGAYHETHAN FROM inserted
                   )
@@ -411,8 +406,8 @@ BEGIN
       SET NHOMTHUOC.SOLUONG -= inserted.SOLUONG
       FROM NHOMTHUOC INNER JOIN inserted
       ON inserted.THUOC IN (
-            SELECT MATHUOC FROM THUOC
-            WHERE THUOC.MANHOM = NHOMTHUOC.MANHOM
+            SELECT MATHUOC FROM THUOC T
+            WHERE T.MANHOM = NHOMTHUOC.MANHOM
       )
 
       --cập nhật dữ liệu cho thuộc tính đơn vị tính của bảng xuất
@@ -421,8 +416,8 @@ BEGIN
             SELECT QCDONGGOI FROM THUOC T
             WHERE XUATTHUOC.THUOC = T.MATHUOC
       )
-      FROM inserted
-      WHERE XUATTHUOC.MADONHANG = inserted.MADONHANG
+      FROM inserted JOIN XUATTHUOC
+      ON XUATTHUOC.MADONHANG = inserted.MADONHANG
       AND XUATTHUOC.THUOC = inserted.THUOC
 
       --cập nhật thành tiền
@@ -451,17 +446,17 @@ BEGIN
                   )
             END
       )
-      FROM inserted
-      WHERE XUATTHUOC.MADONHANG = inserted.MADONHANG
+      FROM inserted JOIN XUATTHUOC
+      ON XUATTHUOC.MADONHANG = inserted.MADONHANG
       AND XUATTHUOC.THUOC = inserted.THUOC
 
       -- cập nhật lại tổng tiền của đơn hàng
       UPDATE DONHANGXUAT
-      SET TONGTIEN = TONGTIEN + XUATTHUOC.THANHTIEN
-      FROM DONHANGXUAT, inserted, XUATTHUOC
+      SET TONGTIEN = TONGTIEN + X.THANHTIEN
+      FROM DONHANGXUAT, inserted, XUATTHUOC X
       WHERE DONHANGXUAT.MADONHANG = inserted.MADONHANG
-      AND XUATTHUOC.THUOC = inserted.THUOC
-      AND XUATTHUOC.MADONHANG = inserted.MADONHANG
+      AND X.THUOC = inserted.THUOC
+      AND X.MADONHANG = inserted.MADONHANG
 
       --cập nhật số lượng tồn kho
       DECLARE @MINNGAYHETHAN DATE
@@ -474,8 +469,8 @@ BEGIN
       BEGIN
             UPDATE KHOHANG
             SET TONKHO -= inserted.SOLUONG
-            FROM inserted
-            WHERE NGAYHETHAN = @MINNGAYHETHAN
+            FROM inserted JOIN KHOHANG
+            ON NGAYHETHAN = @MINNGAYHETHAN
             AND KHOHANG.MATHUOC = inserted.THUOC
       END
 
@@ -483,8 +478,8 @@ BEGIN
       BEGIN
             UPDATE KHOHANG
             SET TONKHO = TONKHO - inserted.SOLUONG + @TONKHOUUTIEN
-            FROM inserted
-            WHERE KHOHANG.MATHUOC = inserted.THUOC
+            FROM inserted JOIN KHOHANG
+            ON KHOHANG.MATHUOC = inserted.THUOC
             AND NGAYHETHAN = (
                   SELECT MIN(NGAYHETHAN) FROM KHOHANG K
                   WHERE K.NGAYHETHAN != @MINNGAYHETHAN
@@ -509,6 +504,22 @@ BEGIN
       SET NHOMTHUOC.SOLUONG -= deleted.SOLUONG
       FROM NHOMTHUOC INNER JOIN deleted
       ON deleted.THUOC IN (
+            SELECT MATHUOC FROM THUOC
+            WHERE THUOC.MANHOM = NHOMTHUOC.MANHOM
+      )
+END
+GO
+
+CREATE TRIGGER TRG_DELETE_KHOHANG
+      ON KHOHANG
+      FOR DELETE
+AS
+BEGIN
+      --cập nhật lại số lượng của nhóm thuốc
+      UPDATE NHOMTHUOC
+      SET NHOMTHUOC.SOLUONG -= deleted.TONKHO
+      FROM NHOMTHUOC INNER JOIN deleted
+      ON deleted.MATHUOC IN (
             SELECT MATHUOC FROM THUOC
             WHERE THUOC.MANHOM = NHOMTHUOC.MANHOM
       )
@@ -885,3 +896,6 @@ INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
 -- SELECT * FROM NHAPTHUOC
 -- SELECT * FROM XUATTHUOC
 -- SELECT * FROM KHOHANG ORDER BY NGAYHETHAN
+
+BEGIN TRANSACTION
+ROLLBACK
