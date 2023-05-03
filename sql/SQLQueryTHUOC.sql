@@ -1,4 +1,4 @@
-      --tạo database
+--tạo database
 CREATE DATABASE QL_NHATHUOCTY
 GO
 
@@ -13,6 +13,8 @@ SET DATEFORMAT DMY
 
 --khởi tạo quỹ tại cửa hàng
 DECLARE @quy MONEY = 120000000
+
+---------------------------------------------TẠO CÁC BẢNG-----------------------------------------------
 
 --tạo bảng thuốc
 CREATE TABLE THUOC
@@ -140,6 +142,7 @@ CREATE TABLE KHOHANG
       PRIMARY KEY(MATHUOC, DONNHAP, TONKHO)
 )
 
+---------------------------------------------TẠO RÀNG BUỘC KHÓA NGOẠI-----------------------------------------------
 
 --tạo khóa ngoại bảng thuốc và nhóm thuốc
 ALTER TABLE THUOC
@@ -201,9 +204,15 @@ ADD CONSTRAINT FK_NHAPTHUOC_THUOC FOREIGN KEY(THUOC)
 REFERENCES THUOC(MATHUOC)
 GO
 
+---------------------------------------------TẠO RÀNG BUỘC CHECK-----------------------------------------------
+
 --tạo điều kiện ngày hết hạn của kho hàng
 ALTER TABLE NHAPTHUOC
 ADD CONSTRAINT CK_NGAYHETHAN CHECK (NGAYHETHAN > NGAYSX)
+
+--tạo điều kiện ngày sản xuất của kho hàng
+ALTER TABLE NHAPTHUOC
+ADD CONSTRAINT CK_NGAYSANXUAT CHECK (NGAYLAP > NGAYSX)
 
 --tạo điều kiện số lượng của bảng xuất thuốc
 ALTER TABLE XUATTHUOC
@@ -229,6 +238,8 @@ ADD CONSTRAINT CK_KHACHHANG_LOAIKH CHECK (LOAIKH = N'Khách lẻ' OR LOAIKH = N'
 ALTER TABLE NHANVIEN 
 ADD CONSTRAINT CK_NHANVIEN_PHAI CHECK (PHAI = N'Nam' OR PHAI = N'Nữ')
 GO
+
+---------------------------------------------TẠO TRIGGER-----------------------------------------------
 
 -- tạo trigger khi thêm dữ liệu vào bảng THUOC
 CREATE TRIGGER TRG_INSERT_THUOC
@@ -270,21 +281,21 @@ GO
 
 -- tạo trigger khi thay đổi dữ liệu của bảng DONHANGNHAP
 CREATE TRIGGER TRG_INSERT_DONHANGNHAP
-ON  DONHANGNHAP
-AFTER INSERT, UPDATE
+      ON  DONHANGNHAP
+      AFTER INSERT, UPDATE
 AS
 BEGIN
---cập nhật công nợ của đơn hàng vừa thêm
-UPDATE DONHANGNHAP
-      SET CONGNO = inserted.TONGTIEN - inserted.DATHANHTOAN
-FROM DONHANGNHAP, inserted
-WHERE inserted.TRANGTHAIDH = N'Đã nhận'
-AND inserted.MADONHANG = DONHANGNHAP.MADONHANG
+      --cập nhật công nợ của đơn hàng vừa thêm
+      UPDATE DONHANGNHAP
+            SET CONGNO = inserted.TONGTIEN - inserted.DATHANHTOAN
+      FROM DONHANGNHAP, inserted
+      WHERE inserted.TRANGTHAIDH = N'Đã nhận'
+      AND inserted.MADONHANG = DONHANGNHAP.MADONHANG
 
       --cập nhật công nợ của nhà cung cấp với cửa hàng
       UPDATE NHACUNGCAP
       SET CONGNO = (
-      SELECT SUM(DONHANGNHAP.CONGNO)
+      SELECT SUM(CONGNO)
       FROM DONHANGNHAP
       WHERE NHACUNGCAP.MANCC = DONHANGNHAP.MANCC
 )
@@ -293,8 +304,8 @@ GO
 
 --tạo trigger khi xóa dữ liệu của bang NHAPTHUOC
 CREATE TRIGGER TRG_DELETE_NHAPTHUOC
-ON NHAPTHUOC
-FOR DELETE
+      ON NHAPTHUOC
+      FOR DELETE
 AS
 BEGIN
       --cập nhật lại số lượng của nhóm thuốc
@@ -314,56 +325,78 @@ CREATE TRIGGER TRG_INSERT_NHAPTHUOC
       FOR INSERT, UPDATE
 AS
 BEGIN
-      --cập nhật lại số lượng của nhóm thuốc
-      UPDATE NHOMTHUOC
-      SET NHOMTHUOC.SOLUONG += inserted.SOLUONG
-      FROM NHOMTHUOC INNER JOIN inserted
-      ON inserted.THUOC IN (
+      --kiểm tra mã thuốc thuộc nhà cung cấp
+      IF (SELECT THUOC FROM inserted) NOT IN (
             SELECT MATHUOC FROM THUOC
-            WHERE THUOC.MANHOM = NHOMTHUOC.MANHOM
-      )
-
-      --cập nhật dữ liệu cho thuộc tính đơn vị tính của bảng nhập thuốc
-      UPDATE NHAPTHUOC
-      SET DONVITINH = (
-            SELECT QCDONGGOI FROM THUOC T
-            WHERE NHAPTHUOC.THUOC = T.MATHUOC
-      )
-      FROM NHAPTHUOC, inserted
-      WHERE NHAPTHUOC.MADONHANG = inserted.MADONHANG
-      AND NHAPTHUOC.THUOC = inserted.THUOC
-
-      --cập nhật dữ liệu cho thuộc tính thành tiền của bảng nhập thuốc
-      UPDATE NHAPTHUOC
-      SET THANHTIEN = inserted.SOLUONG * GIANHAP
-      FROM NHAPTHUOC, THUOC, inserted
-      WHERE NHAPTHUOC.MADONHANG = inserted.MADONHANG
-      AND NHAPTHUOC.THUOC = inserted.THUOC
-      AND NHAPTHUOC.THUOC = THUOC.MATHUOC
-
-      --cập nhật tổng tiền cho bảng đơn hàng nhập
-      UPDATE DONHANGNHAP
-            SET TONGTIEN = TONGTIEN + NHAPTHUOC.THANHTIEN
-      FROM DONHANGNHAP, inserted, NHAPTHUOC
-      WHERE DONHANGNHAP.MADONHANG = inserted.MADONHANG
-      AND NHAPTHUOC.THUOC = inserted.THUOC
-      AND NHAPTHUOC.MADONHANG = inserted.MADONHANG
-
-      --thêm dữ liệu vào kho hàng
-      INSERT INTO KHOHANG (MATHUOC, DONNHAP, TONKHO, NGAYHETHAN)
-      VALUES (
-            (
-                  SELECT THUOC FROM inserted
-            ),(
-                  SELECT MADONHANG FROM DONHANGNHAP
-                  WHERE DONHANGNHAP.MADONHANG = (SELECT MADONHANG FROM inserted)
-            ), (
-                  SELECT inserted.SOLUONG
-                  FROM inserted   
-            ), (
-                  SELECT NGAYHETHAN FROM inserted
+            WHERE THUOC.MANCC = (
+                  SELECT MANCC FROM DONHANGNHAP
+                  WHERE DONHANGNHAP.MADONHANG = (
+                        SELECT MADONHANG FROM inserted
+                  )
             )
       )
+      BEGIN
+            PRINT N'THUỐC KHÔNG NẰM TRONG DANH MỤC THUỐC ĐƯỢC CUNG CẤP BỞI NHÀ CUNG CẤP THEO ĐƠN HÀNG!'
+            PRINT N'VUI LÒNG KIỂM TRA LẠI!'
+            DELETE NHAPTHUOC
+            FROM inserted
+            WHERE NHAPTHUOC.MADONHANG = inserted.MADONHANG
+            AND NHAPTHUOC.THUOC = inserted.THUOC
+      END
+
+      ELSE
+      BEGIN
+            --cập nhật lại số lượng của nhóm thuốc
+            UPDATE NHOMTHUOC
+            SET NHOMTHUOC.SOLUONG += inserted.SOLUONG
+            FROM NHOMTHUOC INNER JOIN inserted
+            ON inserted.THUOC IN (
+                  SELECT MATHUOC FROM THUOC
+                  WHERE THUOC.MANHOM = NHOMTHUOC.MANHOM
+            )
+
+            --cập nhật dữ liệu cho thuộc tính đơn vị tính của bảng nhập thuốc
+            UPDATE NHAPTHUOC
+            SET DONVITINH = (
+                  SELECT QCDONGGOI FROM THUOC T
+                  WHERE NHAPTHUOC.THUOC = T.MATHUOC
+            )
+            FROM NHAPTHUOC, inserted
+            WHERE NHAPTHUOC.MADONHANG = inserted.MADONHANG
+            AND NHAPTHUOC.THUOC = inserted.THUOC
+
+            --cập nhật dữ liệu cho thuộc tính thành tiền của bảng nhập thuốc
+            UPDATE NHAPTHUOC
+            SET THANHTIEN = inserted.SOLUONG * GIANHAP
+            FROM NHAPTHUOC, THUOC, inserted
+            WHERE NHAPTHUOC.MADONHANG = inserted.MADONHANG
+            AND NHAPTHUOC.THUOC = inserted.THUOC
+            AND NHAPTHUOC.THUOC = THUOC.MATHUOC
+
+            --cập nhật tổng tiền cho bảng đơn hàng nhập
+            UPDATE DONHANGNHAP
+                  SET TONGTIEN = TONGTIEN + NHAPTHUOC.THANHTIEN
+            FROM DONHANGNHAP, inserted, NHAPTHUOC
+            WHERE DONHANGNHAP.MADONHANG = inserted.MADONHANG
+            AND NHAPTHUOC.THUOC = inserted.THUOC
+            AND NHAPTHUOC.MADONHANG = inserted.MADONHANG
+
+            --thêm dữ liệu vào kho hàng
+            INSERT INTO KHOHANG (MATHUOC, DONNHAP, TONKHO, NGAYHETHAN)
+            VALUES (
+                  (
+                        SELECT THUOC FROM inserted
+                  ),(
+                        SELECT MADONHANG FROM DONHANGNHAP
+                        WHERE DONHANGNHAP.MADONHANG = (SELECT MADONHANG FROM inserted)
+                  ), (
+                        SELECT inserted.SOLUONG
+                        FROM inserted   
+                  ), (
+                        SELECT NGAYHETHAN FROM inserted
+                  )
+            )
+      END
 END
 GO
 
@@ -430,7 +463,7 @@ BEGIN
       AND XUATTHUOC.THUOC = inserted.THUOC
       AND XUATTHUOC.MADONHANG = inserted.MADONHANG
 
-      --cập nhật kho hàng
+      --cập nhật số lượng tồn kho
       DECLARE @MINNGAYHETHAN DATE
       SELECT @MINNGAYHETHAN = MIN(NGAYHETHAN) FROM KHOHANG, inserted WHERE KHOHANG.MATHUOC = inserted.THUOC
 
@@ -481,6 +514,8 @@ BEGIN
       )
 END
 GO
+
+---------------------------------------------THÊM DỮ LIỆU CHO CÁC BẢNG-----------------------------------------------
 
 --thêm dữ liệu cho bảng nhóm thuốc
 INSERT INTO NHOMTHUOC(MANHOM, TENNHOM)
@@ -727,7 +762,8 @@ INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
 INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
       VALUES ('DN016', 'HCM-X2-164', 30, '07/12/2022', '07/12/2023')
 INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
-      VALUES ('DN016', 'HCM-X2-198', 10, '07/12/2022', '07/12/2023')
+      VALUES ('DN016', 'HCM-X2-198', 10, '07/12/2022', '05/12/2023')
+
 
 --thêm dữ liệu cho bảng xuất thuốc
 INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
