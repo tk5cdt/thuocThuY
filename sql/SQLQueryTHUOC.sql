@@ -450,11 +450,11 @@ BEGIN
       )
       BEGIN
             PRINT N'THUỐC KHÔNG NẰM TRONG DANH MỤC THUỐC ĐƯỢC CUNG CẤP BỞI NHÀ CUNG CẤP THEO ĐƠN HÀNG!'
-            PRINT N'VUI LÒNG KIỂM TRA LẠI!'
             DELETE NHAPTHUOC
             FROM inserted
             WHERE NHAPTHUOC.MADONHANG = inserted.MADONHANG
             AND NHAPTHUOC.THUOC = inserted.THUOC
+            PRINT N'THAO TÁC ĐÃ ĐƯỢC GỠ BỎ!'
       END
 
       ELSE IF(SELECT NGAYSX FROM inserted) > (
@@ -463,34 +463,25 @@ BEGIN
       )
       BEGIN
             PRINT N'NGÀY SẢN XUẤT KHÔNG HỢP LỆ!'
-            PRINT N'VUI LÒNG KIỂM TRA LẠI!'
             DELETE NHAPTHUOC
             FROM inserted
             WHERE NHAPTHUOC.MADONHANG = inserted.MADONHANG
             AND NHAPTHUOC.THUOC = inserted.THUOC
+            PRINT N'THAO TÁC ĐÃ ĐƯỢC GỠ BỎ!'
       END
 
       ELSE IF(SELECT NGAYHETHAN FROM inserted) <= GETDATE()
       BEGIN
-            PRINT N'SẢN PHẨM ĐÃ QUÁ HẠN SỬ DỤNG!'
-            PRINT N'VUI LÒNG KIỂM TRA LẠI VỚI NHÀ CUNG CẤP!'
+            PRINT N'SẢN PHẨM ĐÃ QUÁ HẠN SỬ DỤNG! VUI LÒNG KIỂM TRA LẠI VỚI NHÀ CUNG CẤP'
             DELETE NHAPTHUOC
             FROM inserted
             WHERE NHAPTHUOC.MADONHANG = inserted.MADONHANG
             AND NHAPTHUOC.THUOC = inserted.THUOC
+            PRINT N'THAO TÁC ĐÃ ĐƯỢC GỠ BỎ!'
       END
 
-      ELSE
+      ELSE 
       BEGIN
-            --cập nhật lại số lượng của nhóm thuốc
-            UPDATE NHOMTHUOC
-            SET NHOMTHUOC.SOLUONG += inserted.SOLUONG
-            FROM NHOMTHUOC INNER JOIN inserted
-            ON inserted.THUOC IN (
-                  SELECT MATHUOC FROM THUOC T
-                  WHERE T.MANHOM = NHOMTHUOC.MANHOM
-            )
-
             --cập nhật dữ liệu cho thuộc tính đơn vị tính của bảng nhập thuốc
             UPDATE NHAPTHUOC
             SET DONVITINH = (
@@ -505,7 +496,7 @@ BEGIN
             IF(SELECT THANHTIEN FROM inserted)!= NULL
             BEGIN
                   PRINT N'THÀNH TIỀN SẼ ĐƯỢC HỆ THỐNG TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG'
-                  PRINT N'UPDATE THÀNH TIỀN'
+                  PRINT N'UPDATE THÀNH TIỀN = 0'
                   UPDATE NHAPTHUOC
                   SET THANHTIEN = 0
                   FROM inserted
@@ -528,20 +519,33 @@ BEGIN
             AND N.THUOC = inserted.THUOC
             AND N.MADONHANG = inserted.MADONHANG
 
-            --thêm dữ liệu vào kho hàng
-            INSERT INTO KHOHANG (MATHUOC, DONNHAP, TONKHO, NGAYHETHAN)
-            VALUES (
-                  (
-                        SELECT THUOC FROM inserted
-                  ),(
-                        SELECT MADONHANG FROM DONHANGNHAP D
-                        WHERE D.MADONHANG = (SELECT MADONHANG FROM inserted)
-                  ), (
-                        SELECT SOLUONG FROM inserted   
-                  ), (
-                        SELECT NGAYHETHAN FROM inserted
+            IF(SELECT TRANGTHAIDH FROM DONHANGNHAP D, inserted
+                WHERE D.MADONHANG = inserted.MADONHANG) = N'Đã nhận'
+            BEGIN
+                  --cập nhật lại số lượng của nhóm thuốc
+                  UPDATE NHOMTHUOC
+                  SET NHOMTHUOC.SOLUONG += inserted.SOLUONG
+                  FROM NHOMTHUOC INNER JOIN inserted
+                  ON inserted.THUOC IN (
+                        SELECT MATHUOC FROM THUOC T
+                        WHERE T.MANHOM = NHOMTHUOC.MANHOM
                   )
-            )
+
+                  --thêm dữ liệu vào kho hàng
+                  INSERT INTO KHOHANG (MATHUOC, DONNHAP, TONKHO, NGAYHETHAN)
+                  VALUES (
+                        (
+                              SELECT THUOC FROM inserted
+                        ),(
+                              SELECT MADONHANG FROM DONHANGNHAP D
+                              WHERE D.MADONHANG = (SELECT MADONHANG FROM inserted)
+                        ), (
+                              SELECT SOLUONG FROM inserted   
+                        ), (
+                              SELECT NGAYHETHAN FROM inserted
+                        )
+                  )
+            END
       END
 END
 GO
@@ -552,105 +556,134 @@ CREATE TRIGGER TRG_INSERT_XUATTHUOC
       FOR INSERT
 AS
 BEGIN
-      -- Cập nhật số lượng nhóm thuốc
-      UPDATE NHOMTHUOC
-      SET NHOMTHUOC.SOLUONG -= inserted.SOLUONG
-      FROM NHOMTHUOC INNER JOIN inserted
-      ON inserted.THUOC IN (
-            SELECT MATHUOC FROM THUOC T
-            WHERE T.MANHOM = NHOMTHUOC.MANHOM
-      )
-
-      --cập nhật dữ liệu cho thuộc tính đơn vị tính của bảng xuất
-      UPDATE XUATTHUOC
-      SET DONVITINH = (
-            SELECT QCDONGGOI FROM THUOC T
-            WHERE XUATTHUOC.THUOC = T.MATHUOC
-      )
-      FROM inserted JOIN XUATTHUOC
-      ON XUATTHUOC.MADONHANG = inserted.MADONHANG
-      AND XUATTHUOC.THUOC = inserted.THUOC
-
-      --cập nhật thành tiền
-      IF(SELECT THANHTIEN FROM inserted)!= NULL
+      --kiểm tra số lượng thuốc còn trong kho
+      IF(SELECT SUM(TONKHO) FROM KHOHANG, inserted
+            WHERE KHOHANG.MATHUOC = inserted.THUOC) < (SELECT SOLUONG FROM inserted)
       BEGIN
-            PRINT N'THÀNH TIỀN SẼ ĐƯỢC HỆ THỐNG TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG'
-            PRINT N'UPDATE THÀNH TIỀN'
-            UPDATE XUATTHUOC
-            SET THANHTIEN = 0
+            PRINT N'SỐ LƯỢNG TỒN KHO KHÔNG ĐỦ!'
+            DELETE XUATTHUOC
             FROM inserted
             WHERE XUATTHUOC.MADONHANG = inserted.MADONHANG
             AND XUATTHUOC.THUOC = inserted.THUOC
+            PRINT N'THAO TÁC ĐÃ ĐƯỢC HỦY BỎ'
       END
 
-      UPDATE XUATTHUOC
-      SET THANHTIEN = inserted.SOLUONG * (
-            CASE 
-            WHEN (
-                  SELECT MAKH FROM DONHANGXUAT D
-                  WHERE XUATTHUOC.MADONHANG = D.MADONHANG) IN ( 
-                        SELECT MAKH FROM KHACHHANG K
-                        WHERE K.LOAIKH = N'Khách lẻ'
-                  ) 
-                  THEN (
-                        SELECT GIALE FROM THUOC T
-                        WHERE XUATTHUOC.THUOC = T.MATHUOC
-                  )
-            WHEN(
-                  SELECT MAKH FROM DONHANGXUAT D
-                  WHERE XUATTHUOC.MADONHANG = D.MADONHANG) IN ( 
-                        SELECT MAKH FROM KHACHHANG K
-                        WHERE K.LOAIKH = N'Khách sỉ'
-                  ) 
-                  THEN (
-                        SELECT GIASI FROM THUOC T
-                        WHERE XUATTHUOC.THUOC = T.MATHUOC
-                  )
-            END
-      )
-      FROM inserted JOIN XUATTHUOC
-      ON XUATTHUOC.MADONHANG = inserted.MADONHANG
-      AND XUATTHUOC.THUOC = inserted.THUOC
-
-      -- cập nhật lại tổng tiền của đơn hàng
-      UPDATE DONHANGXUAT
-      SET TONGTIEN = TONGTIEN + X.THANHTIEN
-      FROM DONHANGXUAT, inserted, XUATTHUOC X
-      WHERE DONHANGXUAT.MADONHANG = inserted.MADONHANG
-      AND X.THUOC = inserted.THUOC
-      AND X.MADONHANG = inserted.MADONHANG
-
-      --cập nhật số lượng tồn kho
-      DECLARE @NHHUUTIEN DATE
-      SELECT @NHHUUTIEN = MIN(NGAYHETHAN) FROM KHOHANG, inserted WHERE KHOHANG.MATHUOC = inserted.THUOC
-
-      DECLARE @TONKHOUUTIEN INT
-      SELECT @TONKHOUUTIEN = TONKHO FROM KHOHANG, inserted WHERE NGAYHETHAN = @NHHUUTIEN AND KHOHANG.MATHUOC = inserted.THUOC
-
-      IF @TONKHOUUTIEN > (SELECT SOLUONG FROM inserted)
+      IF (SELECT THUOC FROM inserted) NOT IN  (SELECT MATHUOC FROM KHOHANG K)
       BEGIN
-            UPDATE KHOHANG
-            SET TONKHO -= inserted.SOLUONG
-            FROM inserted JOIN KHOHANG
-            ON NGAYHETHAN = @NHHUUTIEN
-            AND KHOHANG.MATHUOC = inserted.THUOC
+            PRINT N'SẢN PHẨM KHÔNG TỒN TẠI TRONG KHO HÀNG!'
+            DELETE XUATTHUOC
+            FROM inserted
+            WHERE XUATTHUOC.MADONHANG = inserted.MADONHANG
+            AND XUATTHUOC.THUOC = inserted.THUOC
+            PRINT N'THAO TÁC ĐÃ ĐƯỢC HỦY BỎ'
       END
 
       ELSE
       BEGIN
-            UPDATE KHOHANG
-            SET TONKHO = TONKHO - inserted.SOLUONG + @TONKHOUUTIEN
-            FROM inserted JOIN KHOHANG
-            ON KHOHANG.MATHUOC = inserted.THUOC
-            AND NGAYHETHAN = (
-                  SELECT MIN(NGAYHETHAN) FROM KHOHANG K
-                  WHERE K.NGAYHETHAN != @NHHUUTIEN
-                  AND KHOHANG.MATHUOC = K.MATHUOC
+            --cập nhật dữ liệu cho thuộc tính đơn vị tính của bảng xuất
+            UPDATE XUATTHUOC
+            SET DONVITINH = (
+                  SELECT QCDONGGOI FROM THUOC T
+                  WHERE XUATTHUOC.THUOC = T.MATHUOC
             )
+            FROM inserted JOIN XUATTHUOC
+            ON XUATTHUOC.MADONHANG = inserted.MADONHANG
+            AND XUATTHUOC.THUOC = inserted.THUOC
 
-            DELETE KHOHANG
-            WHERE NGAYHETHAN = @NHHUUTIEN
-            AND KHOHANG.MATHUOC = (SELECT THUOC FROM inserted)
+            --cập nhật thành tiền
+            IF(SELECT THANHTIEN FROM inserted)!= NULL
+            BEGIN
+                  PRINT N'THÀNH TIỀN SẼ ĐƯỢC HỆ THỐNG TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG'
+                  PRINT N'UPDATE THÀNH TIỀN'
+                  UPDATE XUATTHUOC
+                  SET THANHTIEN = 0
+                  FROM inserted
+                  WHERE XUATTHUOC.MADONHANG = inserted.MADONHANG
+                  AND XUATTHUOC.THUOC = inserted.THUOC
+            END
+
+            UPDATE XUATTHUOC
+            SET THANHTIEN = inserted.SOLUONG * (
+                  CASE 
+                  WHEN (
+                        SELECT MAKH FROM DONHANGXUAT D
+                        WHERE XUATTHUOC.MADONHANG = D.MADONHANG) IN ( 
+                              SELECT MAKH FROM KHACHHANG K
+                              WHERE K.LOAIKH = N'Khách lẻ'
+                        ) 
+                        THEN (
+                              SELECT GIALE FROM THUOC T
+                              WHERE XUATTHUOC.THUOC = T.MATHUOC
+                        )
+                  WHEN(
+                        SELECT MAKH FROM DONHANGXUAT D
+                        WHERE XUATTHUOC.MADONHANG = D.MADONHANG) IN ( 
+                              SELECT MAKH FROM KHACHHANG K
+                              WHERE K.LOAIKH = N'Khách sỉ'
+                        ) 
+                        THEN (
+                              SELECT GIASI FROM THUOC T
+                              WHERE XUATTHUOC.THUOC = T.MATHUOC
+                        )
+                  END
+            )
+            FROM inserted JOIN XUATTHUOC
+            ON XUATTHUOC.MADONHANG = inserted.MADONHANG
+            AND XUATTHUOC.THUOC = inserted.THUOC
+
+            -- cập nhật lại tổng tiền của đơn hàng
+            UPDATE DONHANGXUAT
+            SET TONGTIEN = TONGTIEN + X.THANHTIEN
+            FROM DONHANGXUAT, inserted, XUATTHUOC X
+            WHERE DONHANGXUAT.MADONHANG = inserted.MADONHANG
+            AND X.THUOC = inserted.THUOC
+            AND X.MADONHANG = inserted.MADONHANG
+
+            IF(SELECT TRANGTHAIDH FROM DONHANGXUAT D, inserted
+                  WHERE D.MADONHANG = inserted.MADONHANG) = N'Đã giao'
+            BEGIN
+                  -- Cập nhật số lượng nhóm thuốc
+                  UPDATE NHOMTHUOC
+                  SET NHOMTHUOC.SOLUONG -= inserted.SOLUONG
+                  FROM NHOMTHUOC INNER JOIN inserted
+                  ON inserted.THUOC IN (
+                        SELECT MATHUOC FROM THUOC T
+                        WHERE T.MANHOM = NHOMTHUOC.MANHOM
+                  )
+
+                  --cập nhật số lượng tồn kho
+                  DECLARE @NHHUUTIEN DATE
+                  SELECT @NHHUUTIEN = MIN(NGAYHETHAN) FROM KHOHANG, inserted WHERE KHOHANG.MATHUOC = inserted.THUOC
+
+                  DECLARE @TONKHOUUTIEN INT
+                  SELECT @TONKHOUUTIEN = TONKHO FROM KHOHANG, inserted WHERE NGAYHETHAN = @NHHUUTIEN AND KHOHANG.MATHUOC = inserted.THUOC
+
+                  IF @TONKHOUUTIEN > (SELECT SOLUONG FROM inserted)
+                  BEGIN
+                        UPDATE KHOHANG
+                        SET TONKHO -= inserted.SOLUONG
+                        FROM inserted JOIN KHOHANG
+                        ON NGAYHETHAN = @NHHUUTIEN
+                        AND KHOHANG.MATHUOC = inserted.THUOC
+                  END
+
+                  ELSE
+                  BEGIN
+                        UPDATE KHOHANG
+                        SET TONKHO = TONKHO - inserted.SOLUONG + @TONKHOUUTIEN
+                        FROM inserted JOIN KHOHANG
+                        ON KHOHANG.MATHUOC = inserted.THUOC
+                        AND NGAYHETHAN = (
+                              SELECT MIN(NGAYHETHAN) FROM KHOHANG K
+                              WHERE K.NGAYHETHAN != @NHHUUTIEN
+                              AND KHOHANG.MATHUOC = K.MATHUOC
+                        )
+
+                        DELETE KHOHANG
+                        WHERE NGAYHETHAN = @NHHUUTIEN
+                        AND KHOHANG.MATHUOC = (SELECT THUOC FROM inserted)
+                  END
+            END
       END
 END
 GO
