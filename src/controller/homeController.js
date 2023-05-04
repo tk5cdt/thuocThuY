@@ -1,4 +1,3 @@
-import { where } from 'sequelize';
 import { connectDB } from '../configs/connectDB';
 let getHompage = (req, res) => {
     return res.render("index.ejs");
@@ -19,18 +18,7 @@ let getTHUOC = async (req, res) => {
 }
 
 let newTHUOC = async (req, res) => {
-    let MATHUOC = req.body.MATHUOC;
-    let TENTHUOC = req.body.TENTHUOC;
-    let MANHOM = req.body.MANHOM;
-    let LOAISD = req.body.LOAISD;
-    let THANHPHAN = req.body.THANHPHAN;
-    let MANCC = req.body.MANCC;
-    let GIASI = req.body.GIASI;
-    let GIALE = req.body.GIALE;
-    let GIANHAP = req.body.GIANHAP;
-    let DANGBAOCHE = req.body.DANGBAOCHE;
-    let QCDONGGOI = req.body.QCDONGGOI;
-    let CONGDUNG = req.body.CONGDUNG;
+    let { MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIASI, GIALE, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG } = req.body;
     const pool = await connectDB();
     const result = await pool.request().query(`insert into THUOC(MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIASI, GIALE, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG) values ('${MATHUOC}', N'${TENTHUOC}', '${MANHOM}', N'${LOAISD}', '${THANHPHAN}', '${MANCC}', '${GIASI}', '${GIALE}', '${GIANHAP}', N'${DANGBAOCHE}', N'${QCDONGGOI}', N'${CONGDUNG}')`)
     return res.redirect('/db/thuoc')
@@ -41,7 +29,6 @@ let deleteTHUOC = async (req, res) => {
     console.log(MATHUOC)
     const pool = await connectDB();
     const result = await pool.request().query(`delete from THUOC where MATHUOC = '${MATHUOC}'`)
-    console.log(result)
     return res.redirect('/db/thuoc')
 }
 
