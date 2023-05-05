@@ -1096,15 +1096,43 @@ INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
 INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
       VALUES ('DX030', 'HCM-X2-164', 1)
 
--- SELECT * FROM THUOC
--- SELECT * FROM NHOMTHUOC 
--- SELECT * FROM NHACUNGCAP
--- SELECT * FROM KHACHHANG
--- SELECT * FROM DONHANGNHAP
--- SELECT * FROM DONHANGXUAT
--- SELECT * FROM NHAPTHUOC
--- SELECT * FROM XUATTHUOC
--- SELECT * FROM KHOHANG ORDER BY NGAYHETHAN
+----------------------------------------------------CÀI ĐẶT CÁC CHỨC NĂNG-----------------------------------------------------------
 
-BEGIN TRANSACTION
-ROLLBACK
+--tính hạn thanh toán nợ cho Khách hàng
+CREATE FUNCTION UF_HanNo(@Ngaylap DATE, @loaikh NVARCHAR(15), @congno MONEY)
+RETURNS DATE
+AS
+BEGIN
+      IF @congno = 0
+      BEGIN
+            RETURN NULL
+      END
+      DECLARE @HANNO DATE
+      IF @loaikh =N'Khách lẻ'
+      BEGIN
+            SELECT @HANNO = DATEADD(DAY, 5, @Ngaylap)
+      END
+      IF @loaikh =N'Khách sỉ'
+      BEGIN
+            SELECT @HANNO = DATEADD(DAY, 15, @Ngaylap)
+      END
+      RETURN @HANNO
+END
+GO
+
+--cài đặt hóa đơn chi tiết
+CREATE FUNCTION UF_DonXuatChiTiet(@Madonhang VARCHAR(10))
+RETURNS TABLE
+AS RETURN SELECT D.MADONHANG, THUOC, SOLUONG, DONVITINH, THANHTIEN, TRANGTHAIDH, NGAYLAP FROM DONHANGXUAT D, XUATTHUOC X
+          WHERE D.MADONHANG = X.MADONHANG
+          AND D.MADONHANG = @madonhang
+GO
+
+-------------------------------------------------TẠO CÁC BẢNG ẢO------------------------------------------------------
+
+--tạo bảng phiếu bán hàng
+CREATE VIEW PhieuBanHang AS
+SELECT MADONHANG, TENKHACH, LOAIKH, TENNV AS NGUOILAP, TRANGTHAIDH, NGAYLAP, TONGTIEN, DATHANHTOAN, D.CONGNO,  dbo.UF_HanNo(D.NGAYLAP, K.LOAIKH, D.CONGNO) AS HANNO FROM DONHANGXUAT D, KHACHHANG K, NHANVIEN N
+WHERE D.MAKH = K.MAKH
+AND D.MANV = N.MANV
+GO
