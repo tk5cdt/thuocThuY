@@ -240,7 +240,7 @@ GO
 -- tạo trigger khi thêm dữ liệu vào bảng THUOC
 CREATE TRIGGER TRG_INSERT_THUOC
       ON THUOC
-      AFTER INSERT, UPDATE
+      AFTER INSERT
 AS
 BEGIN
       --cập nhật dữ liệu cho thuộc tính giá sỉ và giá lẻ cho thuốc vừa nhập
