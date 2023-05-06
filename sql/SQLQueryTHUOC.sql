@@ -1120,6 +1120,7 @@ BEGIN
 END
 GO
 
+--tính hạn nợ đối với nhà cung cấp
 CREATE FUNCTION UF_HanNoNCC(@Ngaylap DATE, @congno MONEY)
 RETURNS DATE
 AS
@@ -1137,8 +1138,9 @@ GO
 --cài đặt hóa đơn chi tiết
 CREATE FUNCTION UF_DonXuatChiTiet(@Madonhang VARCHAR(10))
 RETURNS TABLE
-AS RETURN SELECT D.MADONHANG, THUOC, SOLUONG, DONVITINH, THANHTIEN, TRANGTHAIDH, NGAYLAP FROM DONHANGXUAT D, XUATTHUOC X
+AS RETURN SELECT D.MADONHANG, TENTHUOC, SOLUONG, DONVITINH, THANHTIEN, TRANGTHAIDH, NGAYLAP FROM DONHANGXUAT D, XUATTHUOC X, THUOC
           WHERE D.MADONHANG = X.MADONHANG
+          AND X.THUOC = THUOC.MATHUOC
           AND D.MADONHANG = @madonhang
 GO
 
@@ -1180,6 +1182,44 @@ BEGIN
 END
 GO
 
+--danh sách nhập hàng theo năm
+CREATE FUNCTION UF_DanhSachNhapHangTheoNam(@nam INT)
+RETURNS TABLE
+AS 
+      RETURN SELECT N.MADONHANG, TENNCC, THUOC.TENTHUOC, N.SOLUONG, N.DONVITINH, D.NGAYLAP, N.NGAYSX, N.NGAYHETHAN
+      FROM NHAPTHUOC N, DONHANGNHAP D, NHACUNGCAP NCC, THUOC
+      WHERE D.MADONHANG = N.MADONHANG
+      AND D.MANCC = NCC.MANCC
+      AND THUOC.MATHUOC = N.THUOC
+      AND YEAR(NGAYLAP) = @nam
+GO
+
+--danh sách nhập hàng theo năm
+CREATE FUNCTION UF_DanhSachNhapHangTheoThang(@thang INT, @nam INT)
+RETURNS TABLE
+AS 
+      RETURN SELECT N.MADONHANG, TENNCC, THUOC.TENTHUOC, N.SOLUONG, N.DONVITINH, D.NGAYLAP, N.NGAYSX, N.NGAYHETHAN
+      FROM NHAPTHUOC N, DONHANGNHAP D, NHACUNGCAP NCC, THUOC
+      WHERE D.MADONHANG = N.MADONHANG
+      AND D.MANCC = NCC.MANCC
+      AND THUOC.MATHUOC = N.THUOC
+      AND YEAR(NGAYLAP) = @nam
+      AND MONTH(NGAYLAP) = @thang
+GO
+
+--danh sách nhập hàng theo quý
+CREATE FUNCTION UF_DanhSachNhapHangTheoQuy(@quy INT, @nam INT)
+RETURNS TABLE
+AS 
+      RETURN SELECT N.MADONHANG, TENNCC, THUOC.TENTHUOC, N.SOLUONG, N.DONVITINH, D.NGAYLAP, N.NGAYSX, N.NGAYHETHAN
+      FROM NHAPTHUOC N, DONHANGNHAP D, NHACUNGCAP NCC, THUOC
+      WHERE D.MADONHANG = N.MADONHANG 
+      AND D.MANCC = NCC.MANCC
+      AND THUOC.MATHUOC = N.THUOC
+      AND YEAR(NGAYLAP) = @nam
+      AND DATEPART(QUARTER, NGAYLAP) = @quy
+GO
+
 -------------------------------------------------TẠO CÁC BẢNG ẢO------------------------------------------------------
 
 --tạo phiếu bán hàng
@@ -1216,8 +1256,7 @@ CREATE VIEW CongNoNCC AS
     WHERE N.MANCC = D.MANCC
     AND D.CONGNO != 0
 GO
-
--------------------------------------------TRUY VẤN--------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 BEGIN TRANSACTION
 
@@ -1239,11 +1278,9 @@ SELECT * FROM KHOHANG ORDER BY NGAYHETHAN
 --xuất danh sách phiếu bán hàng
 
 SELECT * FROM PhieuBanHang
-GO
 
 --xuất danh sách phiếu mua hàng
 SELECT * from PhieuMuaHang
-GO
 
 --báo cáo đơn xuất chi tiết
 SELECT * FROM dbo.UF_DonXuatChiTiet('DX007')
@@ -1266,11 +1303,86 @@ PRINT dbo.UF_TinhDoanhThuTheoNam(2023)
 --tính doanh thu tháng 4 năm 2023
 PRINT dbo.UF_TinhDoanhThuTheoThang(4, 2023)
 
---tính doanh thu theo quý
+--tính doanh thu quý 2 năm 2023
 PRINT dbo.UF_TinhDoanhThuTheoQuy(2, 2023)
 
+--danh sách nhập hàng năm 2022
+SELECT * FROM dbo.UF_DanhSachNhapHangTheoNam(2022)
+
+--danh sách nhập hàng tháng 4 năm 2023
+SELECT * FROM dbo.UF_DanhSachNhapHangTheoThang(4, 2023)
+
+--danh sách nhập hàng quý 1 năm 2023
+SELECT * FROM dbo.UF_DanhSachNhapHangTheoQuy(1, 2023)
+
 --thông báo công nợ với nhà cung cấp quá 3 tháng
-SELECT CONGNO FROM CongNoNCC
-WHERE HANNO > DATEADD(MONTH, 3, NGAYNO)
+SELECT * FROM CongNoNCC
+WHERE GETDATE() > DATEADD(MONTH, 3, HANNO)
+
+--thông báo công nợ với nhà cung cấp quá 3 tháng
+SELECT * FROM CongNoKhachHang
+WHERE GETDATE() > DATEADD(MONTH, 3, HANNO)
+
+--thông báo danh mục thuốc sắp hết hạn(2 tháng)
+SELECT * FROM KHOHANG
+WHERE DATEDIFF(MONTH, GETDATE(), NGAYHETHAN) < 2
+
+--đếm số lượng sản phẩm trong kho dựa theo loài sử dụng
+SELECT LOAISD, (
+    SELECT  SUM(TONKHO) FROM KHOHANG K
+    WHERE K.MATHUOC IN (
+        SELECT MATHUOC FROM THUOC T1
+        WHERE T1.LOAISD = T.LOAISD
+    )
+) AS SOLUONGTHUOC FROM THUOC T
+GROUP BY LOAISD
+
+--đếm số lượng sản phẩm trong kho dựa theo dạng bào chế
+SELECT DANGBAOCHE, (
+    SELECT  SUM(TONKHO) FROM KHOHANG K
+    WHERE K.MATHUOC IN (
+        SELECT MATHUOC FROM THUOC T1
+        WHERE T1.DANGBAOCHE = T.DANGBAOCHE
+    )
+) AS SOLUONGTHUOC FROM THUOC T
+GROUP BY DANGBAOCHE
+
+--xuất nhà cung cấp có nhiều hơn 3 giao dịch
+SELECT * FROM NHACUNGCAP N
+WHERE 3 < (
+    SELECT COUNT(*) FROM DONHANGNHAP D
+    WHERE D.MANCC = N.MANCC
+)
+
+--xóa những đơn hàng không thành công
+DELETE NHAPTHUOC
+WHERE MADONHANG IN (SELECT MADONHANG FROM DONHANGNHAP WHERE TRANGTHAIDH = N'Giao không thành công')
+DELETE DONHANGNHAP
+WHERE TRANGTHAIDH = N'Giao không thành công'
+
+DELETE XUATTHUOC
+WHERE MADONHANG IN (SELECT MADONHANG FROM DONHANGXUAT WHERE TRANGTHAIDH = N'Giao không thành công')
+DELETE DONHANGXUAT
+WHERE TRANGTHAIDH = N'Giao không thành công'
+
+--thay đổi trạng thái cho một đơn hàng
+SELECT * FROM DONHANGNHAP
+UPDATE DONHANGNHAP
+SET TRANGTHAIDH = N'Đã Nhận'
+WHERE MADONHANG = 'DN011'
+
+--Thay đổi loại khách hàng từ khách lẻ thành khách sỉ cho những khách hàng mua trên 10 đơn hàng ngoại trừ khách vãng lai
+UPDATE KHACHHANG
+SET LOAIKH = N'Khách sỉ'
+WHERE MAKH IN (
+    SELECT MAKH
+    FROM (
+        SELECT MAKH, COUNT(*) AS DONHANG_COUNT
+        FROM DONHANGXUAT
+        WHERE TENKHACH != N'Khách vãng lai'
+        GROUP BY MAKH
+    ) AS DONHANG_TABLE
+    WHERE DONHANG_COUNT > 10
+)
 
 ROLLBACK
