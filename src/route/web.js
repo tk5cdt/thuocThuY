@@ -14,6 +14,8 @@ const initWebRoute = (app) => {
     router.post('/createNewThuoc', homeController.newTHUOC)
     router.post('/deleteTHUOC', homeController.deleteTHUOC)
     router.get('/editThuoc/:MATHUOC', homeController.editTHUOC)
+    router.get('/4T', homeController.get4T)
+    router.get('/sp', homeController.getsp)
     router.post('/updateTHUOC', homeController.updateTHUOC)
     return app.use('/', router);
 }

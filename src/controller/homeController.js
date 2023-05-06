@@ -48,6 +48,14 @@ let updateTHUOC = async (req, res) => {
     return res.redirect('/db/thuoc')
 }
 
+let get4T = (req, res) => {
+    return res.render("4T.ejs");
+}
+
+let getsp = (req, res) => {
+    return res.render("sp.ejs");
+}
+
 module.exports = {
     getHompage: getHompage,
     getConnect: getConnect,
@@ -55,5 +63,7 @@ module.exports = {
     newTHUOC: newTHUOC,
     deleteTHUOC: deleteTHUOC,
     editTHUOC: editTHUOC,
-    updateTHUOC: updateTHUOC
+    updateTHUOC: updateTHUOC,
+    get4T: get4T,
+    getsp: getsp,
 }
