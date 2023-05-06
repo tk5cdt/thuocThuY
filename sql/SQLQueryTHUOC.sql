@@ -1099,7 +1099,7 @@ INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
 ----------------------------------------------------CÀI ĐẶT CÁC CHỨC NĂNG-----------------------------------------------------------
 
 --tính hạn thanh toán nợ cho Khách hàng
-CREATE FUNCTION UF_HanNo(@Ngaylap DATE, @loaikh NVARCHAR(15), @congno MONEY)
+CREATE FUNCTION UF_HanNoKH(@Ngaylap DATE, @loaikh NVARCHAR(15), @congno MONEY)
 RETURNS DATE
 AS
 BEGIN
@@ -1107,16 +1107,30 @@ BEGIN
       BEGIN
             RETURN NULL
       END
-      DECLARE @HANNO DATE
+      DECLARE @HANNOKH DATE
       IF @loaikh =N'Khách lẻ'
       BEGIN
-            SELECT @HANNO = DATEADD(DAY, 5, @Ngaylap)
+            SELECT @HANNOKH = DATEADD(DAY, 5, @Ngaylap)
       END
       IF @loaikh =N'Khách sỉ'
       BEGIN
-            SELECT @HANNO = DATEADD(DAY, 15, @Ngaylap)
+            SELECT @HANNOKH = DATEADD(DAY, 15, @Ngaylap)
       END
-      RETURN @HANNO
+      RETURN @HANNOKH
+END
+GO
+
+CREATE FUNCTION UF_HanNoNCC(@Ngaylap DATE, @congno MONEY)
+RETURNS DATE
+AS
+BEGIN
+      IF @congno = 0
+      BEGIN
+            RETURN NULL
+      END
+      DECLARE @HANNONCC DATE
+            SELECT @HANNONCC = DATEADD(DAY, 10, @Ngaylap)
+      RETURN @HANNONCC
 END
 GO
 
@@ -1128,11 +1142,135 @@ AS RETURN SELECT D.MADONHANG, THUOC, SOLUONG, DONVITINH, THANHTIEN, TRANGTHAIDH,
           AND D.MADONHANG = @madonhang
 GO
 
+--tính doanh thu theo năm
+CREATE FUNCTION UF_TinhDoanhThuTheoNam(@nam INT)
+RETURNS MONEY
+AS
+BEGIN
+      DECLARE @Doanhthu MONEY
+      SELECT @Doanhthu = SUM(DATHANHTOAN) FROM DONHANGXUAT
+      WHERE YEAR(NGAYLAP) = @nam
+      RETURN @Doanhthu
+END
+GO
+
+--tính doanh thu theo tháng
+CREATE FUNCTION UF_TinhDoanhThuTheoThang(@thang INT, @nam INT)
+RETURNS MONEY
+AS
+BEGIN
+      DECLARE @Doanhthu MONEY
+      SELECT @Doanhthu = SUM(DATHANHTOAN) FROM DONHANGXUAT
+      WHERE YEAR(NGAYLAP) = @Nam
+      AND MONTH(NGAYLAP) = @thang
+      RETURN @Doanhthu
+END
+GO
+
+--tính doanh thu theo quý
+CREATE FUNCTION UF_TinhDoanhThuTheoQuy(@quy INT, @nam INT)
+RETURNS MONEY
+AS
+BEGIN
+      DECLARE @Doanhthu MONEY
+      SELECT @Doanhthu = SUM(DATHANHTOAN) FROM DONHANGXUAT
+      WHERE YEAR(NGAYLAP) = @Nam
+      AND DATEPART(QUARTER, NGAYLAP) = @quy
+      RETURN @Doanhthu
+END
+GO
+
 -------------------------------------------------TẠO CÁC BẢNG ẢO------------------------------------------------------
 
---tạo bảng phiếu bán hàng
+--tạo phiếu bán hàng
 CREATE VIEW PhieuBanHang AS
-SELECT MADONHANG, TENKHACH, LOAIKH, TENNV AS NGUOILAP, TRANGTHAIDH, NGAYLAP, TONGTIEN, DATHANHTOAN, D.CONGNO,  dbo.UF_HanNo(D.NGAYLAP, K.LOAIKH, D.CONGNO) AS HANNO FROM DONHANGXUAT D, KHACHHANG K, NHANVIEN N
+SELECT MADONHANG, TENKHACH, LOAIKH, TENNV AS NGUOILAP, TRANGTHAIDH, NGAYLAP, TONGTIEN, DATHANHTOAN, D.CONGNO,  dbo.UF_HanNoKH(D.NGAYLAP, K.LOAIKH, D.CONGNO) AS HANNO FROM DONHANGXUAT D, KHACHHANG K, NHANVIEN N
 WHERE D.MAKH = K.MAKH
 AND D.MANV = N.MANV
 GO
+
+--tạo phiếu mua hàng
+CREATE VIEW PhieuMuaHang AS
+SELECT MADONHANG, TENNCC, DIENTHOAI, TRANGTHAIDH, NGAYLAP, TONGTIEN, DATHANHTOAN, D.CONGNO,  dbo.UF_HanNoNCC(D.NGAYLAP, D.CONGNO) AS HANNO FROM DONHANGNHAP D, NHACUNGCAP N
+WHERE D.MANCC = N.MANCC
+AND D.MANCC = N.MANCC
+GO
+
+--lưu lại số lượng từng loại thuốc trong kho
+CREATE VIEW TonKho AS
+SELECT TENTHUOC, TENNHOM, DANGBAOCHE, QCDONGGOI, LOAISD, (
+            SELECT SUM(TONKHO) FROM KHOHANG K
+            WHERE T.MATHUOC = K.MATHUOC
+      ) AS SOLUONG FROM THUOC T, NHOMTHUOC N 
+      WHERE N.MANHOM = T.MANHOM
+GO
+
+CREATE VIEW CongNoKhachHang AS
+    SELECT TENKHACH, D.CONGNO, D.NGAYLAP AS NGAYNO, dbo.UF_HanNoKH(NGAYLAP, LOAIKH, D.CONGNO)AS HANNO FROM KHACHHANG K, DONHANGXUAT D
+    WHERE K.MAKH = D.MAKH
+    AND D.CONGNO != 0
+GO
+
+CREATE VIEW CongNoNCC AS
+    SELECT TENNCC, D.CONGNO, D.NGAYLAP AS NGAYNO, dbo.UF_HanNoNCC(NGAYLAP, D.CONGNO)AS HANNO FROM NHACUNGCAP N, DONHANGNHAP D
+    WHERE N.MANCC = D.MANCC
+    AND D.CONGNO != 0
+GO
+
+-------------------------------------------TRUY VẤN--------------------------------------------------------
+
+BEGIN TRANSACTION
+
+--danh mục mặt hàng - thuốc
+SELECT * FROM THUOC
+
+--danh sách nhà cung cấp
+SELECT * FROM NHACUNGCAP
+
+--danh sách khách hàng
+SELECT * FROM KHACHHANG
+
+-- danh sách nhân viên
+SELECT * FROM NHANVIEN
+
+--danh mục kho hàng
+SELECT * FROM KHOHANG ORDER BY NGAYHETHAN
+
+--xuất danh sách phiếu bán hàng
+
+SELECT * FROM PhieuBanHang
+GO
+
+--xuất danh sách phiếu mua hàng
+SELECT * from PhieuMuaHang
+GO
+
+--báo cáo đơn xuất chi tiết
+SELECT * FROM dbo.UF_DonXuatChiTiet('DX007')
+
+--báo cáo công nợ khách hàng
+SELECT * FROM CongNoKhachHang
+
+--báo cáo công nợ nhà cung cấp
+SELECT * FROM CongNoNCC
+
+--Báo cáo tồn kho
+SELECT * FROM TonKho
+
+--tính số tiền thu lại
+SELECT SUM(DATHANHTOAN) FROM DONHANGXUAT
+
+--tính doanh thu năm 2023
+PRINT dbo.UF_TinhDoanhThuTheoNam(2023)
+
+--tính doanh thu tháng 4 năm 2023
+PRINT dbo.UF_TinhDoanhThuTheoThang(4, 2023)
+
+--tính doanh thu theo quý
+PRINT dbo.UF_TinhDoanhThuTheoQuy(2, 2023)
+
+--thông báo công nợ với nhà cung cấp quá 3 tháng
+SELECT CONGNO FROM CongNoNCC
+WHERE HANNO > DATEADD(MONTH, 3, NGAYNO)
+
+ROLLBACK
