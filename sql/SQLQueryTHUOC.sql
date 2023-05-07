@@ -308,6 +308,32 @@ BEGIN
 END
 GO
 
+CREATE TRIGGER TRG_UPDATE_NCC
+      ON NHACUNGCAP
+      INSTEAD OF UPDATE
+AS
+BEGIN
+      IF EXISTS (
+            SELECT * FROM inserted, deleted
+            WHERE inserted.CONGNO != deleted.CONGNO
+            AND inserted.CONGNO != (
+                  SELECT SUM(CONGNO) FROM DONHANGNHAP D
+                  WHERE D.MANCC = inserted.MANCC
+            )
+      )
+      BEGIN
+            PRINT N'CÔNG NỢ CỦA NHÀ CUNG CẤP SẼ ĐƯỢC THAY ĐỔI THEO CÔNG NỢ CỦA ĐƠN HÀNG NHẬP'
+      END
+      ELSE
+      BEGIN
+            UPDATE NHACUNGCAP
+            SET CONGNO = inserted.CONGNO
+            FROM inserted
+            WHERE NHACUNGCAP.MANCC = inserted.MANCC
+      END
+END
+GO
+
 --tạo trigger khi them dữ liệu vào bảng NHACUNGCAP
 CREATE TRIGGER TRG_INSERT_NCC
       ON NHACUNGCAP
@@ -340,6 +366,32 @@ BEGIN
             PRINT N'RESET CÔNG NỢ = 0'
             UPDATE KHACHHANG
             SET CONGNO = 0
+            FROM inserted
+            WHERE KHACHHANG.MAKH = inserted.MAKH
+      END
+END
+GO
+
+CREATE TRIGGER TRG_UPDATE_KHACHHANG
+      ON KHACHHANG
+      INSTEAD OF UPDATE
+AS
+BEGIN
+      IF EXISTS (
+            SELECT * FROM inserted, deleted
+            WHERE inserted.CONGNO != deleted.CONGNO
+            AND inserted.CONGNO != (
+                  SELECT SUM(CONGNO) FROM DONHANGXUAT K
+                  WHERE K.MAKH = inserted.MAKH
+            )
+      )
+      BEGIN
+            PRINT N'CÔNG NỢ CỦA KHÁCH HÀNG SẼ ĐƯỢC THAY ĐỔI THEO CÔNG NỢ CỦA ĐƠN HÀNG XUẤT'
+      END
+      ELSE
+      BEGIN
+            UPDATE KHACHHANG
+            SET CONGNO = inserted.CONGNO
             FROM inserted
             WHERE KHACHHANG.MAKH = inserted.MAKH
       END
@@ -760,7 +812,7 @@ END
 GO
 
 --tạo trigger khi thêm dữ liệu vào bảng GIOHANG
-ALTER TRIGGER TRG_INSERT_GIOHANG
+CREATE TRIGGER TRG_INSERT_GIOHANG
       ON GIOHANG
       INSTEAD OF INSERT
 AS
@@ -1320,6 +1372,8 @@ CREATE VIEW CongNoNCC AS
     WHERE N.MANCC = D.MANCC
     AND D.CONGNO != 0
 GO
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 BEGIN TRANSACTION
 
