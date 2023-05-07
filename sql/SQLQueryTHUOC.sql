@@ -144,7 +144,7 @@ CREATE TABLE NGUOIDUNG
 (
       USERNAME VARCHAR(20) NOT NULL,
       MATKHAU VARCHAR(61),
-      EMAIL VARCHAR(30),
+      EMAIL VARCHAR(20),
       QUANTRI BIT,
       PRIMARY KEY(USERNAME)
 )
@@ -534,11 +534,7 @@ BEGIN
       )
       BEGIN
             PRINT N'THUỐC KHÔNG NẰM TRONG DANH MỤC THUỐC ĐƯỢC CUNG CẤP BỞI NHÀ CUNG CẤP THEO ĐƠN HÀNG!'
-            DELETE NHAPTHUOC
-            FROM inserted
-            WHERE NHAPTHUOC.MADONHANG = inserted.MADONHANG
-            AND NHAPTHUOC.THUOC = inserted.THUOC
-            PRINT N'THAO TÁC ĐÃ ĐƯỢC GỠ BỎ!'
+            ROLLBACK TRAN
       END
 
       ELSE IF(SELECT NGAYSX FROM inserted) > (
@@ -547,21 +543,13 @@ BEGIN
       )
       BEGIN
             PRINT N'NGÀY SẢN XUẤT KHÔNG HỢP LỆ!'
-            DELETE NHAPTHUOC
-            FROM inserted
-            WHERE NHAPTHUOC.MADONHANG = inserted.MADONHANG
-            AND NHAPTHUOC.THUOC = inserted.THUOC
-            PRINT N'THAO TÁC ĐÃ ĐƯỢC GỠ BỎ!'
+            ROLLBACK TRAN
       END
 
       ELSE IF(SELECT NGAYHETHAN FROM inserted) <= GETDATE()
       BEGIN
             PRINT N'SẢN PHẨM ĐÃ QUÁ HẠN SỬ DỤNG! VUI LÒNG KIỂM TRA LẠI VỚI NHÀ CUNG CẤP'
-            DELETE NHAPTHUOC
-            FROM inserted
-            WHERE NHAPTHUOC.MADONHANG = inserted.MADONHANG
-            AND NHAPTHUOC.THUOC = inserted.THUOC
-            PRINT N'THAO TÁC ĐÃ ĐƯỢC GỠ BỎ!'
+            ROLLBACK TRAN
       END
 
       ELSE 
@@ -645,21 +633,13 @@ BEGIN
             WHERE KHOHANG.MATHUOC = inserted.THUOC) < (SELECT SOLUONG FROM inserted)
       BEGIN
             PRINT N'SỐ LƯỢNG TỒN KHO KHÔNG ĐỦ!'
-            DELETE XUATTHUOC
-            FROM inserted
-            WHERE XUATTHUOC.MADONHANG = inserted.MADONHANG
-            AND XUATTHUOC.THUOC = inserted.THUOC
-            PRINT N'THAO TÁC ĐÃ ĐƯỢC HỦY BỎ'
+            ROLLBACK TRAN
       END
 
       IF (SELECT THUOC FROM inserted) NOT IN  (SELECT MATHUOC FROM KHOHANG K)
       BEGIN
             PRINT N'SẢN PHẨM KHÔNG TỒN TẠI TRONG KHO HÀNG!'
-            DELETE XUATTHUOC
-            FROM inserted
-            WHERE XUATTHUOC.MADONHANG = inserted.MADONHANG
-            AND XUATTHUOC.THUOC = inserted.THUOC
-            PRINT N'THAO TÁC ĐÃ ĐƯỢC HỦY BỎ'
+            ROLLBACK TRAN
       END
 
       ELSE
@@ -822,7 +802,6 @@ BEGIN
     END
 END
 GO
-
 
 --tạo trigger khi thêm dữ liệu vào bảng GIOHANG
 CREATE TRIGGER TRG_INSERT_GIOHANG
@@ -1385,133 +1364,3 @@ CREATE VIEW CongNoNCC AS
     WHERE N.MANCC = D.MANCC
     AND D.CONGNO != 0
 GO
-
----------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-BEGIN TRANSACTION
-
---danh mục mặt hàng - thuốc
-SELECT * FROM THUOC
-
---danh sách nhà cung cấp
-SELECT * FROM NHACUNGCAP
-
---danh sách khách hàng
-SELECT * FROM KHACHHANG
-
--- danh sách nhân viên
-SELECT * FROM NHANVIEN
-
---danh mục kho hàng
-SELECT * FROM KHOHANG ORDER BY NGAYHETHAN
-
---xuất danh sách phiếu bán hàng
-
-SELECT * FROM PhieuBanHang
-
---xuất danh sách phiếu mua hàng
-SELECT * from PhieuMuaHang
-
---báo cáo đơn xuất chi tiết
-SELECT * FROM dbo.UF_DonXuatChiTiet('DX007')
-
---báo cáo công nợ khách hàng
-SELECT * FROM CongNoKhachHang
-
---báo cáo công nợ nhà cung cấp
-SELECT * FROM CongNoNCC
-
---Báo cáo tồn kho
-SELECT * FROM TonKho
-
---tính số tiền thu lại
-SELECT SUM(DATHANHTOAN) FROM DONHANGXUAT
-
---tính doanh thu năm 2023
-PRINT dbo.UF_TinhDoanhThuTheoNam(2023)
-
---tính doanh thu tháng 4 năm 2023
-PRINT dbo.UF_TinhDoanhThuTheoThang(4, 2023)
-
---tính doanh thu quý 2 năm 2023
-PRINT dbo.UF_TinhDoanhThuTheoQuy(2, 2023)
-
---danh sách nhập hàng năm 2022
-SELECT * FROM dbo.UF_DanhSachNhapHangTheoNam(2022)
-
---danh sách nhập hàng tháng 4 năm 2023
-SELECT * FROM dbo.UF_DanhSachNhapHangTheoThang(4, 2023)
-
---danh sách nhập hàng quý 1 năm 2023
-SELECT * FROM dbo.UF_DanhSachNhapHangTheoQuy(1, 2023)
-
---thông báo công nợ với nhà cung cấp quá 3 tháng
-SELECT * FROM CongNoNCC
-WHERE GETDATE() > DATEADD(MONTH, 3, HANNO)
-
---thông báo công nợ với nhà cung cấp quá 3 tháng
-SELECT * FROM CongNoKhachHang
-WHERE GETDATE() > DATEADD(MONTH, 3, HANNO)
-
---thông báo danh mục thuốc sắp hết hạn(2 tháng)
-SELECT * FROM KHOHANG
-WHERE DATEDIFF(MONTH, GETDATE(), NGAYHETHAN) < 2
-
---đếm số lượng sản phẩm trong kho dựa theo loài sử dụng
-SELECT LOAISD, (
-    SELECT  SUM(TONKHO) FROM KHOHANG K
-    WHERE K.MATHUOC IN (
-        SELECT MATHUOC FROM THUOC T1
-        WHERE T1.LOAISD = T.LOAISD
-    )
-) AS SOLUONGTHUOC FROM THUOC T
-GROUP BY LOAISD
-
---đếm số lượng sản phẩm trong kho dựa theo dạng bào chế
-SELECT DANGBAOCHE, (
-    SELECT  SUM(TONKHO) FROM KHOHANG K
-    WHERE K.MATHUOC IN (
-        SELECT MATHUOC FROM THUOC T1
-        WHERE T1.DANGBAOCHE = T.DANGBAOCHE
-    )
-) AS SOLUONGTHUOC FROM THUOC T
-GROUP BY DANGBAOCHE
-
---xuất nhà cung cấp có nhiều hơn 3 giao dịch
-SELECT * FROM NHACUNGCAP N
-WHERE 3 < (
-    SELECT COUNT(*) FROM DONHANGNHAP D
-    WHERE D.MANCC = N.MANCC
-)
-
---xóa những đơn hàng không thành công
-DELETE NHAPTHUOC
-WHERE MADONHANG IN (SELECT MADONHANG FROM DONHANGNHAP WHERE TRANGTHAIDH = N'Giao không thành công')
-DELETE DONHANGNHAP
-WHERE TRANGTHAIDH = N'Giao không thành công'
-
-DELETE XUATTHUOC
-WHERE MADONHANG IN (SELECT MADONHANG FROM DONHANGXUAT WHERE TRANGTHAIDH = N'Giao không thành công')
-DELETE DONHANGXUAT
-WHERE TRANGTHAIDH = N'Giao không thành công'
-
---thay đổi trạng thái cho một đơn hàng
-UPDATE DONHANGNHAP
-SET TRANGTHAIDH = N'Đã Nhận'
-WHERE MADONHANG = 'DN011'
-
---Thay đổi loại khách hàng từ khách lẻ thành khách sỉ cho những khách hàng mua trên 10 đơn hàng ngoại trừ khách vãng lai
-UPDATE KHACHHANG
-SET LOAIKH = N'Khách sỉ'
-WHERE MAKH IN (
-    SELECT MAKH
-    FROM (
-        SELECT MAKH, COUNT(*) AS DONHANG_COUNT
-        FROM DONHANGXUAT
-        WHERE TENKHACH != N'Khách vãng lai'
-        GROUP BY MAKH
-    ) AS DONHANG_TABLE
-    WHERE DONHANG_COUNT > 10
-)
-
-ROLLBACK
