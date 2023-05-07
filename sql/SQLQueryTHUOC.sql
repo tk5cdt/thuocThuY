@@ -806,6 +806,24 @@ BEGIN
 END
 GO
 
+--tạo trigger khi thêm hoặc sửa dữ liệu ở bảng NGUOIDUNG
+ALTER TRIGGER TRG_INSERT_NGUOIDUNG
+      ON NGUOIDUNG
+      AFTER INSERT, UPDATE
+AS
+BEGIN
+    IF EXISTS(
+            SELECT EMAIL FROM inserted
+            WHERE EMAIL NOT LIKE '%_@__%.__%'
+    )
+    BEGIN
+        PRINT N'EMAIL KHÔNG ĐÚNG, HÃY THỬ LẠI!'
+        ROLLBACK TRAN
+    END
+END
+GO
+
+
 --tạo trigger khi thêm dữ liệu vào bảng GIOHANG
 CREATE TRIGGER TRG_INSERT_GIOHANG
       ON GIOHANG
