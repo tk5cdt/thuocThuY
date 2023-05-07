@@ -11,9 +11,6 @@ GO
 --mặc định kiểu ngày tháng
 SET DATEFORMAT DMY
 
---khởi tạo quỹ tại cửa hàng
-DECLARE @quy MONEY = 120000000
-
 ---------------------------------------------TẠO CÁC BẢNG-----------------------------------------------
 
 --tạo bảng thuốc
@@ -142,6 +139,25 @@ CREATE TABLE KHOHANG
       PRIMARY KEY(MATHUOC, DONNHAP, TONKHO)
 )
 
+--tạo bảng người dùng
+CREATE TABLE NGUOIDUNG
+(
+      USERNAME VARCHAR(20) NOT NULL,
+      MATKHAU VARCHAR(15),
+      EMAIL VARCHAR(20),
+      QUANTRI INT,
+      PRIMARY KEY(USERNAME)
+)
+
+--tạo bảng giỏ hàng
+CREATE TABLE GIOHANG
+(
+      USERNAME VARCHAR(20) NOT NULL,
+      MATHUOC VARCHAR(10) NOT NULL,
+      SOLUONG INT,
+      PRIMARY KEY(USERNAME, MATHUOC)
+)
+
 ---------------------------------------------TẠO RÀNG BUỘC KHÓA NGOẠI-----------------------------------------------
 
 --tạo khóa ngoại bảng thuốc và nhóm thuốc
@@ -192,7 +208,7 @@ ADD CONSTRAINT FK_NHAPTHUOC_DONHANGNHAP FOREIGN KEY(MADONHANG)
 REFERENCES DONHANGNHAP(MADONHANG)
 GO
 
---tạo khóa ngoại bảng xuất thuố và thuốc
+--tạo khóa ngoại bảng xuất thuốc và thuốc
 ALTER TABLE XUATTHUOC
 ADD CONSTRAINT FK_XUATTHUOC_THUOC FOREIGN KEY(THUOC)
 REFERENCES THUOC(MATHUOC)
@@ -204,6 +220,17 @@ ADD CONSTRAINT FK_NHAPTHUOC_THUOC FOREIGN KEY(THUOC)
 REFERENCES THUOC(MATHUOC)
 GO
 
+--tạo khóa ngoại bảng giỏ hàng và user
+ALTER TABLE GIOHANG
+ADD CONSTRAINT FK_GIOHANG_USER FOREIGN KEY(USERNAME)
+REFERENCES NGUOIDUNG(USERNAME)
+GO
+
+--tạo khóa ngoại bảng giỏ hàng và thuốc
+ALTER TABLE GIOHANG
+ADD CONSTRAINT FK_GIOHANG_THUOC FOREIGN KEY(MATHUOC)
+REFERENCES THUOC(MATHUOC)
+GO
 ---------------------------------------------TẠO RÀNG BUỘC CHECK-----------------------------------------------
 
 --tạo điều kiện ngày hết hạn của kho hàng
@@ -233,6 +260,16 @@ ADD CONSTRAINT CK_KHACHHANG_LOAIKH CHECK (LOAIKH = N'Khách lẻ' OR LOAIKH = N'
 --tạo điều kiện cho bảng nhân viên
 ALTER TABLE NHANVIEN 
 ADD CONSTRAINT CK_NHANVIEN_PHAI CHECK (PHAI = N'Nam' OR PHAI = N'Nữ')
+GO
+
+--tạo điều kiện số lượng của bảng nhập thuốc
+ALTER TABLE GIOHANG
+ADD CONSTRAINT CK_GIOHANG_SOLUONG CHECK( SOLUONG > 0)
+GO
+
+--tạo điều kiện ADMIN cho bảng người dùng
+ALTER TABLE NGUOIDUNG
+ADD CONSTRAINT CK_NGUOIDUNG_ADMIN CHECK (QUANTRI = 1 OR QUANTRI = 0)
 GO
 
 ---------------------------------------------TẠO TRIGGER-----------------------------------------------
@@ -722,6 +759,32 @@ BEGIN
 END
 GO
 
+--tạo trigger khi thêm dữ liệu vào bảng GIOHANG
+ALTER TRIGGER TRG_INSERT_GIOHANG
+      ON GIOHANG
+      INSTEAD OF INSERT
+AS
+BEGIN
+      IF EXISTS (
+            SELECT * FROM inserted, GIOHANG
+            WHERE inserted.USERNAME = GIOHANG.USERNAME
+            AND inserted.MATHUOC = GIOHANG.MATHUOC
+      )
+      BEGIN
+            PRINT N'THUOC DA CO TRONG GIO HANG, SO LUONG SE DUOC CONG VAO GIO HANG'
+            UPDATE GIOHANG
+            SET SOLUONG += inserted.SOLUONG
+            FROM inserted
+            WHERE inserted.USERNAME = GIOHANG.USERNAME
+      END
+      ELSE
+      BEGIN
+            INSERT INTO GIOHANG
+            VALUES ((SELECT USERNAME FROM inserted),(SELECT MATHUOC FROM inserted), (SELECT SOLUONG FROM inserted))
+      END
+END
+GO
+
 ---------------------------------------------THÊM DỮ LIỆU CHO CÁC BẢNG-----------------------------------------------
 
 --thêm dữ liệu cho bảng nhóm thuốc
@@ -795,7 +858,7 @@ INSERT INTO KHACHHANG
 INSERT INTO KHACHHANG
       VALUES ('KH005', N'Huỳnh Vũ Chí Thiện', N'100 Lê Văn Sỹ, Phường 2, Quận Tân Bình, TP HCM', '0908655684', N'Khách sỉ', 0)
 INSERT INTO KHACHHANG
-      VALUES ('KH006', N'Khách vãn lai', NULL, NULL, N'Khách lẻ', 0)
+      VALUES ('KH006', N'Khách vãng lai', NULL, NULL, N'Khách lẻ', 0)
 
 --thêm dữ liệu cho bảng đơn hàng nhập
 INSERT INTO DONHANGNHAP(MADONHANG, MANCC, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
@@ -1095,6 +1158,7 @@ INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
       VALUES ('DX030', 'HCM-X2-16', 3)
 INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
       VALUES ('DX030', 'HCM-X2-164', 1)
+GO
 
 ----------------------------------------------------CÀI ĐẶT CÁC CHỨC NĂNG-----------------------------------------------------------
 
@@ -1256,7 +1320,6 @@ CREATE VIEW CongNoNCC AS
     WHERE N.MANCC = D.MANCC
     AND D.CONGNO != 0
 GO
---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 BEGIN TRANSACTION
 
@@ -1366,7 +1429,6 @@ DELETE DONHANGXUAT
 WHERE TRANGTHAIDH = N'Giao không thành công'
 
 --thay đổi trạng thái cho một đơn hàng
-SELECT * FROM DONHANGNHAP
 UPDATE DONHANGNHAP
 SET TRANGTHAIDH = N'Đã Nhận'
 WHERE MADONHANG = 'DN011'
