@@ -143,9 +143,9 @@ CREATE TABLE KHOHANG
 CREATE TABLE NGUOIDUNG
 (
       USERNAME VARCHAR(20) NOT NULL,
-      MATKHAU VARCHAR(15),
-      EMAIL VARCHAR(20),
-      QUANTRI INT,
+      MATKHAU VARCHAR(61),
+      EMAIL VARCHAR(30),
+      QUANTRI BIT,
       PRIMARY KEY(USERNAME)
 )
 
@@ -265,11 +265,6 @@ GO
 --tạo điều kiện số lượng của bảng nhập thuốc
 ALTER TABLE GIOHANG
 ADD CONSTRAINT CK_GIOHANG_SOLUONG CHECK( SOLUONG > 0)
-GO
-
---tạo điều kiện ADMIN cho bảng người dùng
-ALTER TABLE NGUOIDUNG
-ADD CONSTRAINT CK_NGUOIDUNG_ADMIN CHECK (QUANTRI = 1 OR QUANTRI = 0)
 GO
 
 ---------------------------------------------TẠO TRIGGER-----------------------------------------------
