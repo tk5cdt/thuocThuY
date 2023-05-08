@@ -1,20 +1,33 @@
 import { connectDB } from '../configs/connectDB';
 let getHompage = (req, res) => {
-    return res.render("index.ejs");
+    return res.render("index.ejs", { user: req.session.user });
 }
 
 let getConnect = async (req, res) => {
     const pool = await connectDB();
-    const result = await pool.request().query('select * from THUOC').then((result) => {
-        res.render("db.ejs", { THUOC: result.recordset});
-    });
+    try {
+        const result = await pool.request().query('select * from THUOC');
+        return res.render("db.ejs", { THUOC: result.recordset, user: req.session.user});
+    }
+    catch (err) {
+        console.log(err);
+    }
 }
 
 let getTHUOC = async (req, res) => {
     let MATHUOC = req.params.MATHUOC;
     const pool = await connectDB();
-    const result = await pool.request().query(`select * from THUOC where MATHUOC = '${MATHUOC}'`)
-    return res.send(JSON.stringify(result.recordset))
+    try {
+        const result = await pool.request().query(`select * from THUOC where MATHUOC = '${MATHUOC}'`)
+        return res.render("thuoc.ejs", { THUOC: result.recordset[0], user: req.session.user })
+    }
+    catch (err) {
+        console.log(err);
+    }
+}
+
+let themthuoc = (req, res) => {
+    return res.render("themthuoc.ejs", { message: "" , user: req.session.user});
 }
 
 let newTHUOC = async (req, res) => {
@@ -29,16 +42,14 @@ let deleteTHUOC = async (req, res) => {
     console.log(MATHUOC)
     const pool = await connectDB();
     const result = await pool.request().query(`delete from THUOC where MATHUOC = '${MATHUOC}'`)
-    return res.redirect('/db/thuoc')
+    return res.redirect('/db')
 }
 
 let editTHUOC = async (req, res) => {
     let MATHUOC = req.params.MATHUOC;
     const pool = await connectDB();
-    const result = await pool.request().query(`select * from THUOC where MATHUOC = '${MATHUOC}'`).then((result) => {
-        res.render("update.ejs", { THUOC: result.recordset[0] });
-    });
-    // return res.render("update.ejs", { THUOC: result.recordset[0] });
+    const result = await pool.request().query(`select * from THUOC where MATHUOC = '${MATHUOC}'`)
+    return res.render("update.ejs", { THUOC: result.recordset[0], user: req.session.user });
 }
 
 let updateTHUOC = async (req, res) => {
@@ -48,22 +59,44 @@ let updateTHUOC = async (req, res) => {
     return res.redirect('/db/thuoc')
 }
 
+let addToCart = async (req, res) => {
+    let MATHUOC = req.params.MATHUOC;
+    const pool = await connectDB();
+    const result = await pool.request().query(`UPDATE CART SET SOLUONG = SOLUONG + 1 WHERE MATHUOC = '${MATHUOC}'`)
+    return res.redirect('/cart')
+}
+
+let getCart = (req, res) => {
+    return res.render("cart.ejs" , { user: req.session.user });
+}
+
 let get4T = (req, res) => {
-    return res.render("4T.ejs");
+    return res.render("4T.ejs" , { user: req.session.user });
 }
 
 let getsp = (req, res) => {
-    return res.render("sp.ejs");
+    return res.render("sp.ejs" , { user: req.session.user });
+}
+
+let admin = (req, res) => {
+    if (req.session.user == null) {
+        return res.redirect('/login')
+    }
+    return res.render("admin.ejs" , { user: req.session.user });
 }
 
 module.exports = {
     getHompage: getHompage,
     getConnect: getConnect,
     getTHUOC: getTHUOC,
+    themthuoc: themthuoc,
     newTHUOC: newTHUOC,
     deleteTHUOC: deleteTHUOC,
     editTHUOC: editTHUOC,
     updateTHUOC: updateTHUOC,
     get4T: get4T,
     getsp: getsp,
+    addToCart: addToCart,
+    getCart: getCart,
+    admin: admin,
 }

@@ -50,7 +50,7 @@
             <th>Mã thuốc</th>
             <th>Tên thuốc</th>
             <th>Mã nhóm</th>
-            <th>Loài sử dụng</th>
+            <th>Loại sử dụng</th>
             <th>Thành phần</th>
             <th>Mã nhà cung cấp</th>
             <th>Giá sỉ</th>
@@ -77,7 +77,7 @@
                 <td><%= THUOC[index].QCDONGGOI %></td>
                 <td><%= THUOC[index].CONGDUNG %></td>
                 <td style="display: flex; flex-direction: column;">
-                    <a href="/db/thuoc/<%= THUOC[index].MATHUOC %>">details</a>
+                    <a href="/thuoc/<%= THUOC[index].MATHUOC %>">details</a>
                     <form action="/deleteThuoc" method="post" style="margin: 0%;">
                         <input type="hidden" name="MATHUOC" value="<%= THUOC[index].MATHUOC %>">
                         <input type="submit" value="Xóa">
@@ -98,7 +98,7 @@
         <input type="text" name="TENTHUOC" placeholder="Tên thuốc">
         <label for="MANHOM">Mã nhóm</label>
         <input type="text" name="MANHOM" placeholder="Mã nhóm">
-        <label for="LOAISD">Loài sử dụng</label>
+        <label for="LOAISD">Loại sử dụng</label>
         <input type="text" name="LOAISD" placeholder="Loại sử dụng">
         <label for="THANHPHAN">Thành phần</label>
         <input type="text" name="THANHPHAN" placeholder="Thành phần">
