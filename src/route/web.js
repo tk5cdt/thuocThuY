@@ -22,7 +22,7 @@ const initWebRoute = (app) => {
     router.get('/signup', userController.dangky);
     router.post('/signup', userController.signup);
     router.get('/login', userController.dangnhap);
-    router.post('/login', userController.login);
+    router.post('/login', userController.login);    // nhập thông tin đăng nhập
     router.get('/logout', userController.logout);
     
     router.get('/admin', homeController.admin)

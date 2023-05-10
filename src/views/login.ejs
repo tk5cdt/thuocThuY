@@ -4,40 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trang Login</title>
-    <link rel="stylesheet" href="assets/css/4T_Log.css">
-    <link rel="stylesheet" href="./assets/font/themify-icons-font/themify-icons/themify-icons.css">
+    <link rel="stylesheet" href="/css/4T_Log.css">
+    <link rel="stylesheet" href="/font/themify-icons-font/themify-icons/themify-icons.css">
 </head>
 <body>
     <section>
         <div class="form-box">
-            <% if (message) { %>
-                <p>
-                    <%= message %>
-                </p>
-                <% } %>
             <div class="form-value">
-                <form action="/signup" method="POST">
+                <form action="/login" method="POST">
+                    <% if (message) { %>
+                        <p style="color: brown;">
+                            <%= message %>
+                        </p>
+                        <% } %>
                     <h2>Login</h2>
                     <div class="inputbox">
                         <ion-icon name="mail-outline"></ion-icon>
-                        <input type="text">
-                        <label for="">User</label>
-                    </div>
-                    <div class="inputbox">
-                        <ion-icon name="mail-outline"></ion-icon>
-                        <input type="email" required>
-                        <label for="">Email</label>
+                        <input type="text" required name="username">
+                        <label for="username">User</label>
                     </div>
                     <div class="inputbox">
                         <ion-icon name="lock-closed-outline"></ion-icon>
-                        <input type="password" required>
-                        <label for="">Password</label>
+                        <input type="password" required name="password">
+                        <label for="password">Password</label>
                     </div>
-                    <div class="forget">
-                        <label for=""><input type="checkbox">Remember Me  <a href="#">Forget Password</a></label>
-                      
-                    </div>
-                    <button>Log in</button>
+                    <button type="submit">Log in</button>
                     <div class="register">
                         <p>Don't have a account <a href="4T_Register.html">Register</a></p>
                     </div>

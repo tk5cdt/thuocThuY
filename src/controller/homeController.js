@@ -84,6 +84,7 @@ let getinfo = async (req, res) => {
 let getgiohang = async (req, res) => {
     return res.render("giohang.ejs", { user: req.session.user });
 }
+
 let addToCart = async (req, res) => {
     let MATHUOC = req.params.MATHUOC;
     let SOLUONG = req.body.SOLUONG;
