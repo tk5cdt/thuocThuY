@@ -89,8 +89,8 @@ let addToCart = async (req, res) => {
     let SOLUONG = req.body.SOLUONG;
     let USERNAME = req.session.user.USERNAME;
     const pool = await connectDB();
-    const res = await pool.request().query(`SELECT * FROM GIOHANG WHERE USERNAME = '${USERNAME}' AND MATHUOC = '${MATHUOC}'`)
-    if (res.recordset.length == 0) {
+    const re = await pool.request().query(`SELECT * FROM GIOHANG WHERE USERNAME = '${USERNAME}' AND MATHUOC = '${MATHUOC}'`)
+    if (re.recordset.length == 0) {
         const result = await pool.request().query(`UPDATE GIOHANG SET USERNAME = '${USERNAME}', MATHUOC = '${MATHUOC}', SOLUONG = '${SOLUONG}'`)
     }
     else {
