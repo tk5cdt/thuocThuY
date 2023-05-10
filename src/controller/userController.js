@@ -30,7 +30,11 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
     let { username, password } = req.body;
     const pool = await connectDB();
-    const result = await pool.request().query(`select * from NGUOIDUNG where USERNAME = '${username}'`)
+    try {
+        const result = await pool.request().query(`select * from NGUOIDUNG where USERNAME = '${username}'`)
+    } catch (error) {
+        console.log(error);
+    }
     if (result.recordset.length === 0) {
         return res.render("login.ejs", { message: "Username không tồn tại" });
     }
@@ -51,22 +55,22 @@ const login = async (req, res) => {
 }
 
 const dangky = (req, res) => {
-    return res.render("signup.ejs", { message: "" , user: req.session.user});
+    return res.render("signup.ejs", { message: "", user: req.session.user });
 }
 
 const dangnhap = (req, res) => {
-    return res.render("login.ejs", { message: "" , user: req.session.user});
+    return res.render("login.ejs", { message: "", user: req.session.user });
 }
 
 const logout = (req, res) => {
     req.session.destroy((err) => {
-      if (err) {
-        console.log(err);
-      } else {
-        res.redirect('/');
-      }
+        if (err) {
+            console.log(err);
+        } else {
+            res.redirect('/');
+        }
     });
-  };
+};
 
 module.exports = {
     signup,

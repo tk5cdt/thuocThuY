@@ -16,21 +16,25 @@
             <a href="/info">Về chúng tôi</a>
         </div>
     </div>
-    <div id="actions">
-        <% if (user) { %>
-            <div class="item">
-                <a href="/logout">Logout</a>
+    <% if (user) { %>
+        <% if (!user.QUANTRI) { %>
+            <div id="actions">
+                <div class="item">
+                    <a href="/logout">Logout</a>
+                </div>
+                <div class="item">
+                    <a id="login"><button class="taikhoan"> <a href="/cart" class="ti-shopping-cart">
+                            </a></button></a>
+                </div>
             </div>
-            <div class="item">
-                <a id="login"><button class="taikhoan"> <a href="/cart" class="ti-shopping-cart">          
-                </a></button</a> 
-            </div>
-         <% } else { %>
-            <div class="item">
-                <a id="login"><button class="taikhoan"> <a href="/login">    TÀI KHOẢN            
-                    <i class="ti-user"></i>
-                </a></button</a> 
-            </div>
-         <% } %>
-    </div>
+            <% } %>
+                <% } else { %>
+                    <div id="actions">
+                        <div class="item">
+                            <a id="login"><button class="taikhoan"> <a href="/login"> TÀI KHOẢN
+                                        <i class="ti-user"></i>
+                                    </a></button></a>
+                        </div>
+                    </div>
+                    <% } %>
 </div>
