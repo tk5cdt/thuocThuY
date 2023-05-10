@@ -12,13 +12,20 @@ const initWebRoute = (app) => {
     router.post('/createNewThuoc', homeController.newTHUOC)
     router.post('/deleteTHUOC', homeController.deleteTHUOC)
     router.get('/editThuoc/:MATHUOC', homeController.editTHUOC)
-    router.get('/sanpham', homeController.getsp)
+    router.post('/updateTHUOC', homeController.updateTHUOC)
+    router.post('/addToCart/:MATHUOC', homeController.addToCart)
+    router.get('/cart', homeController.getCart)
+    router.get('/sp', homeController.getsp)
     router.get('/contact', homeController.getcontact)
     router.get('/info', homeController.getinfo)
-    router.get('/dangxuat', homeController.getregister)
-    router.get('/dangxuat', homeController.getlog)
-    router.get('/sp', homeController.getgiohang)
-    router.post('/updateTHUOC', homeController.updateTHUOC)
+    //login signup logout
+    router.get('/signup', userController.dangky);
+    router.post('/signup', userController.signup);
+    router.get('/login', userController.dangnhap);
+    router.post('/login', userController.login);
+    router.get('/logout', userController.logout);
+    
+    router.get('/admin', homeController.admin)
     return app.use('/', router);
 }
 

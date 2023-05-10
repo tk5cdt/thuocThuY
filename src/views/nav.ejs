@@ -1,0 +1,36 @@
+<div id="header">
+    <a href="" class="logo">
+        <img src="assets/img/logo.jpeg" alt="logo">
+    </a>
+    <div id="menu">
+        <div class="item">
+            <a href="4T.html">Trang chủ</a>
+        </div>
+        <div class="item">
+            <a href="4T_Detail.html">Sản phẩm</a>
+        </div>
+        <div class="item">
+            <a href="4T_Contact.html">Liên hệ</a>
+        </div>
+        <div class="item">
+            <a href="4T_Info.html">Về chúng tôi</a>
+        </div>
+    </div>
+    <div id="actions">
+        <% if (user) { %>
+            <div class="item">
+                <a href="/logout">Logout</a>
+            </div>
+            <div class="item">
+                <a id="login"><button class="taikhoan"> <a href="4T_GioHang.html" class="ti-shopping-cart">          
+                </a></button</a> 
+            </div>
+         <% } else { %>
+            <div class="item">
+                <a id="login"><button class="taikhoan"> <a href="4T_Log.html">    TÀI KHOẢN            
+                    <i class="ti-user"></i>
+                </a></button</a> 
+            </div>
+         <% } %>
+    </div>
+</div>
