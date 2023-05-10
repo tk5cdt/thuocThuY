@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= THUOC.TENTHUOC %></title>
+</head>
+<body>
+    <p><%= THUOC.TENTHUOC %></p>
+    <p><%= THUOC.MANHOM %></p>
+    <p><%= THUOC.LOAISD %></p>
+    <p><%= THUOC.THANHPHAN %></p>
+    <p><%= THUOC.CONGDUNG %></p>
+    <form action="/addToCart/<%= THUOC.MATHUOC %>" method="POST" style="margin: 0%;">
+        <input type="hidden" name="MATHUOC" value="<%= THUOC.MATHUOC %>">
+        <input type="hidden" name="TENTHUOC" value="<%= THUOC.TENTHUOC %>">
+        <input type="hidden" name="MANHOM" value="<%= THUOC.MANHOM %>">
+        <input type="hidden" name="LOAISD" value="<%= THUOC.LOAISD %>">
+        <input type="hidden" name="THANHPHAN" value="<%= THUOC.THANHPHAN %>">
+        <input type="hidden" name="MANCC" value="<%= THUOC.MANCC %>">
+        <input type="hidden" name="GIASI" value="<%= THUOC.GIASI %>">
+        <input type="hidden" name="GIALE" value="<%= THUOC.GIALE %>">
+        <input type="hidden" name="GIANHAP" value="<%= THUOC.GIANHAP %>">
+        <input type="hidden" name="DANGBAOCHE" value="<%= THUOC.DANGBAOCHE %>">
+        <input type="hidden" name="QCDONGGOI" value="<%= THUOC.QCDONGGOI %>">
+        <input type="hidden" name="CONGDUNG" value="<%= THUOC.CONGDUNG %>">
+        <input type="submit" value="Thêm vào giỏ hàng">
+    </form>
+</body>
+</html>

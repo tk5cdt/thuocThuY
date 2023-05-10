@@ -1,16 +1,14 @@
 import express from "express";
 import homeController from "../controller/homeController";
+import userController from "../controller/userController";
 
 let router = express.Router();
 
 const initWebRoute = (app) => {
     router.get('/', homeController.getHompage)
-    
-    router.get('/about', (req, res) => {
-        return res.send('This is about page');
-    })
-    router.get('/db/thuoc', homeController.getConnect)
-    router.get('/db/thuoc/:MATHUOC', homeController.getTHUOC)
+    router.get('/db', homeController.getConnect)
+    router.get('/thuoc/:MATHUOC', homeController.getTHUOC)
+    router.get('/admin/themthuoc', homeController.themthuoc)
     router.post('/createNewThuoc', homeController.newTHUOC)
     router.post('/deleteTHUOC', homeController.deleteTHUOC)
     router.get('/editThuoc/:MATHUOC', homeController.editTHUOC)

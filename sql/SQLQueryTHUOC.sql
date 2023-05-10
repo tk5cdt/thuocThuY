@@ -11,9 +11,6 @@ GO
 --mặc định kiểu ngày tháng
 SET DATEFORMAT DMY
 
---khởi tạo quỹ tại cửa hàng
-DECLARE @quy MONEY = 120000000
-
 ---------------------------------------------TẠO CÁC BẢNG-----------------------------------------------
 
 --tạo bảng thuốc
@@ -142,6 +139,25 @@ CREATE TABLE KHOHANG
       PRIMARY KEY(MATHUOC, DONNHAP, TONKHO)
 )
 
+--tạo bảng người dùng
+CREATE TABLE NGUOIDUNG
+(
+      USERNAME VARCHAR(20) NOT NULL,
+      MATKHAU VARCHAR(61),
+      EMAIL VARCHAR(20),
+      QUANTRI BIT,
+      PRIMARY KEY(USERNAME)
+)
+
+--tạo bảng giỏ hàng
+CREATE TABLE GIOHANG
+(
+      USERNAME VARCHAR(20) NOT NULL,
+      MATHUOC VARCHAR(10) NOT NULL,
+      SOLUONG INT,
+      PRIMARY KEY(USERNAME, MATHUOC)
+)
+
 ---------------------------------------------TẠO RÀNG BUỘC KHÓA NGOẠI-----------------------------------------------
 
 --tạo khóa ngoại bảng thuốc và nhóm thuốc
@@ -192,7 +208,7 @@ ADD CONSTRAINT FK_NHAPTHUOC_DONHANGNHAP FOREIGN KEY(MADONHANG)
 REFERENCES DONHANGNHAP(MADONHANG)
 GO
 
---tạo khóa ngoại bảng xuất thuố và thuốc
+--tạo khóa ngoại bảng xuất thuốc và thuốc
 ALTER TABLE XUATTHUOC
 ADD CONSTRAINT FK_XUATTHUOC_THUOC FOREIGN KEY(THUOC)
 REFERENCES THUOC(MATHUOC)
@@ -204,6 +220,17 @@ ADD CONSTRAINT FK_NHAPTHUOC_THUOC FOREIGN KEY(THUOC)
 REFERENCES THUOC(MATHUOC)
 GO
 
+--tạo khóa ngoại bảng giỏ hàng và user
+ALTER TABLE GIOHANG
+ADD CONSTRAINT FK_GIOHANG_USER FOREIGN KEY(USERNAME)
+REFERENCES NGUOIDUNG(USERNAME)
+GO
+
+--tạo khóa ngoại bảng giỏ hàng và thuốc
+ALTER TABLE GIOHANG
+ADD CONSTRAINT FK_GIOHANG_THUOC FOREIGN KEY(MATHUOC)
+REFERENCES THUOC(MATHUOC)
+GO
 ---------------------------------------------TẠO RÀNG BUỘC CHECK-----------------------------------------------
 
 --tạo điều kiện ngày hết hạn của kho hàng
@@ -233,6 +260,11 @@ ADD CONSTRAINT CK_KHACHHANG_LOAIKH CHECK (LOAIKH = N'Khách lẻ' OR LOAIKH = N'
 --tạo điều kiện cho bảng nhân viên
 ALTER TABLE NHANVIEN 
 ADD CONSTRAINT CK_NHANVIEN_PHAI CHECK (PHAI = N'Nam' OR PHAI = N'Nữ')
+GO
+
+--tạo điều kiện số lượng của bảng nhập thuốc
+ALTER TABLE GIOHANG
+ADD CONSTRAINT CK_GIOHANG_SOLUONG CHECK( SOLUONG > 0)
 GO
 
 ---------------------------------------------TẠO TRIGGER-----------------------------------------------
@@ -271,6 +303,32 @@ BEGIN
 END
 GO
 
+CREATE TRIGGER TRG_UPDATE_NCC
+      ON NHACUNGCAP
+      INSTEAD OF UPDATE
+AS
+BEGIN
+      IF EXISTS (
+            SELECT * FROM inserted, deleted
+            WHERE inserted.CONGNO != deleted.CONGNO
+            AND inserted.CONGNO != (
+                  SELECT SUM(CONGNO) FROM DONHANGNHAP D
+                  WHERE D.MANCC = inserted.MANCC
+            )
+      )
+      BEGIN
+            PRINT N'CÔNG NỢ CỦA NHÀ CUNG CẤP SẼ ĐƯỢC THAY ĐỔI THEO CÔNG NỢ CỦA ĐƠN HÀNG NHẬP'
+      END
+      ELSE
+      BEGIN
+            UPDATE NHACUNGCAP
+            SET CONGNO = inserted.CONGNO
+            FROM inserted
+            WHERE NHACUNGCAP.MANCC = inserted.MANCC
+      END
+END
+GO
+
 --tạo trigger khi them dữ liệu vào bảng NHACUNGCAP
 CREATE TRIGGER TRG_INSERT_NCC
       ON NHACUNGCAP
@@ -303,6 +361,32 @@ BEGIN
             PRINT N'RESET CÔNG NỢ = 0'
             UPDATE KHACHHANG
             SET CONGNO = 0
+            FROM inserted
+            WHERE KHACHHANG.MAKH = inserted.MAKH
+      END
+END
+GO
+
+CREATE TRIGGER TRG_UPDATE_KHACHHANG
+      ON KHACHHANG
+      INSTEAD OF UPDATE
+AS
+BEGIN
+      IF EXISTS (
+            SELECT * FROM inserted, deleted
+            WHERE inserted.CONGNO != deleted.CONGNO
+            AND inserted.CONGNO != (
+                  SELECT SUM(CONGNO) FROM DONHANGXUAT K
+                  WHERE K.MAKH = inserted.MAKH
+            )
+      )
+      BEGIN
+            PRINT N'CÔNG NỢ CỦA KHÁCH HÀNG SẼ ĐƯỢC THAY ĐỔI THEO CÔNG NỢ CỦA ĐƠN HÀNG XUẤT'
+      END
+      ELSE
+      BEGIN
+            UPDATE KHACHHANG
+            SET CONGNO = inserted.CONGNO
             FROM inserted
             WHERE KHACHHANG.MAKH = inserted.MAKH
       END
@@ -450,11 +534,7 @@ BEGIN
       )
       BEGIN
             PRINT N'THUỐC KHÔNG NẰM TRONG DANH MỤC THUỐC ĐƯỢC CUNG CẤP BỞI NHÀ CUNG CẤP THEO ĐƠN HÀNG!'
-            DELETE NHAPTHUOC
-            FROM inserted
-            WHERE NHAPTHUOC.MADONHANG = inserted.MADONHANG
-            AND NHAPTHUOC.THUOC = inserted.THUOC
-            PRINT N'THAO TÁC ĐÃ ĐƯỢC GỠ BỎ!'
+            ROLLBACK TRAN
       END
 
       ELSE IF(SELECT NGAYSX FROM inserted) > (
@@ -463,21 +543,13 @@ BEGIN
       )
       BEGIN
             PRINT N'NGÀY SẢN XUẤT KHÔNG HỢP LỆ!'
-            DELETE NHAPTHUOC
-            FROM inserted
-            WHERE NHAPTHUOC.MADONHANG = inserted.MADONHANG
-            AND NHAPTHUOC.THUOC = inserted.THUOC
-            PRINT N'THAO TÁC ĐÃ ĐƯỢC GỠ BỎ!'
+            ROLLBACK TRAN
       END
 
       ELSE IF(SELECT NGAYHETHAN FROM inserted) <= GETDATE()
       BEGIN
             PRINT N'SẢN PHẨM ĐÃ QUÁ HẠN SỬ DỤNG! VUI LÒNG KIỂM TRA LẠI VỚI NHÀ CUNG CẤP'
-            DELETE NHAPTHUOC
-            FROM inserted
-            WHERE NHAPTHUOC.MADONHANG = inserted.MADONHANG
-            AND NHAPTHUOC.THUOC = inserted.THUOC
-            PRINT N'THAO TÁC ĐÃ ĐƯỢC GỠ BỎ!'
+            ROLLBACK TRAN
       END
 
       ELSE 
@@ -561,21 +633,13 @@ BEGIN
             WHERE KHOHANG.MATHUOC = inserted.THUOC) < (SELECT SOLUONG FROM inserted)
       BEGIN
             PRINT N'SỐ LƯỢNG TỒN KHO KHÔNG ĐỦ!'
-            DELETE XUATTHUOC
-            FROM inserted
-            WHERE XUATTHUOC.MADONHANG = inserted.MADONHANG
-            AND XUATTHUOC.THUOC = inserted.THUOC
-            PRINT N'THAO TÁC ĐÃ ĐƯỢC HỦY BỎ'
+            ROLLBACK TRAN
       END
 
       IF (SELECT THUOC FROM inserted) NOT IN  (SELECT MATHUOC FROM KHOHANG K)
       BEGIN
             PRINT N'SẢN PHẨM KHÔNG TỒN TẠI TRONG KHO HÀNG!'
-            DELETE XUATTHUOC
-            FROM inserted
-            WHERE XUATTHUOC.MADONHANG = inserted.MADONHANG
-            AND XUATTHUOC.THUOC = inserted.THUOC
-            PRINT N'THAO TÁC ĐÃ ĐƯỢC HỦY BỎ'
+            ROLLBACK TRAN
       END
 
       ELSE
@@ -722,6 +786,49 @@ BEGIN
 END
 GO
 
+--tạo trigger khi thêm hoặc sửa dữ liệu ở bảng NGUOIDUNG
+CREATE TRIGGER TRG_INSERT_NGUOIDUNG
+      ON NGUOIDUNG
+      AFTER INSERT, UPDATE
+AS
+BEGIN
+    IF EXISTS(
+            SELECT EMAIL FROM inserted
+            WHERE EMAIL NOT LIKE '%_@__%.__%'
+    )
+    BEGIN
+        PRINT N'EMAIL KHÔNG ĐÚNG, HÃY THỬ LẠI!'
+        ROLLBACK TRAN
+    END
+END
+GO
+
+--tạo trigger khi thêm dữ liệu vào bảng GIOHANG
+CREATE TRIGGER TRG_INSERT_GIOHANG
+      ON GIOHANG
+      INSTEAD OF INSERT
+AS
+BEGIN
+      IF EXISTS (
+            SELECT * FROM inserted, GIOHANG
+            WHERE inserted.USERNAME = GIOHANG.USERNAME
+            AND inserted.MATHUOC = GIOHANG.MATHUOC
+      )
+      BEGIN
+            PRINT N'THUOC DA CO TRONG GIO HANG, SO LUONG SE DUOC CONG VAO GIO HANG'
+            UPDATE GIOHANG
+            SET SOLUONG += inserted.SOLUONG
+            FROM inserted
+            WHERE inserted.USERNAME = GIOHANG.USERNAME
+      END
+      ELSE
+      BEGIN
+            INSERT INTO GIOHANG
+            VALUES ((SELECT USERNAME FROM inserted),(SELECT MATHUOC FROM inserted), (SELECT SOLUONG FROM inserted))
+      END
+END
+GO
+
 ---------------------------------------------THÊM DỮ LIỆU CHO CÁC BẢNG-----------------------------------------------
 
 --thêm dữ liệu cho bảng nhóm thuốc
@@ -753,27 +860,27 @@ INSERT INTO NHACUNGCAP(MANCC, TENNCC, DIACHI, DIENTHOAI)
 --thêm dữ liệu cho bảng thuốc
 INSERT INTO THUOC(MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG)
 VALUES ('HCM-X4-25', N'Terramycin Egg Formula', 'N001', N'Gia cầm', N'Oxytetracyclin, Vitamin A, C, D, E, B1' ,'3600278732', 50000, N'Bột', N'Chai 100g', N'Nâng cao năng suất trứng, phòng các bệnh ở gia cầm.'),
-       ('HCM-X4-79', N'Anticoc', 'N002', N'Gia cầm', N'Sulfamethoxazol, Diaveridine' ,'3600278732', 35000, N'Bột', N'Gói 100g', N'Phòng và trị bệnh cầu trùng.'),
-       ('HCM-X2-16', N'Iron Dextran B12', 'N002', N'Gia súc', N'Sắt, Vitamin B12' ,'0311987413', 50000, N'Dung dịch', N'Chai 100ml', N'Phòng chống thiếu máu do thiếu sắt.'),
+       ('HCM-X4-79', N'Bio-Anticoc', 'N002', N'Gia cầm', N'Sulfamethoxazol, Diaveridine' ,'3600278732', 35000, N'Bột', N'Gói 100g', N'Phòng và trị bệnh cầu trùng.'),
+       ('HCM-X2-16', N'Fe-Dextran B12', 'N002', N'Gia súc', N'Sắt, Vitamin B12' ,'0311987413', 50000, N'Dung dịch', N'Chai 100ml', N'Phòng chống thiếu máu do thiếu sắt.'),
        ('HCM-X2-164', N'Tylosin 200', 'N002', N'Gia súc', N'Tylosin tartrate, Dexamethasone acetate' ,'0311987413', 55000, N'Dung dịch tiêm', N'Chai 100ml', N'Trị viêm phổi, viêm tử cung, bệnh lepto, viêm ruột'),
-       ('HCM-X2-198', N'Tiacotin', 'N002', N'Gia súc', N'Tiamulin hydrogen fumarate' ,'0311987413', 20000, N'Dung dịch', N'Chai 100ml', N'Trị bệnh đường hô hấp, tiêu hóa.'),
+       ('HCM-X2-198', N'Tia-K.C', 'N002', N'Gia súc', N'Tiamulin hydrogen fumarate' ,'0311987413', 20000, N'Dung dịch', N'Chai 100ml', N'Trị bệnh đường hô hấp, tiêu hóa.'),
        ('GDA-10', N'NVDC-JXA1 Strain', 'N003', N'Gia súc', N'Virus chủng NVDC-JXA1 vô hoạt' ,'0102137268', 27000, N'Dung dịch tiêm', N'Chai 100ml', N'Phòng bệnh lợn tai xanh'),
-       ('ETT-163', N'ECO Recicort', 'N002', N'Thú cưng', N'Recicort' ,'0102137268', 100000, N'Dung dịch', N'Chai 500ml', N'Trị viêm tai ngoài, viêm da tiết bã nhờn trên chó, mèo.'),
+       ('ETT-163', N'Dental Creme', 'N002', N'Thú cưng', N'Recicort' ,'0102137268', 100000, N'Dung dịch', N'Chai 500ml', N'Trị viêm tai ngoài, viêm da tiết bã nhờn trên chó, mèo.'),
        ('UV-65', N'RODO-UV', 'N005', N'Thủy sản', N'Rhodopseudomonas' ,'0305110871',150000, N'Dung dịch', N'Can 5L', N'Ức chế vi khuẩn gây bệnh trong ao nuôi'),
-       ('ETT-165', N'ECO Supprestral', 'N001', N'Thú cưng', N'Progesterone (Medroxy Progesterone)' ,'0102137268', 100000 , N'Dung dịch', N'Chai 500ml', N'Giảm co bóp, ổn định tử cung, an thai trong trường hợp đe dọa sẩy thai'),
+       ('ETT-165', N'Progesterone', 'N001', N'Thú cưng', N'Progesterone (Medroxy Progesterone)' ,'0102137268', 100000 , N'Dung dịch', N'Chai 500ml', N'Giảm co bóp, ổn định tử cung, an thai trong trường hợp đe dọa sẩy thai'),
        ('SAK-118', N'Sakan-Fipro', 'N004', N'Thú cưng', N'Fipronil' ,'0105298457', 60000, N'Dung dịch', N'Tuýp 20ml', N'Diệt ve, bọ rận, bọ chét và ghẻ trên chó mèo'),
-       ('SAK-169', N'HZ-PETLOVE-2', 'N004', N'Thú cưng', N'Amitraz, Ketoconazole' ,'0105298457', 75000, N'Dung dịch', N'Tuýp 20ml', N'Làm mượt lông cho chó, mèo'),
-       ('SAK-185', N'Flzazol', 'N002', N'Thú cưng', N'Fluconazol' ,'0105298457', 40000, N'Dung dịch', N'Chai 50ml', N'Trị nấm gây ra trên chó, mèo.'),
-       ('BD.TS5-4', N'MD Selen E.W.S', 'N001', N'Thủy sản', N'Vitamin E, Sodium selenite' ,'0301460240', 300000, N'Viên nén', N'Bao 10kg', N'Giúp tăng sản lượng đẻ trứng ở cá. Cá ương đạt tỷ lệ cao hơn, giảm hao hụt'),
+       ('SAK-169', N'Amitraz', 'N004', N'Thú cưng', N'Amitraz, Ketoconazole' ,'0105298457', 75000, N'Dung dịch', N'Tuýp 20ml', N'Làm mượt lông cho chó, mèo'),
+       ('SAK-185', N'Funguikur', 'N002', N'Thú cưng', N'Fluconazol' ,'0105298457', 40000, N'Dung dịch', N'Chai 50ml', N'Trị nấm gây ra trên chó, mèo.'),
+       ('BD.TS5-4', N'Selenvit-E', 'N001', N'Thủy sản', N'Vitamin E, Sodium selenite' ,'0301460240', 300000, N'Viên nén', N'Bao 10kg', N'Giúp tăng sản lượng đẻ trứng ở cá. Cá ương đạt tỷ lệ cao hơn, giảm hao hụt'),
        ('BD.TS5-5', N'MD Bio Calcium', 'N001', N'Thủy sản', N'Biotin, Vitamin A, D3' ,'0301460240', 200000, N'Dung dịch', N'Can 5l', N'Thúc đẩy quá trình lột vỏ ở tôm và giúp mau cứng vỏ sau khi lột.'),
        ('BD.TS5-19', N'MD Protect', 'N004', N'Thủy sản', N'1,5 Pentanedial' ,'0301460240', 200000, N'Dung dịch', N'Can 5 lít', N'Diệt các loại vi khuẩn, nấm, vi sinh động vật trong nước ao nuôi'),
-       ('BN.TS2-51', N'ECO-OMICD Fish', 'N004', N'Thủy sản', N'Benzalkonium chloride, Glutaraldehyde' ,'0102137268', 100000, N'Dung dịch', N'Chai 500ml', N'Sát trùng nguồn nước nuôi trồng thủy sản'),
+       ('BN.TS2-51', N'Iodin-200', 'N004', N'Thủy sản', N'Benzalkonium chloride, Glutaraldehyde' ,'0102137268', 100000, N'Dung dịch', N'Chai 500ml', N'Sát trùng nguồn nước nuôi trồng thủy sản'),
        ('BN.TS2-15', N'ECO-Doxyfish Power 20%', 'N002', N'Thủy sản', N'Doxycyclin' ,'0102137268', 34000, N'Bột', N'Gói 500g', N'Trị bệnh đỏ thân trên tôm do vi khuẩn Vibrio alginolyticus'),
        ('SAK-37', N'Flormax', 'N002', N'Gia súc', N'Doxycycline hyclate, Tylosin tartrate' ,'0105298457', 43000, N'Bột', N'Gói 100g', N'Trị nhiễm trùng đường tiêu hóa, hô hấp trên heo, trâu, bò, dê, cừu.'),
        ('CME-3', N'Vắc xin PRRS JXA1-R', 'N003', N'Gia súc', N'Virus PRRS nhược độc chủng JXA1-R' ,'0105298457',57000, N'Dung dịch tiêm', N'Chai 50ml', N'Phòng hội chứng rối loạn hô hấp và sinh sản (PRRS) trên heo.'),
        ('LBF-1', N'Foot And Mouth Disease Vaccine', 'N003', N'Gia súc', N'Virus Lở mồm Long móng type O, chủng O' ,'0105298457', 34000, N'Dung dịch tiêm', N'Chai 100ml', N'Phòng bệnh Lở mồm long móng trên lợn'),
        ('ETT-94', N'ECO Erycol 10', 'N002', N'Gia cầm', N'Erythromycin thiocynat, Colistin sulfate' ,'0102137268', 350000, N'Viên nén', N'Thùng 10kg', N'Trị nhiễm trùng đường tiêu hóa, hô hấp trên vịt, gà, ngan, ngỗng'),
-       ('UV-2', N'Ecolus', 'N005', N'Thủy sản', N'Bacillus subtilis, Bacillus megaterium' ,'0305110871', 200000, N'Bột', N'Thùng 5kg', N'Phân hủy nhanh chất thải, phân tôm, xác tảo và thức ăn dư thừa.'),
+       ('UV-2', N'Apa-Plankton_fish', 'N005', N'Thủy sản', N'Bacillus subtilis, Bacillus megaterium' ,'0305110871', 200000, N'Bột', N'Thùng 5kg', N'Phân hủy nhanh chất thải, phân tôm, xác tảo và thức ăn dư thừa.'),
        ('ETT-50', N'Eco-Terra egg', 'N001', N'Gia cầm', N'Oxytetracyclin, Neomycin' ,'0102137268', 30000, N'Bột', N'Gói 10g', N'Tăng trọng nhanh, giảm tỷ lệ tiêu tốn thức ăn, rút ngắn thời gian nuôi')
 
 --thêm dữ liệu cho bảng nhân viên
@@ -795,7 +902,7 @@ INSERT INTO KHACHHANG
 INSERT INTO KHACHHANG
       VALUES ('KH005', N'Huỳnh Vũ Chí Thiện', N'100 Lê Văn Sỹ, Phường 2, Quận Tân Bình, TP HCM', '0908655684', N'Khách sỉ', 0)
 INSERT INTO KHACHHANG
-      VALUES ('KH006', N'Khách vãn lai', NULL, NULL, N'Khách lẻ', 0)
+      VALUES ('KH006', N'Khách vãng lai', NULL, NULL, N'Khách lẻ', 0)
 
 --thêm dữ liệu cho bảng đơn hàng nhập
 INSERT INTO DONHANGNHAP(MADONHANG, MANCC, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
@@ -1095,6 +1202,7 @@ INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
       VALUES ('DX030', 'HCM-X2-16', 3)
 INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
       VALUES ('DX030', 'HCM-X2-164', 1)
+GO
 
 ----------------------------------------------------CÀI ĐẶT CÁC CHỨC NĂNG-----------------------------------------------------------
 
@@ -1120,6 +1228,7 @@ BEGIN
 END
 GO
 
+--tính hạn nợ đối với nhà cung cấp
 CREATE FUNCTION UF_HanNoNCC(@Ngaylap DATE, @congno MONEY)
 RETURNS DATE
 AS
@@ -1137,8 +1246,9 @@ GO
 --cài đặt hóa đơn chi tiết
 CREATE FUNCTION UF_DonXuatChiTiet(@Madonhang VARCHAR(10))
 RETURNS TABLE
-AS RETURN SELECT D.MADONHANG, THUOC, SOLUONG, DONVITINH, THANHTIEN, TRANGTHAIDH, NGAYLAP FROM DONHANGXUAT D, XUATTHUOC X
+AS RETURN SELECT D.MADONHANG, TENTHUOC, SOLUONG, DONVITINH, THANHTIEN, TRANGTHAIDH, NGAYLAP FROM DONHANGXUAT D, XUATTHUOC X, THUOC
           WHERE D.MADONHANG = X.MADONHANG
+          AND X.THUOC = THUOC.MATHUOC
           AND D.MADONHANG = @madonhang
 GO
 
@@ -1180,6 +1290,44 @@ BEGIN
 END
 GO
 
+--danh sách nhập hàng theo năm
+CREATE FUNCTION UF_DanhSachNhapHangTheoNam(@nam INT)
+RETURNS TABLE
+AS 
+      RETURN SELECT N.MADONHANG, TENNCC, THUOC.TENTHUOC, N.SOLUONG, N.DONVITINH, D.NGAYLAP, N.NGAYSX, N.NGAYHETHAN
+      FROM NHAPTHUOC N, DONHANGNHAP D, NHACUNGCAP NCC, THUOC
+      WHERE D.MADONHANG = N.MADONHANG
+      AND D.MANCC = NCC.MANCC
+      AND THUOC.MATHUOC = N.THUOC
+      AND YEAR(NGAYLAP) = @nam
+GO
+
+--danh sách nhập hàng theo năm
+CREATE FUNCTION UF_DanhSachNhapHangTheoThang(@thang INT, @nam INT)
+RETURNS TABLE
+AS 
+      RETURN SELECT N.MADONHANG, TENNCC, THUOC.TENTHUOC, N.SOLUONG, N.DONVITINH, D.NGAYLAP, N.NGAYSX, N.NGAYHETHAN
+      FROM NHAPTHUOC N, DONHANGNHAP D, NHACUNGCAP NCC, THUOC
+      WHERE D.MADONHANG = N.MADONHANG
+      AND D.MANCC = NCC.MANCC
+      AND THUOC.MATHUOC = N.THUOC
+      AND YEAR(NGAYLAP) = @nam
+      AND MONTH(NGAYLAP) = @thang
+GO
+
+--danh sách nhập hàng theo quý
+CREATE FUNCTION UF_DanhSachNhapHangTheoQuy(@quy INT, @nam INT)
+RETURNS TABLE
+AS 
+      RETURN SELECT N.MADONHANG, TENNCC, THUOC.TENTHUOC, N.SOLUONG, N.DONVITINH, D.NGAYLAP, N.NGAYSX, N.NGAYHETHAN
+      FROM NHAPTHUOC N, DONHANGNHAP D, NHACUNGCAP NCC, THUOC
+      WHERE D.MADONHANG = N.MADONHANG 
+      AND D.MANCC = NCC.MANCC
+      AND THUOC.MATHUOC = N.THUOC
+      AND YEAR(NGAYLAP) = @nam
+      AND DATEPART(QUARTER, NGAYLAP) = @quy
+GO
+
 -------------------------------------------------TẠO CÁC BẢNG ẢO------------------------------------------------------
 
 --tạo phiếu bán hàng
@@ -1216,61 +1364,3 @@ CREATE VIEW CongNoNCC AS
     WHERE N.MANCC = D.MANCC
     AND D.CONGNO != 0
 GO
-
--------------------------------------------TRUY VẤN--------------------------------------------------------
-
-BEGIN TRANSACTION
-
---danh mục mặt hàng - thuốc
-SELECT * FROM THUOC
-
---danh sách nhà cung cấp
-SELECT * FROM NHACUNGCAP
-
---danh sách khách hàng
-SELECT * FROM KHACHHANG
-
--- danh sách nhân viên
-SELECT * FROM NHANVIEN
-
---danh mục kho hàng
-SELECT * FROM KHOHANG ORDER BY NGAYHETHAN
-
---xuất danh sách phiếu bán hàng
-
-SELECT * FROM PhieuBanHang
-GO
-
---xuất danh sách phiếu mua hàng
-SELECT * from PhieuMuaHang
-GO
-
---báo cáo đơn xuất chi tiết
-SELECT * FROM dbo.UF_DonXuatChiTiet('DX007')
-
---báo cáo công nợ khách hàng
-SELECT * FROM CongNoKhachHang
-
---báo cáo công nợ nhà cung cấp
-SELECT * FROM CongNoNCC
-
---Báo cáo tồn kho
-SELECT * FROM TonKho
-
---tính số tiền thu lại
-SELECT SUM(DATHANHTOAN) FROM DONHANGXUAT
-
---tính doanh thu năm 2023
-PRINT dbo.UF_TinhDoanhThuTheoNam(2023)
-
---tính doanh thu tháng 4 năm 2023
-PRINT dbo.UF_TinhDoanhThuTheoThang(4, 2023)
-
---tính doanh thu theo quý
-PRINT dbo.UF_TinhDoanhThuTheoQuy(2, 2023)
-
---thông báo công nợ với nhà cung cấp quá 3 tháng
-SELECT CONGNO FROM CongNoNCC
-WHERE HANNO > DATEADD(MONTH, 3, NGAYNO)
-
-ROLLBACK
