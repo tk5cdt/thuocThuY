@@ -84,13 +84,25 @@ let getgiohang = (req, res) => {
 }
 let addToCart = async (req, res) => {
     let MATHUOC = req.params.MATHUOC;
+    let SOLUONG = req.body.SOLUONG;
+    let USERNAME = req.session.user.USERNAME;
     const pool = await connectDB();
-    const result = await pool.request().query(`UPDATE CART SET SOLUONG = SOLUONG + 1 WHERE MATHUOC = '${MATHUOC}'`)
+    const res = await pool.request().query(`SELECT * FROM GIOHANG WHERE USERNAME = '${USERNAME}' AND MATHUOC = '${MATHUOC}'`)
+    if (res.recordset.length == 0) {
+        const result = await pool.request().query(`UPDATE GIOHANG SET USERNAME = '${USERNAME}', MATHUOC = '${MATHUOC}', SOLUONG = '${SOLUONG}'`)
+    }
+    else {
+        const result = await pool.request().query(`UPDATE GIOHANG SET SOLUONG = SOLUONG + '${SOLUONG}' WHERE USERNAME = '${USERNAME}' AND MATHUOC = '${MATHUOC}'`)
+    }
     return res.redirect('/cart')
 }
 
-let getCart = (req, res) => {
-    return res.render("cart.ejs" , { user: req.session.user });
+let getCart = async (req, res) => {
+    let USERNAME = req.session.user.USERNAME;
+    const pool = await connectDB();
+    const result = await pool.request().query(`SELECT * FROM GIOHANG WHERE USERNAME = '${USERNAME}'`)
+    const result2 = await pool.request().query(`SELECT * FROM THUOC WHERE MATHUOC IN (SELECT MATHUOC FROM GIOHANG WHERE USERNAME = '${USERNAME}')`)
+    return res.render("cart.ejs", { user: req.session.user, GIOHANG: result.recordset, THUOC: result2.recordset });
 }
 
 let get4T = (req, res) => {
