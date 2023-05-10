@@ -15,8 +15,9 @@ const initWebRoute = (app) => {
     router.post('/updateTHUOC', homeController.updateTHUOC)
     router.post('/addToCart/:MATHUOC', homeController.addToCart)
     router.get('/cart', homeController.getCart)
-    router.get('/4T', homeController.get4T)
     router.get('/sp', homeController.getsp)
+    router.get('/contact', homeController.getcontact)
+    router.get('/info', homeController.getinfo)
     //login signup logout
     router.get('/signup', userController.dangky);
     router.post('/signup', userController.signup);

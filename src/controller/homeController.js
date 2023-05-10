@@ -59,27 +59,29 @@ let updateTHUOC = async (req, res) => {
     return res.redirect('/db/thuoc')
 }
 
-let getsp = (req, res) => {
-    return res.render("sp.ejs", { user: req.session.user });
+let getsp = async (req, res) => {
+    const pool = await connectDB();
+    try {
+        const result = await pool.request().query('select * from THUOC');
+        const result1 = await pool.request().query('select * from NGUOIDUNG');
+        return res.render("sp.ejs", { THUOC: result.recordset, user: req.session.user , NGUOIDUNG: result1.recordset});
+    }
+    catch (err) {
+        console.log(err);
+    }
 }
 
-let getcontact = (req, res) => {
+
+
+let getcontact = async (req, res) => {
     return res.render("contact.ejs", { user: req.session.user });
 }
 
-let getinfo = (req, res) => {
+let getinfo = async (req, res) => {
     return res.render("info.ejs", { user: req.session.user });
 }
 
-let getregister = (req, res) => {
-    return res.render("register.ejs", { user: req.session.user });
-}
-
-let getlog = (req, res) => {
-    return res.render("log.ejs", { user: req.session.user });
-}
-
-let getgiohang = (req, res) => {
+let getgiohang = async (req, res) => {
     return res.render("giohang.ejs", { user: req.session.user });
 }
 let addToCart = async (req, res) => {
@@ -105,11 +107,7 @@ let getCart = async (req, res) => {
     return res.render("cart.ejs", { user: req.session.user, GIOHANG: result.recordset, THUOC: result2.recordset });
 }
 
-let get4T = (req, res) => {
-    return res.render("4T.ejs" , { user: req.session.user });
-}
-
-let admin = (req, res) => {
+let admin = async (req, res) => {
     if (req.session.user == null) {
         return res.redirect('/login')
     }
@@ -128,8 +126,6 @@ module.exports = {
     getsp: getsp,
     getcontact: getcontact,
     getinfo: getinfo,
-    getregister: getregister,
-    getlog: getlog,
     getgiahang: getgiohang,
     addToCart: addToCart,
     getCart: getCart,
