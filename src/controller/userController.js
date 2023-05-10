@@ -30,7 +30,6 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
     let { username, password } = req.body;
     const pool = await connectDB();
-    console.log(username);
     try {
         const result = await pool.request().query(`select * from NGUOIDUNG where USERNAME = '${username}'`)
     } catch (error) {

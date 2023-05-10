@@ -39,7 +39,6 @@ let newTHUOC = async (req, res) => {
 
 let deleteTHUOC = async (req, res) => {
     let MATHUOC = req.body.MATHUOC;
-    console.log(MATHUOC)
     const pool = await connectDB();
     const result = await pool.request().query(`delete from THUOC where MATHUOC = '${MATHUOC}'`)
     return res.redirect('/db')
@@ -105,7 +104,16 @@ let getCart = async (req, res) => {
     const pool = await connectDB();
     const result = await pool.request().query(`SELECT * FROM GIOHANG WHERE USERNAME = '${USERNAME}'`)
     const result2 = await pool.request().query(`SELECT * FROM THUOC WHERE MATHUOC IN (SELECT MATHUOC FROM GIOHANG WHERE USERNAME = '${USERNAME}')`)
-    return res.render("cart.ejs", { user: req.session.user, GIOHANG: result.recordset, THUOC: result2.recordset });
+    const tongTien = await pool.request().query(`SELECT SUM(SOLUONG*GIALE) AS TONGTIEN FROM THUOC JOIN GIOHANG ON USERNAME = '${USERNAME}' AND GIOHANG.MATHUOC = THUOC.MATHUOC`)
+    return res.render("cart.ejs", { user: req.session.user, GIOHANG: result.recordset, THUOC: result2.recordset, TONGTIEN: tongTien.recordset[0].TONGTIEN });
+}
+
+let deleteCart = async (req, res) => {
+    let MATHUOC = req.body.MATHUOC;
+    let USERNAME = req.session.user.USERNAME;
+    const pool = await connectDB();
+    const result = await pool.request().query(`DELETE FROM GIOHANG WHERE USERNAME = '${USERNAME}' AND MATHUOC = '${MATHUOC}'`)
+    return res.redirect('/cart')
 }
 
 let admin = async (req, res) => {
@@ -130,5 +138,6 @@ module.exports = {
     getgiahang: getgiohang,
     addToCart: addToCart,
     getCart: getCart,
+    deleteCart: deleteCart,
     admin: admin,
 }
