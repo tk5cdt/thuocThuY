@@ -31,11 +31,7 @@ const login = async (req, res) => {
     let { username, password } = req.body;
     const pool = await connectDB();
     console.log(username);
-    try {
-        const result = await pool.request().query(`select * from NGUOIDUNG where USERNAME = '${username}'`)
-    } catch (error) {
-        console.log(error);
-    }
+    const result = await pool.request().query(`select * from NGUOIDUNG where USERNAME = '${username}'`)
     if (result.recordset.length === 0) {
         return res.render("login.ejs", { message: "Username không tồn tại" });
     }
