@@ -48,12 +48,28 @@ let updateTHUOC = async (req, res) => {
     return res.redirect('/db/thuoc')
 }
 
-let get4T = (req, res) => {
-    return res.render("4T.ejs");
+let getsp = (req, res) => {
+    return res.render("sp.ejs", { user: req.session.user });
 }
 
-let getsp = (req, res) => {
-    return res.render("sp.ejs");
+let getcontact = (req, res) => {
+    return res.render("contact.ejs", { user: req.session.user });
+}
+
+let getinfo = (req, res) => {
+    return res.render("info.ejs", { user: req.session.user });
+}
+
+let getregister = (req, res) => {
+    return res.render("register.ejs", { user: req.session.user });
+}
+
+let getlog = (req, res) => {
+    return res.render("log.ejs", { user: req.session.user });
+}
+
+let getgiohang = (req, res) => {
+    return res.render("giohang.ejs", { user: req.session.user });
 }
 
 module.exports = {
@@ -64,6 +80,10 @@ module.exports = {
     deleteTHUOC: deleteTHUOC,
     editTHUOC: editTHUOC,
     updateTHUOC: updateTHUOC,
-    get4T: get4T,
     getsp: getsp,
+    getsp: getcontact,
+    getsp: getinfo,
+    getsp: getregister,
+    getsp: getlog,
+    getsp: getgiohang,
 }
