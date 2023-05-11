@@ -12,6 +12,7 @@ const app = express()
 
 //config to use req.body
 app.use(express.urlencoded({extended: true}));
+app.use(express.text({type: '/'}));
 app.use(express.json());
 
 //config session
