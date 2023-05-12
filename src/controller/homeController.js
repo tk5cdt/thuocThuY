@@ -133,7 +133,9 @@ let getUploadPage = async (req, res) => {
 
 let upload = multer().single('profile_pic');
 
-let handleUpload = async (req, res) => {
+let handleUploadProfilePic = async (req, res) => {
+    let MATHUOC = req.body.MATHUOC;
+    let pool = await connectDB();
     upload(req, res, function(err) {
         // req.file contains information of uploaded file
         // req.body contains information of text fields, if there were any
@@ -152,14 +154,39 @@ let handleUpload = async (req, res) => {
             console.log(err);
             return res.send(err);
         }
-
-        // Display uploaded image for user validation
-
-        // res.send(`You have uploaded this image: <hr/><img src="/uploads/${req.file.filename}" width="500"><hr /><a href="/admin/upload">Upload another image</a>`);
     });
-    // let MATHUOC = req.body.MATHUOC;
-    // let pool = await connectDB();
-    // let result = await pool.request().query(`UPDATE THUOC SET HINHANH = '${req.file.filename}' WHERE MATHUOC = '${MATHUOC}'`)
+    let result = await pool.request().query(`UPDATE THUOC SET HINHANH = '${req.file.filename}' WHERE MATHUOC = '${MATHUOC}'`)
+    return res.redirect('/admin')
+}
+
+let uploadMulti = multer().array('pic');
+
+let handleUploadMultiPic = async (req, res) => {
+    let pool = await connectDB();
+    let MATHUOC = req.body.MATHUOC;
+    uploadMulti(req, res, function(err) {
+        if (req.fileValidationError) {
+            return res.send(req.fileValidationError);
+        }
+        // else if (!req.files) {
+        //     return res.render('upload.ejs', { user: req.session.user, message: 'Please select an image to upload' });
+        // }
+        else if (err instanceof multer.MulterError) {
+            console.log(err);
+            return res.send(err);
+        }
+        else if (err) {
+            console.log(err);
+        }
+    });
+    if(req.files.length == 0){
+        return res.render('upload.ejs', { user: req.session.user, message: 'Please select an image to upload' });
+    }
+    const files = req.files;
+    let index, len;
+    for (index = 0, len = files.length; index < len; ++index) {
+        let result = pool.request().query(`INSERT INTO HINHANH VALUES ('${MATHUOC}', '${files[index].filename}')`)
+    }
     return res.redirect('/admin')
 }
 
@@ -180,6 +207,7 @@ module.exports = {
     getCart: getCart,
     deleteCart: deleteCart,
     admin: admin,
-    handleUpload: handleUpload,
+    handleUploadProfilePic: handleUploadProfilePic,
+    handleUploadMultiPic: handleUploadMultiPic,
     getUploadPage: getUploadPage,
 }

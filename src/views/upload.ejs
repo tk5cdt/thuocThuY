@@ -7,7 +7,12 @@
     <title>Document</title>
 </head>
 <body>
-    <form method="POST" action="/admin/upload" enctype="multipart/form-data">
+    <% if (message) { %>
+        <p style="color: brown;">
+            <%= message %>
+        </p>
+        <% } %>
+    <form method="POST" action="/admin/uploadProfilePic" enctype="multipart/form-data">
         <div>
             <label>Select your profile picture:</label>
             <input type="file" name="profile_pic" />
@@ -17,13 +22,13 @@
         </div>
     </form>
 
-    <form method="POST" action="/" enctype="multipart/form-data">
+    <form method="POST" action="/admin/uploadMultiple" enctype="multipart/form-data">
         <div>
             <label>Select multiple images:</label>
-            <input type="file" name="multiple_images" multiple />
+            <input type="file" name="pic" multiple />
         </div>
         <div>
-            <input type="submit" name="btn_upload_multiple_images" value="Upload" />
+            <input type="submit" name="btn_upload_pic" value="Upload" />
         </div>
     </form>
 </body>

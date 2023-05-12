@@ -15,7 +15,7 @@ const storage = multer.diskStorage({
 
     // By default, multer removes file extensions so let's add them back
     filename: function(req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+        cb(null, file.fieldname + '-' + req.body.MATHUOC + '-' + Date.now() + path.extname(file.originalname));
     }
 });
 
@@ -54,7 +54,8 @@ const initWebRoute = (app) => {
     router.get('/admin/themthuoc', homeController.themthuoc)
     router.post('/createNewThuoc', homeController.newTHUOC)
     router.get('/admin/upload', homeController.getUploadPage)
-    router.post('/admin/upload', upload.single('profile_pic'), homeController.handleUpload)
+    router.post('/admin/uploadProfilePic', upload.single('profile_pic'), homeController.handleUploadProfilePic)
+    router.post('/admin/uploadMultiple', upload.array('pic', 3), homeController.handleUploadMultiPic)
     return app.use('/', router);
 }
 
