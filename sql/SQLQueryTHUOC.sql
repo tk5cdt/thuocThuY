@@ -144,10 +144,10 @@ CREATE TABLE DONHANGONLINE
 (
       MADONHANG VARCHAR(10),
       USERNAME VARCHAR(20) NOT NULL,
-      DIENTHOAI NCHAR(11),
-      DIACHI NVARCHAR(80),
+      DIENTHOAI NCHAR(11) NOT NULL,
+      DIACHI NVARCHAR(80) NOT NULL,
       LOAIDH NVARCHAR(20) DEFAULT N'Đơn chuyển đi', --đơn chuyển đi hoặc đơn hoàn về
-      TRANGTHAIDH NVARCHAR(30) DEFAULT N'Đang chuẩn bị', --đang chuẩn bị, đang vận chuyển, đã giao, giao không thành công
+      TRANGTHAIDH NVARCHAR(30) DEFAULT N'Đang lập đơn', --đang lập đơn, đang chuẩn bị, đang vận chuyển, đã giao, giao không thành công
       NGAYLAP DATE DEFAULT GETDATE(),
       TONGTIEN MONEY DEFAULT 0,
       PRIMARY KEY(MADONHANG)
@@ -173,6 +173,23 @@ CREATE TABLE GIOHANG
       THANHTIEN MONEY,
       PRIMARY KEY(USERNAME, MATHUOC)
 )
+
+-- tạo table lưu ảnh chính
+CREATE TABLE PROFILEPICTURE
+(
+      MATHUOC VARCHAR(10) NOT NULL,
+      TENANH NVARCHAR(100),
+      PRIMARY KEY(MATHUOC)
+)
+
+-- tạo table lưu album
+CREATE TABLE ALBUMPICTURES
+(
+      MATHUOC VARCHAR(10) NOT NULL,
+      TENALBUM NVARCHAR(100),
+      PRIMARY KEY(MATHUOC)
+)
+
 
 ---------------------------------------------TẠO RÀNG BUỘC KHÓA NGOẠI-----------------------------------------------
 
@@ -247,6 +264,24 @@ ALTER TABLE GIOHANG
 ADD CONSTRAINT FK_GIOHANG_THUOC FOREIGN KEY(MATHUOC)
 REFERENCES THUOC(MATHUOC)
 GO
+
+--tạo khóa ngoại cho bảng đơn hàng online và user
+ALTER TABLE DONHANGONLINE
+ADD CONSTRAINT FK_DONHANGONLINE_TAIKHOAN FOREIGN KEY(USERNAME)
+REFERENCES TAIKHOAN(USERNAME)
+
+-- tạo khóa ngoại bảng profile picture và thuốc
+ALTER TABLE PROFILEPICTURE
+ADD CONSTRAINT FK_PROFILEPICTURE_THUOC FOREIGN KEY(MATHUOC)
+REFERENCES THUOC(MATHUOC)
+GO
+
+-- tạo khóa ngoại bảng album picture và thuốc
+ALTER TABLE ALBUMPICTURES
+ADD CONSTRAINT FK_ALBUMPICTURES_THUOC FOREIGN KEY(MATHUOC)
+REFERENCES THUOC(MATHUOC)
+GO
+
 ---------------------------------------------TẠO RÀNG BUỘC CHECK-----------------------------------------------
 
 --tạo điều kiện ngày hết hạn của kho hàng
@@ -297,6 +332,31 @@ BEGIN
           GIALE = inserted.GIANHAP + inserted.GIANHAP * 10/100
       FROM THUOC JOIN inserted
       ON THUOC.MATHUOC = inserted.MATHUOC
+END
+GO
+
+-- tạo trigger khi xóa dữ liệu từ bảng THUOC
+CREATE TRIGGER TRG_DELETE_THUOC
+      ON THUOC
+      INSTEAD OF DELETE
+AS
+BEGIN
+      IF EXISTS (SELECT MATHUOC FROM deleted WHERE MATHUOC IN (SELECT MATHUOC FROM ALBUMPICTURES) OR MATHUOC IN (SELECT MATHUOC FROM PROFILEPICTURE))
+      BEGIN
+            PRINT N'DỮ LIỆU HÌNH ẢNH CỦA THUỐC SẼ ĐƯỢC XÓA'
+            DELETE ALBUMPICTURES
+            WHERE MATHUOC = (SELECT MATHUOC FROM deleted)
+      END
+
+      IF EXISTS (SELECT MATHUOC FROM deleted WHERE MATHUOC IN (SELECT MATHUOC FROM PROFILEPICTURE))
+      BEGIN
+            PRINT N'DỮ LIỆU HÌNH ẢNH CỦA THUỐC SẼ ĐƯỢC XÓA'
+            DELETE PROFILEPICTURE
+            WHERE MATHUOC = (SELECT MATHUOC FROM deleted)
+      END
+
+      DELETE THUOC 
+      WHERE MATHUOC = (SELECT MATHUOC FROM deleted)
 END
 GO
 
@@ -836,6 +896,11 @@ BEGIN
             SET SOLUONG += inserted.SOLUONG
             FROM inserted
             WHERE inserted.USERNAME = GIOHANG.USERNAME
+
+            UPDATE GIOHANG
+            SET THANHTIEN = GIALE * GIOHANG.SOLUONG
+            FROM THUOC
+            WHERE THUOC.MATHUOC = GIOHANG.MATHUOC
       END
       ELSE
       BEGIN
@@ -1349,6 +1414,48 @@ AS
       AND YEAR(NGAYLAP) = @nam
       AND DATEPART(QUARTER, NGAYLAP) = @quy
 GO
+
+CREATE FUNCTION UF_ClickDatOnline(@madonhang VARCHAR(10), @username VARCHAR(20), @mathuoc VARCHAR(10))
+RETURNS NVARCHAR(30)
+AS
+BEGIN
+      DECLARE @thongbao NVARCHAR(30) 
+      IF EXISTS (SELECT USERNAME FROM DONHANGONLINE WHERE USERNAME != @username AND MADONHANG = @madonhang AND TRANGTHAIDH != N'Đang lập đơn')
+      BEGIN
+            SET @thongbao = N'LỖI KHI THÊM THÊM VÀO ĐƠN HÀNG'
+      END
+      IF EXISTS (SELECT USERNAME FROM DONHANGONLINE WHERE TRANGTHAIDH != N'Đang lập đơn' AND MADONHANG = @madonhang)
+      BEGIN
+            SET @thongbao = N'ĐƠN HÀNG ĐÃ ĐƯỢC ĐẶT THÀNH CÔNG, KHÔNG THỂ THAY ĐỔI!'
+      END
+      IF NOT EXISTS (SELECT MATHUOC FROM GIOHANG WHERE USERNAME = @username AND MATHUOC = @mathuoc)
+      BEGIN
+            SET @thongbao = N'KHÔNG TÔN TẠI THUỐC TRONG GIỎ HÀNG'
+      END
+      ELSE
+      BEGIN
+            SET @thongbao = N'ĐƠN HÀNG ĐÃ ĐƯỢC THÊM'
+      END
+      RETURN @thongbao
+END
+GO
+
+-- CREATE FUNCTION UF_DatHangOnline(@madonhang VARCHAR(10))
+-- RETURNS NVARCHAR(30)
+-- AS
+-- BEGIN
+--       DECLARE @thongbao NVARCHAR(30)
+--       SET @thongbao = N'ĐƠN HÀNG ĐÃ ĐƯỢC CHẤP NHẬN, KHÔNG THỂ THAY ĐỔI!'
+--       IF EXISTS (SELECT USERNAME FROM DONHANGONLINE WHERE TRANGTHAIDH = N'Đang lập đơn' AND MADONHANG = @madonhang)
+--       BEGIN
+--             SET @thongbao = N'ĐƠN HÀNG ĐÃ ĐƯỢC ĐẶT THÀNH CÔNG!'
+--             UPDATE DONHANGONLINE 
+--             SET TRANGTHAIDH = N'Đang chuẩn bị'
+--             WHERE MADONHANG = @madonhang
+--       END
+--       RETURN @thongbao
+-- END
+-- GO
 
 -------------------------------------------------TẠO CÁC BẢNG ẢO------------------------------------------------------
 

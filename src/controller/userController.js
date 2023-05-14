@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 const signup = async (req, res) => {
     let { username, email, password, rePassword } = req.body;
     const pool = await connectDB();
-    const result = await pool.request().query(`select * from NGUOIDUNG where USERNAME = '${username}'`)
+    const result = await pool.request().query(`select * from TAIKHOAN where USERNAME = '${username}'`)
     if (result.recordset.length > 0) {
         return res.render("signup.ejs", { message: "Username đã tồn tại" });
     }
@@ -17,7 +17,7 @@ const signup = async (req, res) => {
                 const salt = bcrypt.genSaltSync(10);
                 const hashPassword = bcrypt.hashSync(password, salt);
                 console.log(hashPassword);
-                const result = await pool.request().query(`insert into NGUOIDUNG(USERNAME, MATKHAU, EMAIL, QUANTRI) values('${username}', '${hashPassword}', '${email}', '0')`)
+                const result = await pool.request().query(`insert into TAIKHOAN(USERNAME, MATKHAU, EMAIL, QUANTRI) values('${username}', '${hashPassword}', '${email}', '0')`)
                 return res.redirect('/login')
             } catch (error) {
                 console.log(error);
@@ -32,6 +32,7 @@ const login = async (req, res) => {
     const pool = await connectDB();
     console.log(username);
     const result = await pool.request().query(`select * from NGUOIDUNG where USERNAME = '${username}'`)
+    const result = await pool.request().query(`select * from TAIKHOAN where USERNAME = '${username}'`)
     if (result.recordset.length === 0) {
         return res.render("login.ejs", { message: "Username không tồn tại" });
     }
@@ -41,7 +42,9 @@ const login = async (req, res) => {
         if (isMatch) {
             req.session.user = user;
             if (user.QUANTRI === true)
+            {
                 return res.redirect('/admin');
+            }
             else
                 return res.redirect('/');
         }
