@@ -838,6 +838,77 @@ BEGIN
 END
 GO
 
+
+
+--tạo trigger khi xóa dữ liệu trong bảng XUATTHUOC
+CREATE TRIGGER TRG_DELETE_XUATTHUOC
+      ON XUATTHUOC
+      FOR DELETE
+AS
+BEGIN
+      --cập nhật lại số lượng của nhóm thuốc
+      UPDATE NHOMTHUOC
+      SET NHOMTHUOC.SOLUONG -= deleted.SOLUONG
+      FROM NHOMTHUOC INNER JOIN deleted
+      ON deleted.THUOC IN (
+            SELECT MATHUOC FROM THUOC
+            WHERE THUOC.MANHOM = NHOMTHUOC.MANHOM
+      )
+END
+GO
+
+--tạo trigger khi xóa dữ liệu trong bảng KHOHANG
+CREATE TRIGGER TRG_DELETE_KHOHANG
+      ON KHOHANG
+      FOR DELETE
+AS
+BEGIN
+      --cập nhật lại số lượng của nhóm thuốc
+      UPDATE NHOMTHUOC
+      SET NHOMTHUOC.SOLUONG -= deleted.TONKHO
+      FROM NHOMTHUOC INNER JOIN deleted
+      ON deleted.MATHUOC IN (
+            SELECT MATHUOC FROM THUOC
+            WHERE THUOC.MANHOM = NHOMTHUOC.MANHOM
+      )
+END
+GO
+
+--tạo triger khi thêm dữ liệu vào DONHANGONLINE
+CREATE TRIGGER TRG_INSERT_DONHANGONLINE
+      ON DONHANGONLINE
+      FOR INSERT
+AS
+BEGIN
+      --reset giá trị tổng tiền về 0 khi người dùng nhập giá trị khác
+      IF(SELECT TONGTIEN FROM inserted) !=0
+      BEGIN
+            PRINT N'TỔNG TIỀN SẼ ĐƯỢC HỆ THỐNG TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG'
+            PRINT N'RESET TỔNG TIỀN'
+            UPDATE DONHANGONLINE
+            SET TONGTIEN = 0
+            FROM inserted
+            WHERE DONHANGONLINE.MADONHANG = inserted.MADONHANG
+      END
+END
+GO
+
+CREATE TRIGGER TRG_UPDATE_DONHANGONLINE
+      ON DONHANGONLINE
+      FOR UPDATE
+AS
+BEGIN
+      IF (SELECT TRANGTHAIDH FROM inserted) != N'Đang lập đơn' AND (SELECT TRANGTHAIDH FROM deleted) = N'Đang lập đơn'
+      BEGIN
+            PRINT N'ĐƠN HÀNG ĐÃ ĐƯỢC ĐẶT THÀNH CÔNG'
+            DELETE GIOHANG
+            FROM DONXUATONLINECHITIET D, inserted
+            WHERE GIOHANG.USERNAME = inserted.USERNAME
+            AND D.THUOC = GIOHANG.MATHUOC
+      END
+END
+GO
+
 --tạo trigger khi thêm dữ liệu vào bảng XUATTHUOC
 CREATE TRIGGER TRG_INSERT_DONXUATONLINECHITIET
       ON DONXUATONLINECHITIET
@@ -946,59 +1017,6 @@ BEGIN
                   WHERE NGAYHETHAN = @NHHUUTIEN
                   AND KHOHANG.MATHUOC = (SELECT THUOC FROM inserted)
             END
-      END
-END
-GO
-
---tạo trigger khi xóa dữ liệu trong bảng XUATTHUOC
-CREATE TRIGGER TRG_DELETE_XUATTHUOC
-      ON XUATTHUOC
-      FOR DELETE
-AS
-BEGIN
-      --cập nhật lại số lượng của nhóm thuốc
-      UPDATE NHOMTHUOC
-      SET NHOMTHUOC.SOLUONG -= deleted.SOLUONG
-      FROM NHOMTHUOC INNER JOIN deleted
-      ON deleted.THUOC IN (
-            SELECT MATHUOC FROM THUOC
-            WHERE THUOC.MANHOM = NHOMTHUOC.MANHOM
-      )
-END
-GO
-
---tạo trigger khi xóa dữ liệu trong bảng KHOHANG
-CREATE TRIGGER TRG_DELETE_KHOHANG
-      ON KHOHANG
-      FOR DELETE
-AS
-BEGIN
-      --cập nhật lại số lượng của nhóm thuốc
-      UPDATE NHOMTHUOC
-      SET NHOMTHUOC.SOLUONG -= deleted.TONKHO
-      FROM NHOMTHUOC INNER JOIN deleted
-      ON deleted.MATHUOC IN (
-            SELECT MATHUOC FROM THUOC
-            WHERE THUOC.MANHOM = NHOMTHUOC.MANHOM
-      )
-END
-GO
-
---tạo triger khi thêm dữ liệu vào DONHANGONLINE
-CREATE TRIGGER TRG_INSERT_DONHANGONLINE
-      ON DONHANGONLINE
-      FOR INSERT
-AS
-BEGIN
-      --reset giá trị tổng tiền về 0 khi người dùng nhập giá trị khác
-      IF(SELECT TONGTIEN FROM inserted) !=0
-      BEGIN
-            PRINT N'TỔNG TIỀN SẼ ĐƯỢC HỆ THỐNG TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG'
-            PRINT N'RESET TỔNG TIỀN'
-            UPDATE DONHANGONLINE
-            SET TONGTIEN = 0
-            FROM inserted
-            WHERE DONHANGONLINE.MADONHANG = inserted.MADONHANG
       END
 END
 GO
