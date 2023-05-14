@@ -1,5 +1,6 @@
 import { connectDB } from '../configs/connectDB';
 import multer from 'multer';
+import fs from 'fs';
 
 let upload = multer().single('profile_pic');
 let uploadMulti = multer().array('pic');
@@ -80,13 +81,9 @@ let newTHUOC = async (req, res) => {
 let deleteTHUOC = async (req, res) => {
     let MATHUOC = req.body.MATHUOC;
     const pool = await connectDB();
+    let path = `./public/uploads/${MATHUOC}`;
+    fs.rmdirSync(path, { recursive: true });
     const result = await pool.request().query(`delete from THUOC where MATHUOC = '${MATHUOC}'`)
-    // //detelte picture
-    // const result1 = await pool.request().query(`delete from PROFILEPICTURE where MATHUOC = '${MATHUOC}'`)
-    // const result2 = await pool.request().query(`delete from ALBUMPICTURE where MATHUOC = '${MATHUOC}'`)
-    // //delete pictures in folder
-    // let path = `./public/uploads/${MATHUOC}`;
-    // fs.rmdirSync(path, { recursive: true });
     return res.redirect('/db')
 }
 
