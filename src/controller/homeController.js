@@ -7,9 +7,13 @@ let getHompage = (req, res) => {
 
 let getConnect = async (req, res) => {
     const pool = await connectDB();
+    const pageNumber = parseInt(req.query.pageNumber) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
     try {
-        const result = await pool.request().query('select * from THUOC');
-        return res.render("db.ejs", { THUOC: result.recordset, user: req.session.user});
+        const result = await pool.request().query(`select * from THUOC order by MATHUOC offset ${(pageNumber - 1) * pageSize} rows fetch next ${pageSize} rows only`);
+        const totalRows = await pool.request().query(`select count(*) as total from THUOC`);
+        const totalPages = Math.ceil(totalRows.recordset[0].total / pageSize);
+        return res.render("db.ejs", { THUOC: result.recordset, user: req.session.user, totalPages, pageNumber, pageSize });
     }
     catch (err) {
         console.log(err);
@@ -29,7 +33,7 @@ let getTHUOC = async (req, res) => {
 }
 
 let themthuoc = (req, res) => {
-    return res.render("themthuoc.ejs", { message: "" , user: req.session.user});
+    return res.render("themthuoc.ejs", { message: "", user: req.session.user });
 }
 
 let newTHUOC = async (req, res) => {
@@ -65,7 +69,7 @@ let getsp = async (req, res) => {
     try {
         const result = await pool.request().query('select * from THUOC');
         const result1 = await pool.request().query('select * from NGUOIDUNG');
-        return res.render("sp.ejs", { THUOC: result.recordset, user: req.session.user , NGUOIDUNG: result1.recordset});
+        return res.render("sp.ejs", { THUOC: result.recordset, user: req.session.user, NGUOIDUNG: result1.recordset });
     }
     catch (err) {
         console.log(err);
@@ -122,7 +126,7 @@ let admin = async (req, res) => {
     if (req.session.user == null) {
         return res.redirect('/login')
     }
-    return res.render("admin.ejs" , { user: req.session.user });
+    return res.render("admin.ejs", { user: req.session.user });
 }
 
 let getUploadPage = async (req, res) => {
@@ -136,7 +140,7 @@ let upload = multer().single('profile_pic');
 let handleUploadProfilePic = async (req, res) => {
     let MATHUOC = req.body.MATHUOC;
     let pool = await connectDB();
-    upload(req, res, function(err) {
+    upload(req, res, function (err) {
         // req.file contains information of uploaded file
         // req.body contains information of text fields, if there were any
 
@@ -164,7 +168,7 @@ let uploadMulti = multer().array('pic');
 let handleUploadMultiPic = async (req, res) => {
     let pool = await connectDB();
     let MATHUOC = req.body.MATHUOC;
-    uploadMulti(req, res, function(err) {
+    uploadMulti(req, res, function (err) {
         if (req.fileValidationError) {
             return res.send(req.fileValidationError);
         }
@@ -179,7 +183,7 @@ let handleUploadMultiPic = async (req, res) => {
             console.log(err);
         }
     });
-    if(req.files.length == 0){
+    if (req.files.length == 0) {
         return res.render('upload.ejs', { user: req.session.user, message: 'Please select an image to upload' });
     }
     const files = req.files;

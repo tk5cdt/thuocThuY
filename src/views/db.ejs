@@ -8,35 +8,41 @@
     <title>db</title>
     <style>
         table {
-          font-family: arial, sans-serif;
-          border-collapse: collapse;
-          width: 100%;
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
         }
-        
-        td, th {
-          border: 1px solid #dddddd;
-          text-align: left;
-          padding: 8px;
+
+        td,
+        th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
         }
-        
+
         tr:nth-child(even) {
-          background-color: #ccc;
+            background-color: #ccc;
         }
+
         thead {
             background-color: #ccc;
         }
+
         tr:hover {
             background-color: #ddd;
         }
+
         form {
             display: flex;
             flex-direction: column;
             width: 30%;
             margin: 0 auto;
         }
+
         input {
             margin-bottom: 10px;
         }
+
         input[type="submit"] {
             width: 50px;
             margin: 0 auto;
@@ -62,35 +68,82 @@
             <th>Chi tiết</th>
         </thead>
         <tbody>
-            <% for( let index = 0; index < THUOC.length; index++ ) { %>
-            <tr>
-                <td><%= THUOC[index].MATHUOC %></td>
-                <td><%= THUOC[index].TENTHUOC %></td>
-                <td><%= THUOC[index].MANHOM %></td>
-                <td><%= THUOC[index].LOAISD %></td>
-                <td><%= THUOC[index].THANHPHAN %></td>
-                <td><%= THUOC[index].MANCC %></td>
-                <td><%= THUOC[index].GIASI %></td>
-                <td><%= THUOC[index].GIALE %></td>
-                <td><%= THUOC[index].GIANHAP %></td>
-                <td><%= THUOC[index].DANGBAOCHE %></td>
-                <td><%= THUOC[index].QCDONGGOI %></td>
-                <td><%= THUOC[index].CONGDUNG %></td>
-                <td style="display: flex; flex-direction: column;">
-                    <a href="/thuoc/<%= THUOC[index].MATHUOC %>">details</a>
-                    <form action="/deleteThuoc" method="post" style="margin: 0%;">
-                        <input type="hidden" name="MATHUOC" value="<%= THUOC[index].MATHUOC %>">
-                        <input type="submit" value="Xóa">
-                    </form>
-                    <form action="/editThuoc/<%= THUOC[index].MATHUOC %>" method="get" style="margin: 0%;">
-                        <input type="hidden" name="MATHUOC" value="<%= THUOC[index].MATHUOC %>">
-                        <input type="submit" value="sửa">
-                    </form>
-                </td>
-            </tr>
-            <% } %>
+            <% for( let index=0; index < THUOC.length; index++ ) { %>
+                <tr>
+                    <td>
+                        <%= THUOC[index].MATHUOC %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].TENTHUOC %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].MANHOM %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].LOAISD %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].THANHPHAN %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].MANCC %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].GIASI %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].GIALE %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].GIANHAP %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].DANGBAOCHE %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].QCDONGGOI %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].CONGDUNG %>
+                    </td>
+                    <td style="display: flex; flex-direction: column;">
+                        <a href="/thuoc/<%= THUOC[index].MATHUOC %>">details</a>
+                        <form action="/deleteThuoc" method="post" style="margin: 0%;">
+                            <input type="hidden" name="MATHUOC" value="<%= THUOC[index].MATHUOC %>">
+                            <input type="submit" value="Xóa">
+                        </form>
+                        <form action="/editThuoc/<%= THUOC[index].MATHUOC %>" method="get" style="margin: 0%;">
+                            <input type="hidden" name="MATHUOC" value="<%= THUOC[index].MATHUOC %>">
+                            <input type="submit" value="sửa">
+                        </form>
+                    </td>
+                </tr>
+                <% } %>
         </tbody>
     </table>
+    <!-- Hiển thị nút Previous nếu không phải trang đầu tiên -->
+    <% if (pageNumber> 1) { %>
+        <a href="/db?pageNumber=<%= pageNumber - 1 %>&pageSize=<%= pageSize %>">Previous</a>
+    <% } %>
+
+    <!-- Hiển thị các nút phân trang -->
+    <% for (let i=1; i <=totalPages; i++) { %>
+        <% if (i===pageNumber) { %>
+            <span>
+        <%= i %>
+            </span>
+        <% } else { %>
+                <a href="/db?pageNumber=<%= i %>&pageSize=<%= pageSize %>">
+                    <%= i %>
+                </a>
+        <% } %>
+    <% } %>
+
+    <!-- Hiển thị nút Next nếu không phải trang cuối cùng -->
+    <% if (pageNumber < totalPages) { %>
+        <a href="/db?pageNumber=<%= pageNumber + 1 %>&pageSize=<%= pageSize %>">Next</a>
+    <% } %>
+
     <form action="/createNewThuoc" method="post">
         <label for="MATHUOC">Mã thuốc</label>
         <input type="text" name="MATHUOC" placeholder="Mã thuốc">
