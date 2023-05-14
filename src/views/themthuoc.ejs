@@ -13,9 +13,11 @@
             width: 30%;
             margin: 0 auto;
         }
+
         input {
             margin-bottom: 10px;
         }
+
         input[type="submit"] {
             width: 50px;
             margin: 0 auto;
@@ -24,7 +26,7 @@
 </head>
 
 <body>
-    <form action="/createNewThuoc" method="post">
+    <form action="/createNewThuoc" method="post" enctype="multipart/form-data">
         <label for="MATHUOC">Mã thuốc</label>
         <input type="text" name="MATHUOC" placeholder="Mã thuốc">
         <label for="TENTHUOC">Tên thuốc</label>
@@ -49,8 +51,28 @@
         <input type="text" name="QCDONGGOI" placeholder="Quy cách đóng gói">
         <label for="CONGDUNG">Công dụng</label>
         <input type="text" name="CONGDUNG" placeholder="Công dụng">
-        <input type="submit" value="Thêm">
+        <div>
+            <label>Select your profile picture:</label>
+            <input type="file" name="profile_pic" />
+        </div>
+        <div>
+            <label>Select multiple images:</label>
+            <input type="file" name="pic" multiple />
+        </div>
+        <input type="submit" value="Thêm"">
     </form>
+    <!-- <form method=" POST" action="/admin/uploadProfilePic" enctype="multipart/form-data">
+        <div>
+            <label>Select your profile picture:</label>
+            <input type="file" name="profile_pic" />
+        </div>
+    </form>
+    <form method="POST" action="/admin/uploadMultiple" enctype="multipart/form-data">
+        <div>
+            <label>Select multiple images:</label>
+            <input type="file" name="pic" multiple />
+        </div>
+    </form> -->
 </body>
 
 </html>

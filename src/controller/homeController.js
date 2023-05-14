@@ -1,6 +1,9 @@
 import { connectDB } from '../configs/connectDB';
 import multer from 'multer';
 
+let upload = multer().single('profile_pic');
+let uploadMulti = multer().array('pic');
+
 let getHompage = (req, res) => {
     return res.render("index.ejs", { user: req.session.user });
 }
@@ -13,6 +16,10 @@ let getConnect = async (req, res) => {
         const result = await pool.request().query(`select * from THUOC order by MATHUOC offset ${(pageNumber - 1) * pageSize} rows fetch next ${pageSize} rows only`);
         const totalRows = await pool.request().query(`select count(*) as total from THUOC`);
         const totalPages = Math.ceil(totalRows.recordset[0].total / pageSize);
+        const isAdmin = await pool.request().query(`select * from TAIKHOAN where USERNAME = '${req.session.user}' and QUANTRI = 1`);
+        if (isAdmin.recordset > 0) {
+            return res.render("admin.ejs", { THUOC: result.recordset, user: req.session.user, totalPages, pageNumber, pageSize });
+        }
         return res.render("db.ejs", { THUOC: result.recordset, user: req.session.user, totalPages, pageNumber, pageSize });
     }
     catch (err) {
@@ -40,13 +47,46 @@ let newTHUOC = async (req, res) => {
     let { MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIASI, GIALE, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG } = req.body;
     const pool = await connectDB();
     const result = await pool.request().query(`insert into THUOC(MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIASI, GIALE, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG) values ('${MATHUOC}', N'${TENTHUOC}', '${MANHOM}', N'${LOAISD}', '${THANHPHAN}', '${MANCC}', '${GIASI}', '${GIALE}', '${GIANHAP}', N'${DANGBAOCHE}', N'${QCDONGGOI}', N'${CONGDUNG}')`)
-    return res.redirect('/db/thuoc')
+    upload(req, res, function (err) {
+        // req.file contains information of uploaded file
+        // req.body contains information of text fields, if there were any
+
+        if (req.fileValidationError) {
+            return res.send(req.fileValidationError);
+        }
+        else if (!req.files) {
+            return res.render('upload.ejs', { user: req.session.user, message: 'Please select an image to upload' });
+        }
+        else if (err instanceof multer.MulterError) {
+            console.log(err);
+            return res.send(err);
+        }
+        else if (err) {
+            console.log(err);
+            return res.send(err);
+        }
+    });
+
+    // console.log(req.files.profile_pic);
+    // console.log(req.files.pic);
+    let result1 = await pool.request().query(`INSERT INTO PROFILEPICTURE VALUES ('${MATHUOC}', '${req.files.profile_pic[0].filename}')`)
+    let files = req.files.pic;
+    for (let i = 0; i < files.length; i++) {
+        let result2 = await pool.request().query(`INSERT INTO ALBUMPICTURES VALUES ('${MATHUOC}', '${files[i].filename}')`)
+    }
+    return res.redirect('/db');
 }
 
 let deleteTHUOC = async (req, res) => {
     let MATHUOC = req.body.MATHUOC;
     const pool = await connectDB();
     const result = await pool.request().query(`delete from THUOC where MATHUOC = '${MATHUOC}'`)
+    // //detelte picture
+    // const result1 = await pool.request().query(`delete from PROFILEPICTURE where MATHUOC = '${MATHUOC}'`)
+    // const result2 = await pool.request().query(`delete from ALBUMPICTURE where MATHUOC = '${MATHUOC}'`)
+    // //delete pictures in folder
+    // let path = `./public/uploads/${MATHUOC}`;
+    // fs.rmdirSync(path, { recursive: true });
     return res.redirect('/db')
 }
 
@@ -130,12 +170,8 @@ let admin = async (req, res) => {
 }
 
 let getUploadPage = async (req, res) => {
-    return res.render("upload.ejs", { user: req.session.user });
+    return res.render("upload.ejs", { user: req.session.user, message: '' });
 }
-
-
-
-let upload = multer().single('profile_pic');
 
 let handleUploadProfilePic = async (req, res) => {
     let MATHUOC = req.body.MATHUOC;
@@ -159,11 +195,9 @@ let handleUploadProfilePic = async (req, res) => {
             return res.send(err);
         }
     });
-    let result = await pool.request().query(`UPDATE THUOC SET HINHANH = '${req.file.filename}' WHERE MATHUOC = '${MATHUOC}'`)
+    // let result = await pool.request().query(`UPDATE PROFILEPICTURE SET PROFILEPIC = '${req.file.buffer}', MATHUOC = '${MATHUOC}'`)
     return res.redirect('/admin')
 }
-
-let uploadMulti = multer().array('pic');
 
 let handleUploadMultiPic = async (req, res) => {
     let pool = await connectDB();
@@ -186,13 +220,16 @@ let handleUploadMultiPic = async (req, res) => {
     if (req.files.length == 0) {
         return res.render('upload.ejs', { user: req.session.user, message: 'Please select an image to upload' });
     }
-    const files = req.files;
-    let index, len;
-    for (index = 0, len = files.length; index < len; ++index) {
-        let result = pool.request().query(`INSERT INTO HINHANH VALUES ('${MATHUOC}', '${files[index].filename}')`)
-    }
+    // const files = req.files;
+    // let index, len;
+    // for (index = 0, len = files.length; index < len; ++index) {
+    //     let result = pool.request().query(`INSERT INTO HINHANH VALUES ('${MATHUOC}', '${files[index].filename}')`)
+    // }
     return res.redirect('/admin')
 }
+
+//make themThuoc function that use /createNewThuoc and /uploadMultiPic and /uploadProfilePic to create new thuoc
+
 
 module.exports = {
     getHompage: getHompage,

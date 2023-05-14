@@ -4,16 +4,18 @@ import userController from "../controller/userController";
 import multer from "multer";
 import path from "path";
 import appRoot from "app-root-path";
+import fs from "fs";
 
 let router = express.Router();
 
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
-        console.log(appRoot + '/src/public/uploads/')
-        cb(null, appRoot + '/src/public/uploads/');
+        //create folder name = MATHUOC
+        fs.mkdirSync(appRoot + '/src/public/uploads/' + req.body.MATHUOC, { recursive: true })
+        cb(null, appRoot + '/src/public/uploads/' + req.body.MATHUOC);
     },
 
-    // By default, multer removes file extensions so let's add them back
+    // By default, multer removes file extensions so add them back
     filename: function(req, file, cb) {
         cb(null, file.fieldname + '-' + req.body.MATHUOC + '-' + Date.now() + path.extname(file.originalname));
     }
@@ -52,10 +54,15 @@ const initWebRoute = (app) => {
     //admin
     router.get('/admin', homeController.admin)
     router.get('/admin/themthuoc', homeController.themthuoc)
-    router.post('/createNewThuoc', homeController.newTHUOC)
+    router.post('/createNewThuoc',upload.fields([{
+        name: 'profile_pic', maxCount: 1
+    }, {
+        name: 'pic', maxCount: 5
+    }]) ,homeController.newTHUOC)
     router.get('/admin/upload', homeController.getUploadPage)
     router.post('/admin/uploadProfilePic', upload.single('profile_pic'), homeController.handleUploadProfilePic)
     router.post('/admin/uploadMultiple', upload.array('pic', 3), homeController.handleUploadMultiPic)
+  
     return app.use('/', router);
 }
 

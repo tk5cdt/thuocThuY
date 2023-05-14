@@ -41,7 +41,9 @@ const login = async (req, res) => {
         if (isMatch) {
             req.session.user = user;
             if (user.QUANTRI === true)
+            {
                 return res.redirect('/admin');
+            }
             else
                 return res.redirect('/');
         }
