@@ -28,16 +28,9 @@
                                     <td><%= THUOC[i].GIALE %></td>
                                     <td><%= GIOHANG[index].SOLUONG %></td>
                                     <td style="display: flex; flex-direction: column;">
-                                        <a href="/thuoc/<%= THUOC[index].MATHUOC %>">details</a>
-                                        <form action="/editThuoc/<%= THUOC[index].MATHUOC %>" method="get" style="margin: 0%;">
-                                            <input type="hidden" name="MATHUOC" value="<%= THUOC[i].MATHUOC %>">
-                                            <input type="submit" value="sửa">
-                                        </form>
+                                        <a href="/thuoc/<%= THUOC[i].MATHUOC %>">details</a>
+                                        <a href="/delCart">delete</a>
                                     </td>
-                                    <form action="/deleteCart" method="post" style="margin: 0%;">
-                                        <input type="hidden" name="MATHUOC" value="<%= THUOC[i].MATHUOC %>">
-                                        <input type="submit" value="Xóa">
-                                    </form>
                                 </tr>
                                 <% } %>
                             <% } %>

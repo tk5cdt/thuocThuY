@@ -15,7 +15,7 @@ let getConnect = async (req, res) => {
     const pageNumber = parseInt(req.query.pageNumber) || 1;
     const pageSize = parseInt(req.query.pageSize) || 10;
     try {
-        const result = await pool.request().query(`select * from THUOC order by MATHUOC offset ${(pageNumber - 1) * pageSize} rows fetch next ${pageSize} rows only`);
+        const result = await pool.request().query(`select THUOC.*, TENANH from THUOC, PROFILEPICTURE where THUOC.MATHUOC = PROFILEPICTURE.MATHUOC order by MATHUOC offset ${(pageNumber - 1) * pageSize} rows fetch next ${pageSize} rows only`);
         const totalRows = await pool.request().query(`select count(*) as total from THUOC`);
         const totalPages = Math.ceil(totalRows.recordset[0].total / pageSize);
         const isAdmin = await pool.request().query(`select * from TAIKHOAN where USERNAME = '${req.session.user}' and QUANTRI = 1`);
