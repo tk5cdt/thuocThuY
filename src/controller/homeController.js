@@ -1,6 +1,7 @@
 import { connectDB } from '../configs/connectDB';
 import multer from 'multer';
 import fs from 'fs';
+import appRoot from 'app-root-path';
 
 let upload = multer().single('profile_pic');
 let uploadMulti = multer().array('pic');
@@ -32,8 +33,8 @@ let getTHUOC = async (req, res) => {
     let MATHUOC = req.params.MATHUOC;
     const pool = await connectDB();
     try {
-        const result = await pool.request().query(`select * from THUOC where MATHUOC = '${MATHUOC}'`)
-        return res.render("thuoc.ejs", { THUOC: result.recordset[0], user: req.session.user })
+        const result = await pool.request().query(`select THUOC.*, PROFILEPICTURE.TENANH from THUOC, PROFILEPICTURE where THUOC.MATHUOC = '${MATHUOC}' and THUOC.MATHUOC = PROFILEPICTURE.MATHUOC`)
+        return res.render("thuoc.ejs", { THUOC: result.recordset[0], user: req.session.user, appRoot: appRoot.path });
     }
     catch (err) {
         console.log(err);
@@ -129,12 +130,14 @@ let getgiohang = async (req, res) => {
 
 let addToCart = async (req, res) => {
     let MATHUOC = req.params.MATHUOC;
-    let SOLUONG = req.body.SOLUONG;
+    let SOLUONG = req.body.SOLUONG | 1;
     let USERNAME = req.session.user.USERNAME;
+    let THANHTIEN = req.body.GIALE;
+    console.log(MATHUOC, SOLUONG, USERNAME);
     const pool = await connectDB();
     const re = await pool.request().query(`SELECT * FROM GIOHANG WHERE USERNAME = '${USERNAME}' AND MATHUOC = '${MATHUOC}'`)
     if (re.recordset.length == 0) {
-        const result = await pool.request().query(`UPDATE GIOHANG SET USERNAME = '${USERNAME}', MATHUOC = '${MATHUOC}', SOLUONG = '${SOLUONG}'`)
+        const result = await pool.request().query(`INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG) VALUES ('${USERNAME}', '${MATHUOC}', '${SOLUONG}')`)
     }
     else {
         const result = await pool.request().query(`UPDATE GIOHANG SET SOLUONG = SOLUONG + '${SOLUONG}' WHERE USERNAME = '${USERNAME}' AND MATHUOC = '${MATHUOC}'`)
@@ -152,7 +155,7 @@ let getCart = async (req, res) => {
 }
 
 let deleteCart = async (req, res) => {
-    let MATHUOC = req.body.MATHUOC;
+    let MATHUOC = req.params.MATHUOC;
     let USERNAME = req.session.user.USERNAME;
     const pool = await connectDB();
     const result = await pool.request().query(`DELETE FROM GIOHANG WHERE USERNAME = '${USERNAME}' AND MATHUOC = '${MATHUOC}'`)
