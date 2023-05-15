@@ -84,7 +84,7 @@ CREATE TABLE DONHANGXUAT
       MADONHANG VARCHAR(10) NOT NULL,
       MAKH VARCHAR(10) NOT NULL,
       MANV VARCHAR(10) NOT NULL,
-      TRANGTHAIDH  NVARCHAR(30) DEFAULT N'Đang chuẩn bị',
+      TRANGTHAIDH  NVARCHAR(30) DEFAULT N'Đang chuẩn bị', --đang chuẩn bị, đang vận chuyển, đã giao, giao không thành công
       NGAYLAP DATE NOT NULL,
       TONGTIEN MONEY DEFAULT 0,
       DATHANHTOAN MONEY DEFAULT 0,
@@ -97,7 +97,7 @@ CREATE TABLE DONHANGNHAP
 (
       MADONHANG VARCHAR(10) NOT NULL,
       MANCC VARCHAR(10) NOT NULL,
-      TRANGTHAIDH  NVARCHAR(30) DEFAULT N'Đang chuẩn bị',
+      TRANGTHAIDH  NVARCHAR(30) DEFAULT N'Đang chuẩn bị', --đang chuẩn bị, đang vận chuyển, đã giao, giao không thành công
       NGAYLAP DATE,
       TONGTIEN MONEY DEFAULT 0,
       DATHANHTOAN MONEY DEFAULT 0,
@@ -146,11 +146,21 @@ CREATE TABLE DONHANGONLINE
       USERNAME VARCHAR(20) NOT NULL,
       DIENTHOAI NCHAR(11) NOT NULL,
       DIACHI NVARCHAR(80) NOT NULL,
-      LOAIDH NVARCHAR(20) DEFAULT N'Đơn chuyển đi', --đơn chuyển đi hoặc đơn hoàn về
-      TRANGTHAIDH NVARCHAR(30) DEFAULT N'Đang lập đơn', --đang lập đơn, đang chuẩn bị, đang vận chuyển, đã giao, giao không thành công
+      TRANGTHAIDH NVARCHAR(30) DEFAULT N'Đang lập đơn', --đang lập đơn, đã đặt, đang chuẩn bị, đang vận chuyển, đã giao, giao không thành công
       NGAYLAP DATE DEFAULT GETDATE(),
       TONGTIEN MONEY DEFAULT 0,
       PRIMARY KEY(MADONHANG)
+)
+
+--tạo bảng xuất thuốc
+CREATE TABLE DONXUATONLINECHITIET
+(
+      MADONHANG VARCHAR(10) NOT NULL,
+      THUOC VARCHAR(10) NOT NULL,
+      SOLUONG INT DEFAULT 1,
+      DONVITINH NVARCHAR(20),
+      THANHTIEN MONEY
+      PRIMARY KEY(MADONHANG, THUOC)
 )
 
 --tạo bảng người dùng
@@ -187,7 +197,7 @@ CREATE TABLE ALBUMPICTURES
 (
       MATHUOC VARCHAR(10) NOT NULL,
       TENALBUM NVARCHAR(100),
-      PRIMARY KEY(MATHUOC, TENALBUM)
+      PRIMARY KEY(MATHUOC)
 )
 
 
@@ -828,6 +838,8 @@ BEGIN
 END
 GO
 
+
+
 --tạo trigger khi xóa dữ liệu trong bảng XUATTHUOC
 CREATE TRIGGER TRG_DELETE_XUATTHUOC
       ON XUATTHUOC
@@ -862,6 +874,153 @@ BEGIN
 END
 GO
 
+--tạo triger khi thêm dữ liệu vào DONHANGONLINE
+CREATE TRIGGER TRG_INSERT_DONHANGONLINE
+      ON DONHANGONLINE
+      FOR INSERT
+AS
+BEGIN
+      --reset giá trị tổng tiền về 0 khi người dùng nhập giá trị khác
+      IF(SELECT TONGTIEN FROM inserted) !=0
+      BEGIN
+            PRINT N'TỔNG TIỀN SẼ ĐƯỢC HỆ THỐNG TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG'
+            PRINT N'RESET TỔNG TIỀN'
+            UPDATE DONHANGONLINE
+            SET TONGTIEN = 0
+            FROM inserted
+            WHERE DONHANGONLINE.MADONHANG = inserted.MADONHANG
+      END
+END
+GO
+
+CREATE TRIGGER TRG_UPDATE_DONHANGONLINE
+      ON DONHANGONLINE
+      FOR UPDATE
+AS
+BEGIN
+      IF (SELECT TRANGTHAIDH FROM inserted) != N'Đang lập đơn' AND (SELECT TRANGTHAIDH FROM deleted) = N'Đang lập đơn'
+      BEGIN
+            PRINT N'ĐƠN HÀNG ĐÃ ĐƯỢC ĐẶT THÀNH CÔNG'
+            DELETE GIOHANG
+            FROM DONXUATONLINECHITIET D, inserted
+            WHERE GIOHANG.USERNAME = inserted.USERNAME
+            AND D.THUOC = GIOHANG.MATHUOC
+      END
+END
+GO
+
+--tạo trigger khi thêm dữ liệu vào bảng XUATTHUOC
+CREATE TRIGGER TRG_INSERT_DONXUATONLINECHITIET
+      ON DONXUATONLINECHITIET
+      FOR INSERT
+AS
+BEGIN
+      --kiểm tra số lượng thuốc còn trong kho
+      IF(SELECT SUM(TONKHO) FROM KHOHANG, inserted
+            WHERE KHOHANG.MATHUOC = inserted.THUOC) < (SELECT SOLUONG FROM inserted)
+      BEGIN
+            PRINT N'SỐ LƯỢNG TỒN KHO KHÔNG ĐỦ!'
+            ROLLBACK TRAN
+      END
+
+      IF (SELECT THUOC FROM inserted) NOT IN  (SELECT MATHUOC FROM KHOHANG K)
+      BEGIN
+            PRINT N'SẢN PHẨM KHÔNG TỒN TẠI TRONG KHO HÀNG!'
+            ROLLBACK TRAN
+      END
+
+      IF NOT EXISTS (
+            SELECT inserted.MADONHANG FROM XUATTHUOC X, inserted, GIOHANG G
+            WHERE X.MADONHANG = inserted.MADONHANG
+            AND X.THUOC = inserted.THUOC
+            AND X.THUOC = G.MATHUOC
+            AND G.USERNAME = (SELECT USERNAME FROM DONHANGONLINE WHERE MADONHANG = inserted.MADONHANG)
+      )
+      BEGIN
+            PRINT N'THUỐC CHƯA CÓ TRONG GIỎ HÀNG, HÃY THỬ LẠI!'
+            ROLLBACK TRAN
+      END
+
+      IF (SELECT TRANGTHAIDH FROM DONHANGONLINE, inserted WHERE inserted.MADONHANG = DONHANGONLINE.MADONHANG) != N'Đang lập đơn'
+      BEGIN
+            PRINT N'ĐƠN HÀNG ĐÃ ĐƯỢC ĐẶT THÀNH CÔNG, KHÔNG THỂ THÊM SẢN PHẨM VÀO ĐƠN HÀNG NÀY!'
+            ROLLBACK TRAN
+      END
+
+      --cập nhật dữ liệu cho thuộc tính đơn vị tính của bảng xuất
+      UPDATE XUATTHUOC
+      SET DONVITINH = G.DONVITINH
+      FROM inserted, GIOHANG G
+      WHERE XUATTHUOC.MADONHANG = inserted.MADONHANG
+      AND XUATTHUOC.THUOC = inserted.THUOC
+      AND XUATTHUOC.THUOC = G.MATHUOC
+      AND G.USERNAME = (SELECT USERNAME FROM DONHANGONLINE WHERE MADONHANG = inserted.MADONHANG)
+
+      --cập nhật dữ liệu cho thuộc tính đơn vị tính của bảng xuất
+      UPDATE XUATTHUOC
+      SET THANHTIEN = G.THANHTIEN
+      FROM inserted, XUATTHUOC, GIOHANG G
+      WHERE XUATTHUOC.MADONHANG = inserted.MADONHANG
+      AND XUATTHUOC.THUOC = inserted.THUOC
+      AND XUATTHUOC.THUOC = G.MATHUOC     
+      AND G.USERNAME = (SELECT USERNAME FROM DONHANGONLINE WHERE MADONHANG = inserted.MADONHANG)
+
+      -- cập nhật lại tổng tiền của đơn hàng
+      UPDATE DONHANGONLINE
+      SET TONGTIEN = TONGTIEN + X.THANHTIEN
+      FROM DONHANGONLINE, inserted, XUATTHUOC X
+      WHERE DONHANGONLINE.MADONHANG = inserted.MADONHANG
+      AND X.THUOC = inserted.THUOC
+      AND X.MADONHANG = inserted.MADONHANG
+
+      IF(SELECT TRANGTHAIDH FROM DONHANGONLINE D, inserted
+                  WHERE D.MADONHANG = inserted.MADONHANG) = N'Đã đặt'
+      BEGIN
+            -- Cập nhật số lượng nhóm thuốc
+            UPDATE NHOMTHUOC
+            SET NHOMTHUOC.SOLUONG -= inserted.SOLUONG
+            FROM NHOMTHUOC INNER JOIN inserted
+            ON inserted.THUOC IN (
+                  SELECT MATHUOC FROM THUOC T
+                  WHERE T.MANHOM = NHOMTHUOC.MANHOM
+            )
+
+            --cập nhật số lượng tồn kho
+            DECLARE @NHHUUTIEN DATE
+            SELECT @NHHUUTIEN = MIN(NGAYHETHAN) FROM KHOHANG, inserted WHERE KHOHANG.MATHUOC = inserted.THUOC
+
+            DECLARE @TONKHOUUTIEN INT
+            SELECT @TONKHOUUTIEN = TONKHO FROM KHOHANG, inserted WHERE NGAYHETHAN = @NHHUUTIEN AND KHOHANG.MATHUOC = inserted.THUOC
+
+            IF @TONKHOUUTIEN > (SELECT SOLUONG FROM inserted)
+            BEGIN
+                  UPDATE KHOHANG
+                  SET TONKHO -= inserted.SOLUONG
+                  FROM inserted JOIN KHOHANG
+                  ON NGAYHETHAN = @NHHUUTIEN
+                  AND KHOHANG.MATHUOC = inserted.THUOC
+            END
+
+            ELSE
+            BEGIN
+                  UPDATE KHOHANG
+                  SET TONKHO = TONKHO - inserted.SOLUONG + @TONKHOUUTIEN
+                  FROM inserted JOIN KHOHANG
+                  ON KHOHANG.MATHUOC = inserted.THUOC
+                  AND NGAYHETHAN = (
+                        SELECT MIN(NGAYHETHAN) FROM KHOHANG K
+                        WHERE K.NGAYHETHAN != @NHHUUTIEN
+                        AND KHOHANG.MATHUOC = K.MATHUOC
+                  )
+
+                  DELETE KHOHANG
+                  WHERE NGAYHETHAN = @NHHUUTIEN
+                  AND KHOHANG.MATHUOC = (SELECT THUOC FROM inserted)
+            END
+      END
+END
+GO
+
 --tạo trigger khi thêm hoặc sửa dữ liệu ở bảng NGUOIDUNG
 CREATE TRIGGER TRG_INSERT_TAIKHOAN
       ON TAIKHOAN
@@ -885,6 +1044,17 @@ CREATE TRIGGER TRG_INSERT_GIOHANG
       INSTEAD OF INSERT
 AS
 BEGIN
+      --cập nhật thành tiền
+      IF(SELECT THANHTIEN FROM inserted)!= NULL
+      BEGIN
+            PRINT N'THÀNH TIỀN SẼ ĐƯỢC HỆ THỐNG TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG'
+            PRINT N'UPDATE THÀNH TIỀN'
+            UPDATE GIOHANG
+            SET THANHTIEN = 0
+            FROM inserted
+            WHERE GIOHANG.MATHUOC = inserted.MATHUOC
+      END
+
       IF EXISTS (
             SELECT * FROM inserted, GIOHANG
             WHERE inserted.USERNAME = GIOHANG.USERNAME
@@ -902,6 +1072,7 @@ BEGIN
             FROM THUOC
             WHERE THUOC.MATHUOC = GIOHANG.MATHUOC
       END
+
       ELSE
       BEGIN
             INSERT INTO GIOHANG
@@ -909,7 +1080,7 @@ BEGIN
                         (SELECT USERNAME FROM inserted),
                         (SELECT MATHUOC FROM inserted),
                         (SELECT SOLUONG FROM inserted),
-                        (SELECT QCDONGGOI FROM THUOC, inserted WHERE THUOC.MATHUOC = inserted.MATHUOC), 
+                        (SELECT QCDONGGOI FROM THUOC, inserted WHERE THUOC.MATHUOC = inserted.MATHUOC),
                         (SELECT SOLUONG * GIALE FROM THUOC, inserted WHERE THUOC.MATHUOC = inserted.MATHUOC)
                    )
       END
@@ -1414,48 +1585,6 @@ AS
       AND YEAR(NGAYLAP) = @nam
       AND DATEPART(QUARTER, NGAYLAP) = @quy
 GO
-
-CREATE FUNCTION UF_ClickDatOnline(@madonhang VARCHAR(10), @username VARCHAR(20), @mathuoc VARCHAR(10))
-RETURNS NVARCHAR(30)
-AS
-BEGIN
-      DECLARE @thongbao NVARCHAR(30) 
-      IF EXISTS (SELECT USERNAME FROM DONHANGONLINE WHERE USERNAME != @username AND MADONHANG = @madonhang AND TRANGTHAIDH != N'Đang lập đơn')
-      BEGIN
-            SET @thongbao = N'LỖI KHI THÊM THÊM VÀO ĐƠN HÀNG'
-      END
-      IF EXISTS (SELECT USERNAME FROM DONHANGONLINE WHERE TRANGTHAIDH != N'Đang lập đơn' AND MADONHANG = @madonhang)
-      BEGIN
-            SET @thongbao = N'ĐƠN HÀNG ĐÃ ĐƯỢC ĐẶT THÀNH CÔNG, KHÔNG THỂ THAY ĐỔI!'
-      END
-      IF NOT EXISTS (SELECT MATHUOC FROM GIOHANG WHERE USERNAME = @username AND MATHUOC = @mathuoc)
-      BEGIN
-            SET @thongbao = N'KHÔNG TÔN TẠI THUỐC TRONG GIỎ HÀNG'
-      END
-      ELSE
-      BEGIN
-            SET @thongbao = N'ĐƠN HÀNG ĐÃ ĐƯỢC THÊM'
-      END
-      RETURN @thongbao
-END
-GO
-
--- CREATE FUNCTION UF_DatHangOnline(@madonhang VARCHAR(10))
--- RETURNS NVARCHAR(30)
--- AS
--- BEGIN
---       DECLARE @thongbao NVARCHAR(30)
---       SET @thongbao = N'ĐƠN HÀNG ĐÃ ĐƯỢC CHẤP NHẬN, KHÔNG THỂ THAY ĐỔI!'
---       IF EXISTS (SELECT USERNAME FROM DONHANGONLINE WHERE TRANGTHAIDH = N'Đang lập đơn' AND MADONHANG = @madonhang)
---       BEGIN
---             SET @thongbao = N'ĐƠN HÀNG ĐÃ ĐƯỢC ĐẶT THÀNH CÔNG!'
---             UPDATE DONHANGONLINE 
---             SET TRANGTHAIDH = N'Đang chuẩn bị'
---             WHERE MADONHANG = @madonhang
---       END
---       RETURN @thongbao
--- END
--- GO
 
 -------------------------------------------------TẠO CÁC BẢNG ẢO------------------------------------------------------
 
