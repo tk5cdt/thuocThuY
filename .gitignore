@@ -2,3 +2,4 @@ node_modules
 src/configs/
 src/configs/connectDB.js
 src/configs/connectDB.js
+src/configs/connectDB.js
