@@ -8,12 +8,7 @@ let uploadMulti = multer().array('pic');
 
 let getHompage = async (req, res) => {
     const pool = await connectDB();
-    try {
-        const result = await pool.request().query(`select THUOC.*, TENANH from THUOC, PROFILEPICTURE where THUOC.MATHUOC = PROFILEPICTURE.MATHUOC order by MATHUOC offset 0 rows fetch next 10 rows only`);
-    }
-    catch (err) {
-        console.log(err);
-    }
+    const result = await pool.request().query(`select THUOC.*, TENANH from THUOC, PROFILEPICTURE where THUOC.MATHUOC = PROFILEPICTURE.MATHUOC order by MATHUOC offset 0 rows fetch next 10 rows only`);
     return res.render("index.ejs", { user: req.session.user, appRoot: appRoot.path, THUOC: result.recordset });
 }
 
