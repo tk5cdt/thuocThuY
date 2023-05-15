@@ -155,7 +155,7 @@ let getCart = async (req, res) => {
 }
 
 let deleteCart = async (req, res) => {
-    let MATHUOC = req.params.MATHUOC;
+    let MATHUOC = req.body.MATHUOC;
     let USERNAME = req.session.user.USERNAME;
     const pool = await connectDB();
     const result = await pool.request().query(`DELETE FROM GIOHANG WHERE USERNAME = '${USERNAME}' AND MATHUOC = '${MATHUOC}'`)

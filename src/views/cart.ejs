@@ -29,7 +29,10 @@
                                     <td><%= GIOHANG[index].SOLUONG %></td>
                                     <td style="display: flex; flex-direction: column;">
                                         <a href="/thuoc/<%= THUOC[i].MATHUOC %>">details</a>
-                                        <a href="/delCart">delete</a>
+                                        <form>
+                                            <input type="hidden" name="MATHUOC" value="<%= THUOC[i].MATHUOC %>">
+                                            <input type="submit" formaction="/delCart" formmethod="post" value="delete">
+                                        </form>
                                     </td>
                                 </tr>
                                 <% } %>
