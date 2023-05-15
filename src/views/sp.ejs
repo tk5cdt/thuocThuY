@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Chi tiết sản phẩm</title>
     <link rel="stylesheet" href="/css/4T_Detail.css">
+    <link rel="icon" href="/images/cat.png">
     <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
         integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
 </head>
@@ -20,10 +21,10 @@
             </div>
             <div class="content-nav">
                 <ul>
-                    <li><a href="4T.html">Trang Chủ</a></li>
+                    <li><a href="/4T">Trang Chủ</a></li>
                     <li><a href="#">Sản Phẩm</a></li>
                     <li><a href="4T_Contact.html">Liên hệ</a></li>
-                    <li><a href="4T_Info.html">Giới Thiệu</a></li>
+                    <li><a href="4T_Info.html">Về chúng tôi</a></li>
                 </ul>
                 <form>
                     <input type="text" name="search" placeholder="Tìm kiếm sản phẩm..." />
@@ -65,137 +66,16 @@
 <!-- content -->
 <section class="wrapper">
     <div class="products">
-        <ul>
-            <li class="main-product">
-                <div class="img-product">
-                    <img class="img-prd"
-                        src="assets/sanpham1.jpg"
-                        alt="">
+        <% for( let index=0; index < THUOC.length; index++ ) { %>
+            <div class="card" style="width: 18rem;">
+                <img class="card-img-top" src="/public/uploads/<%= THUOC[index].MATHUOC %>/<%= THUOC[index].TENANH %>" alt="Card image cap">
+                <div class="card-body">
+                    <h5 class="card-title"><%= THUOC[index].TENTHUOC %></h5>
+                    <p class="card-text"><%= THUOC[index].CONGDUNG %></p>
+                    <a href="#" class="btn btn-primary">BUY</a>
                 </div>
-                <div class="content-product">
-                    <h3 class="content-product-h3">Mẹt đồ chiên</h3>
-                    <div class="content-product-deltals">
-                        <div class="price">
-                            <span class="money">50,000đ</span>
-                        </div>
-                        <button type="button" class="btn btn-cart">Thêm Vào Giỏ</button>
-                    </div>
                 </div>
-            </li>
-            <li class="main-product">
-                <div class="img-product">
-                    <img class="img-prd"
-                        src="assets/sanpham2.jpg"
-                        alt="">
-                </div>
-                <div class="content-product">
-                    <h3 class="content-product-h3">Mẹt nem nướng, cá bò </h3>
-                    <div class="content-product-deltals">
-                        <div class="price">
-                            <span class="money">299,000đ</span>
-                        </div>
-                        <button type="button" class="btn btn-cart">Thêm Vào Giỏ</button>
-                    </div>
-                </div>
-            </li>
-            <li class="main-product">
-                <div class="img-product">
-                    <img class="img-prd"
-                        src="assets/sanpham3.jpg"
-                        alt="">
-                </div>
-                <div class="content-product">
-                    <h3 class="content-product-h3">Mẹt bánh xèo nem lụi</h3>
-                    <div class="content-product-deltals">
-                        <div class="price">
-                            <span class="money">99,000đ</span>
-                        </div>
-                        <button type="button" class="btn btn-cart">Thêm Vào Giỏ</button>
-                    </div>
-                </div>
-            </li>
-            <li class="main-product no-margin">
-                <div class="img-product">
-                    <img class="img-prd"
-                        src="assets/sanpham4.jpg"
-                        alt="">
-                </div>
-                <div class="content-product">
-                    <h3 class="content-product-h3">Mẹt nướng Sapa</h3>
-                    <div class="content-product-deltals">
-                        <div class="price">
-                            <span class="money">89,000đ</span>
-                        </div>
-                        <button type="button" class="btn btn-cart">Thêm Vào Giỏ</button>
-                    </div>
-                </div>
-            </li>
-            <li class="main-product">
-                <div class="img-product">
-                    <img class="img-prd"
-                        src="assets/sanpham5.jpg"
-                        alt="">
-                </div>
-                <div class="content-product">
-                    <h3 class="content-product-h3">Nem lụi dưa chuột
-                    </h3>
-                    <div class="content-product-deltals">
-                        <div class="price">
-                            <span class="money">9,000đ</span>
-                        </div>
-                        <button type="button" class="btn btn-cart">Thêm Vào Giỏ</button>
-                    </div>
-                </div>
-            </li>
-            <li class="main-product">
-                <div class="img-product">
-                    <img class="img-prd"
-                        src="assets/sanpham6.jpg"
-                        alt="">
-                </div>
-                <div class="content-product">
-                    <h3 class="content-product-h3">Bò bía trứng</h3>
-                    <div class="content-product-deltals">
-                        <div class="price">
-                            <span class="money">15,000đ</span>
-                        </div>
-                        <button type="button" class="btn btn-cart">Thêm Vào Giỏ</button>
-                    </div>
-                </div>
-            </li>
-            <li class="main-product">
-                <div class="img-product">
-                    <img class="img-prd"
-                        src="assets/sanpham7.jpg"
-                        alt="">
-                </div>
-                <div class="content-product">
-                    <h3 class="content-product-h3">Xiên que thịt nướng</h3>
-                    <div class="content-product-deltals">
-                        <div class="price">
-                            <span class="money">95,000đ</span>
-                        </div>
-                        <button type="button" class="btn btn-cart">Thêm Vào Giỏ</button>
-                    </div>
-                </div>
-            </li>
-            <li class="main-product no-margin">
-                <div class="img-product">
-                    <img class="img-prd"
-                        src="assets/sanpham8.jpg"
-                        alt="">
-                </div>
-                <div class="content-product">
-                    <h3 class="content-product-h3">Ốc móng tay sả ớt</h3>
-                    <div class="content-product-deltals">
-                        <div class="price">
-                            <span class="money">85,000đ</span>
-                        </div>
-                        <button type="button" class="btn btn-cart">Thêm Vào Giỏ</button>
-                    </div>
-                </div>
-            </li>
-        </ul>
+        <% } %>
     </div>
 </section>
 
