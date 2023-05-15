@@ -27,12 +27,17 @@
                                     <td><%= THUOC[i].TENTHUOC %></td>
                                     <td><%= THUOC[i].GIALE %></td>
                                     <td><%= GIOHANG[index].SOLUONG %></td>
-                                    <td style="cursor:pointer">
-                                        <form action="/deleteCart/<%= user.USERNAME %>/<%= THUOC[i].MATHUOC %>" method="POST">
+                                    <td style="display: flex; flex-direction: column;">
+                                        <a href="/thuoc/<%= THUOC[index].MATHUOC %>">details</a>
+                                        <form action="/editThuoc/<%= THUOC[index].MATHUOC %>" method="get" style="margin: 0%;">
                                             <input type="hidden" name="MATHUOC" value="<%= THUOC[i].MATHUOC %>">
-                                            <button type="submit">Xóa</button>
+                                            <input type="submit" value="sửa">
                                         </form>
                                     </td>
+                                    <form action="/deleteCart" method="post" style="margin: 0%;">
+                                        <input type="hidden" name="MATHUOC" value="<%= THUOC[i].MATHUOC %>">
+                                        <input type="submit" value="Xóa">
+                                    </form>
                                 </tr>
                                 <% } %>
                             <% } %>
