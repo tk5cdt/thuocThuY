@@ -6,8 +6,15 @@ import appRoot from 'app-root-path';
 let upload = multer().single('profile_pic');
 let uploadMulti = multer().array('pic');
 
-let getHompage = (req, res) => {
-    return res.render("index.ejs", { user: req.session.user });
+let getHompage = async (req, res) => {
+    const pool = await connectDB();
+    try {
+        const result = await pool.request().query(`select THUOC.*, TENANH from THUOC, PROFILEPICTURE where THUOC.MATHUOC = PROFILEPICTURE.MATHUOC order by MATHUOC offset 0 rows fetch next 10 rows only`);
+    }
+    catch (err) {
+        console.log(err);
+    }
+    return res.render("index.ejs", { user: req.session.user, appRoot: appRoot.path, THUOC: result.recordset });
 }
 
 let getConnect = async (req, res) => {
