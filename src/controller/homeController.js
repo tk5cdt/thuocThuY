@@ -36,7 +36,8 @@ let getTHUOC = async (req, res) => {
     const pool = await connectDB();
     try {
         const result = await pool.request().query(`select THUOC.*, PROFILEPICTURE.TENANH from THUOC, PROFILEPICTURE where THUOC.MATHUOC = '${MATHUOC}' and THUOC.MATHUOC = PROFILEPICTURE.MATHUOC`)
-        return res.render("thuoc.ejs", { THUOC: result.recordset[0], user: req.session.user, appRoot: appRoot.path });
+        const result2 = await pool.request().query(`select * from ALBUMPICTURES where MATHUOC = '${MATHUOC}'`);
+        return res.render("thuoc.ejs", { THUOC: result.recordset[0], user: req.session.user, appRoot: appRoot.path, ALBUMPICTURES: result2.recordset });
     }
     catch (err) {
         console.log(err);
@@ -107,16 +108,13 @@ let updateTHUOC = async (req, res) => {
 let getsp = async (req, res) => {
     const pool = await connectDB();
     try {
-        const result = await pool.request().query('select * from THUOC');
-        const result1 = await pool.request().query('select * from NGUOIDUNG');
-        return res.render("sp.ejs", { THUOC: result.recordset, user: req.session.user, NGUOIDUNG: result1.recordset });
+        const result = await pool.request().query('select THUOC.*, TENANH from THUOC join PROFILEPICTURE on THUOC.MATHUOC = PROFILEPICTURE.MATHUOC');
+        return res.render("sp.ejs", { THUOC: result.recordset, user: req.session.user});
     }
     catch (err) {
         console.log(err);
     }
 }
-
-
 
 let getcontact = async (req, res) => {
     return res.render("contact.ejs", { user: req.session.user });
@@ -230,8 +228,15 @@ let handleUploadMultiPic = async (req, res) => {
     return res.redirect('/admin')
 }
 
-//make themThuoc function that use /createNewThuoc and /uploadMultiPic and /uploadProfilePic to create new thuoc
-
+let getSearch = async (req, res) => {
+    let search = req.body.search;
+    let pool = await connectDB();
+    if (search == '') {
+        return res.redirect('/sp')
+    }
+    let result = await pool.request().query(`SELECT * FROM THUOC WHERE TENTHUOC LIKE '%${search}%' OR MATHUOC LIKE '%${search}%' OR LOAISD LIKE '%${search}%' OR CONGDUNG LIKE '%${search}%'`)
+    return res.render("sp.ejs", { user: req.session.user, THUOC: result.recordset });
+}
 
 module.exports = {
     getHompage: getHompage,
@@ -253,4 +258,5 @@ module.exports = {
     handleUploadProfilePic: handleUploadProfilePic,
     handleUploadMultiPic: handleUploadMultiPic,
     getUploadPage: getUploadPage,
+    getSearch: getSearch,
 }
