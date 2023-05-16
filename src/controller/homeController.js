@@ -146,6 +146,9 @@ let addToCart = async (req, res) => {
 }
 
 let getCart = async (req, res) => {
+    if (req.session.user == null) {
+        return res.redirect('/login')
+    }
     let USERNAME = req.session.user.USERNAME;
     const pool = await connectDB();
     const result = await pool.request().query(`SELECT * FROM GIOHANG WHERE USERNAME = '${USERNAME}'`)
