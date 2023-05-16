@@ -15,6 +15,11 @@
 <body>
     <!-- header -->
     <header>
+        <% if (message) { %>
+            <p style="color: brown;">
+                <%= message %>
+            </p>
+            <% } %>
         <nav>
             
             <div class="content-nav">

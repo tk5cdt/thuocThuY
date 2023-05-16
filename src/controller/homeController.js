@@ -36,7 +36,8 @@ let getTHUOC = async (req, res) => {
     const pool = await connectDB();
     try {
         const result = await pool.request().query(`select THUOC.*, PROFILEPICTURE.TENANH from THUOC, PROFILEPICTURE where THUOC.MATHUOC = '${MATHUOC}' and THUOC.MATHUOC = PROFILEPICTURE.MATHUOC`)
-        return res.render("thuoc.ejs", { THUOC: result.recordset[0], user: req.session.user, appRoot: appRoot.path });
+        const result2 = await pool.request().query(`select * from ALBUMPICTURES where MATHUOC = '${MATHUOC}'`);
+        return res.render("thuoc.ejs", { THUOC: result.recordset[0], user: req.session.user, appRoot: appRoot.path, ALBUMPICTURES: result2.recordset });
     }
     catch (err) {
         console.log(err);
@@ -115,8 +116,6 @@ let getsp = async (req, res) => {
     }
 }
 
-
-
 let getcontact = async (req, res) => {
     return res.render("contact.ejs", { user: req.session.user });
 }
@@ -147,6 +146,9 @@ let addToCart = async (req, res) => {
 }
 
 let getCart = async (req, res) => {
+    if (req.session.user == null) {
+        return res.redirect('/login')
+    }
     let USERNAME = req.session.user.USERNAME;
     const pool = await connectDB();
     const result = await pool.request().query(`SELECT * FROM GIOHANG WHERE USERNAME = '${USERNAME}'`)
@@ -229,8 +231,18 @@ let handleUploadMultiPic = async (req, res) => {
     return res.redirect('/admin')
 }
 
-//make themThuoc function that use /createNewThuoc and /uploadMultiPic and /uploadProfilePic to create new thuoc
-
+let getSearch = async (req, res) => {
+    let search = req.body.search;
+    let pool = await connectDB();
+    if (search == '') {
+        return res.redirect('/sp')
+    }
+    let result = await pool.request().query(`SELECT * FROM THUOC WHERE TENTHUOC LIKE N'%${search}%' OR MATHUOC LIKE '%${search}%' OR LOAISD LIKE N'%${search}%' OR CONGDUNG LIKE N'%${search}%'`)
+    if (result.recordset.length == 0) {
+        return res.render('sp.ejs', { user: req.session.user, THUOC: result.recordset, message: 'Không tìm thấy sản phẩm nào' })
+    }
+    return res.redirect('/thuoc/' + result.recordset[0].MATHUOC)
+}
 
 module.exports = {
     getHompage: getHompage,
@@ -252,4 +264,5 @@ module.exports = {
     handleUploadProfilePic: handleUploadProfilePic,
     handleUploadMultiPic: handleUploadMultiPic,
     getUploadPage: getUploadPage,
+    getSearch: getSearch,
 }
