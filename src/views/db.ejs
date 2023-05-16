@@ -34,27 +34,20 @@
             background-color: #ddd;
         }
 
-        form {
-            display: flex;
-            flex-direction: column;
-            width: 30%;
-            margin: 0 auto;
-        }
-
-        input {
+        /* input {
             margin-bottom: 10px;
         }
 
         input[type="submit"] {
             width: 50px;
             margin: 0 auto;
-        }
+        } */
     </style>
 </head>
 
 <body>
-    <%- include('../views/adminnav.ejs') %>
-    <table>
+    <%- include('../views/adminnav.ejs', {active: "db"}) %>
+    <table style="margin-top: 80px;">
         <thead>
             <th>Mã thuốc</th>
             <th>Tên thuốc</th>

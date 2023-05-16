@@ -19,7 +19,7 @@
 </head>
 
 <body>
-    <%- include('../views/adminnav.ejs') %>
+    <%- include('../views/adminnav.ejs', {active: "admin"}) %>
     <% if (user) { %>
         <p style="margin-top: 80px">Hello <%= user.USERNAME %>
         </p>
@@ -27,5 +27,4 @@
     <a href="/logout">Logout</a>
     <h1 class="" style="position: absolute;">This is admin page</h1>
 </body>
-
 </html>

@@ -237,8 +237,11 @@ let getSearch = async (req, res) => {
     if (search == '') {
         return res.redirect('/sp')
     }
-    let result = await pool.request().query(`SELECT * FROM THUOC WHERE TENTHUOC LIKE '%${search}%' OR MATHUOC LIKE '%${search}%' OR LOAISD LIKE '%${search}%' OR CONGDUNG LIKE '%${search}%'`)
-    return res.render("sp.ejs", { user: req.session.user, THUOC: result.recordset });
+    let result = await pool.request().query(`SELECT * FROM THUOC WHERE TENTHUOC LIKE N'%${search}%' OR MATHUOC LIKE '%${search}%' OR LOAISD LIKE N'%${search}%' OR CONGDUNG LIKE N'%${search}%'`)
+    if (result.recordset.length == 0) {
+        return res.render('sp.ejs', { user: req.session.user, THUOC: result.recordset, message: 'Không tìm thấy sản phẩm nào' })
+    }
+    return res.redirect('/thuoc/' + result.recordset[0].MATHUOC)
 }
 
 module.exports = {
