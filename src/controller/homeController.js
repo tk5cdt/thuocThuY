@@ -108,8 +108,7 @@ let getsp = async (req, res) => {
     const pool = await connectDB();
     try {
         const result = await pool.request().query('select * from THUOC');
-        const result1 = await pool.request().query('select * from NGUOIDUNG');
-        return res.render("sp.ejs", { THUOC: result.recordset, user: req.session.user, NGUOIDUNG: result1.recordset });
+        return res.render("sp.ejs", { THUOC: result.recordset, user: req.session.user });
     }
     catch (err) {
         console.log(err);
