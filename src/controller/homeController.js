@@ -20,11 +20,11 @@ let getConnect = async (req, res) => {
         const result = await pool.request().query(`select THUOC.*, TENANH from THUOC, PROFILEPICTURE where THUOC.MATHUOC = PROFILEPICTURE.MATHUOC order by MATHUOC offset ${(pageNumber - 1) * pageSize} rows fetch next ${pageSize} rows only`);
         const totalRows = await pool.request().query(`select count(*) as total from THUOC`);
         const totalPages = Math.ceil(totalRows.recordset[0].total / pageSize);
-        const isAdmin = await pool.request().query(`select * from TAIKHOAN where USERNAME = '${req.session.user}' and QUANTRI = 1`);
-        if (isAdmin.recordset > 0) {
-            return res.render("admin.ejs", { THUOC: result.recordset, user: req.session.user, totalPages, pageNumber, pageSize });
+        const user = req.session.user;
+        if (user && user.QUANTRI == 1) {
+            return res.render("db.ejs", { THUOC: result.recordset, user: req.session.user, totalPages, pageNumber, pageSize });
         }
-        return res.render("db.ejs", { THUOC: result.recordset, user: req.session.user, totalPages, pageNumber, pageSize });
+        return res.render("sp.ejs", { THUOC: result.recordset, user: req.session.user, totalPages, pageNumber, pageSize });
     }
     catch (err) {
         console.log(err);
@@ -108,8 +108,8 @@ let updateTHUOC = async (req, res) => {
 let getsp = async (req, res) => {
     const pool = await connectDB();
     try {
-        const result = await pool.request().query('select * from THUOC');
-        return res.render("sp.ejs", { THUOC: result.recordset, user: req.session.user });
+        const result = await pool.request().query('select THUOC.*, TENANH from THUOC join PROFILEPICTURE on THUOC.MATHUOC = PROFILEPICTURE.MATHUOC');
+        return res.render("sp.ejs", { THUOC: result.recordset, user: req.session.user, message: ""});
     }
     catch (err) {
         console.log(err);
