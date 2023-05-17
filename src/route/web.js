@@ -34,7 +34,7 @@ const upload = multer({ storage: storage, fileFilter: imageFilter })
 
 const initWebRoute = (app) => {
     router.get('/', homeController.getHompage)
-    router.get('/db', homeController.getConnect)
+    router.get('/admin/db', homeController.getConnect)
     router.get('/thuoc/:MATHUOC', homeController.getTHUOC)
     router.post('/deleteTHUOC', homeController.deleteTHUOC)
     router.get('/editThuoc/:MATHUOC', homeController.editTHUOC)
