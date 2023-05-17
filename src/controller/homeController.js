@@ -24,7 +24,7 @@ let getConnect = async (req, res) => {
         if (user && user.QUANTRI == 1) {
             return res.render("db.ejs", { THUOC: result.recordset, user: req.session.user, totalPages, pageNumber, pageSize });
         }
-        return res.render("sp.ejs", { THUOC: result.recordset, user: req.session.user, totalPages, pageNumber, pageSize });
+        return res.render("sp.ejs", { THUOC: result.recordset, user: req.session.user, totalPages, pageNumber, pageSize, message: "" });
     }
     catch (err) {
         console.log(err);

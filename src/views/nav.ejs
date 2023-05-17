@@ -7,29 +7,30 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a href="/">Trang chủ</a>
+            <a class="nav-link <%if(active=="user"){%>active<%}%>" aria-current="page" href="/">Trang chủ</a>
           </li>
           <li class="nav-item">
-            <a href="/sp">Sản phẩm</a>
+            <a class="nav-link <%if(active=="sp"){%>active<%}%>" href="/sp">Sản phẩm</a>
           </li>
           <li class="nav-item">
-            <a href="/contact">Liên hệ</a>
+            <a class="nav-link <%if(active=="lh"){%>active<%}%>" href="/contact">Liên hệ</a>
           </li>
           <li class="nav-item">
-            <a href="/info">Về chúng tôi</a>
+            <a class="nav-link <%if(active=="info"){%>active<%}%>"  href="/info">Về chúng tôi</a>
           </li>
-        </ul>
-      </div>
-    </div>
+          <li>
+        </li>
+    </ul>
     <% if (user) { %>
         <% if (!user.QUANTRI) { %>
             <div id="actions">
-                <div class="item">
-                    <a href="/logout">Logout</a>
-                </div>
-                <div class="item">
-                    <a id="login"><button class="taikhoan"> <a href="/cart" class="ti-shopping-cart">
-                            </a></button></a>
+                <div class="item d-flex">
+                    <a href="/logout" style="color: midnightblue; margin-top: 10px;">Logout</a>
+                    <a id="login">
+                        <button class="taikhoan"> 
+                            <a href="/cart" class="ti-shopping-cart" style="width: 70px;"></a>
+                        </button>
+                    </a>
                 </div>
             </div>
             <% } %>
@@ -42,4 +43,6 @@
                         </div>
                     </div>
                     <% } %>
+      </div>
+    </div>
 </nav>

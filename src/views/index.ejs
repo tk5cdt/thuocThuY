@@ -15,30 +15,61 @@
 
 <body>
     <header>
-        
+        <%- include('../views/nav.ejs' , {active: "user"}) %>
     </header>
     <div id="wrapper">
-        <%- include('../views/nav.ejs') %>
-        <div id="banner">
-            <div class="box-left">
-                <h2>
-                    <span>THUỐC CHO ĐỘNG VẬT</span>
-                </h2>
-                <p>Chuyên cung cấp thuốc đặc trị cũng như thực phẩm bổ sung
-                    cho động vật
-                </p>
-                <button>Mua ngay</button>
-            </div>
-            <div class="box-right">
-                <img src="/images/cat.png" alt="">
-                <img src="/images/dog.png" alt="">
-                <img src="/images/cow.png" alt="">
-            </div>
+        <div id="banner" style="background-image: url(/images/banner1.jpg);">
+            <h1>
+                <span>THUỐC ĐỘNG VẬT</span>
+            </h1>
+            <p>Chuyên cung cấp thuốc đặc trị cũng như thực phẩm bổ sung
+                cho động vật và thú cưng
+            </p>
         </div>
-        <div id="wp-products">
-            
+        <div id="carouselExampleAutoplaying" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+              <button type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+              <button type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide-to="1" aria-label="Slide 2"></button>
+              <button type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            </div>
+            <div class="carousel-inner">
+              <div class="carousel-item active">
+                <img src="/uploads/HCM-X4-79/profile_pic-HCM-X4-79-Bio-Anticoc.jpg" class="d-block w-100" alt="HCM-X4-79-Bio-Anticoc">
+              </div>
+              <div class="carousel-item">
+                <img src="/uploads/BD.TS5-5/pic-BD.TS5-5-MD_Bio_Calcium.jpg" class="d-block w-100" alt="BD.TS5-5-MD_Bio_Calcium">
+              </div>
+              <div class="carousel-item">
+                <img src="/uploads/HCM-X2-164/pic-HCM-X2-164-Tylosin-200_2.jpg" class="d-block w-100" alt="HCM-X2-164-Tylosin-200_2">
+              </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+
+        <div class="special-product">
+            <h1 style="text-align: center; margin-top: 100px;">SẢN PHẨM NỔI BẬT</h1>
+            <% for( let index=0; index < 6; index++ ) { %>
+                <div class="card-deck">
+                    <div class="card">
+                        <img class="card-img-top" src="/public/uploads/<%= THUOC[index].MATHUOC %>/<%= THUOC[index].TENANH %>" alt="Card image cap">
+                        <div class="card-body">
+                        <h5 class="card-title"><%= THUOC[index].TENTHUOC %></h5>
+                        <p class="card-text"><%= THUOC[index].CONGDUNG %></p>
+                        <a href="/thuoc/<%= THUOC[index].MATHUOC %>" class="btn btn-primary">BUY</a>
+                        <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                    </div>
+                </div>
+            <% } %>
         </div>
     </div>
+
     <script src="assets/js/script.js"></script>
 </body>
 

@@ -23,28 +23,55 @@
         <nav>
             
             <div class="content-nav">
-                <%- include('../views/nav.ejs') %>
+                <%- include('../views/nav.ejs', {active: "sp"}) %>
                 <form>
                     <input type="text" name="search" placeholder="Tìm kiếm sản phẩm..." />
                 </form>
             </div>
         </nav>
     </header>
-<!-- content -->
-<section class="wrapper">
+
     <div class="products">
         <% for( let index=0; index < THUOC.length; index++ ) { %>
-            <div class="card" style="width: 18rem;">
-                <img class="card-img-top" src="/public/uploads/<%= THUOC[index].MATHUOC %>/<%= THUOC[index].TENANH %>" alt="Card image cap">
-                <div class="card-body">
+            <div class="card-deck">
+                <div class="card">
+                    <img class="card-img-top" src="/public/uploads/<%= THUOC[index].MATHUOC %>/<%= THUOC[index].TENANH %>" alt="Card image cap">
+                    <div class="card-body">
                     <h5 class="card-title"><%= THUOC[index].TENTHUOC %></h5>
                     <p class="card-text"><%= THUOC[index].CONGDUNG %></p>
-                    <a href="#" class="btn btn-primary">BUY</a>
+                    <a href="/thuoc/<%= THUOC[index].MATHUOC %>" class="btn btn-primary">BUY</a>
+                    <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
                 </div>
-                </div>
+            </div>
         <% } %>
     </div>
-</section>
+    
+    <nav aria-label="Page navigation example" style="margin: 10px">
+        <ul class="pagination justify-content-center">
+        <!-- Hiển thị nút Previous nếu không phải trang đầu tiên -->
+            <% if (pageNumber> 1) { %>
+                <li class="page-item"><a class="page-link" href="/sp?pageNumber=<%= pageNumber - 1 %>&pageSize=<%= pageSize %>" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+                </a></li>
+            <% } %>
+            <!-- Hiển thị các nút phân trang -->
+            <% for (let i=1; i <=totalPages; i++) { %>
+                <% if (i===pageNumber) { %>
+                    <span>
+                        <li class="page-item active" style="cursor: default;"><a class="page-link"><%= i %></a></li>
+                    </span>
+                <% } else { %>
+                    <li class="page-item"><a class="page-link" href="/sp?pageNumber=<%= i %>&pageSize=<%= pageSize %>"><%= i %></a></li>
+                <% } %>
+            <% } %>
+        <!-- Hiển thị nút Next nếu không phải trang cuối cùng -->
+            <% if (pageNumber < totalPages) { %>
+                <li class="page-item"><a class="page-link" href="/sp?pageNumber=<%= pageNumber + 1 %>&pageSize=<%= pageSize %>" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a></li>
+            <% } %>
+        </ul>
+    </nav>
 
 <!-- footer -->
 <footer>
@@ -71,6 +98,7 @@
         </div>
     </div>
 </footer>
+</body>
 <script>
     var modal = document.getElementById("myModal");
     var btn = document.getElementById("cart");
@@ -94,4 +122,3 @@
         modal.style.display = "none";
       }
     }</script>
-</body>
