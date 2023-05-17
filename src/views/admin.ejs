@@ -62,6 +62,7 @@
                                 <th scope="col">Địa chỉ</th>
                                 <th scope="col">Trạng thái đơn</th>
                                 <th scope="col">Tổng tiền</th>
+                                <th scope="col">Chỉnh sửa</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -74,6 +75,22 @@
                                         <td><%= DONHANGONLINE[index].DIACHI %></td>
                                         <td><%= DONHANGONLINE[index].TRANGTHAIDH %></td>
                                         <td><%= DONHANGONLINE[index].TONGTIEN %></td>
+                                        <td>
+                                            <% if (DONHANGONLINE[index].TRANGTHAIDH === 'Đang lập đơn') { %>
+                                                <form action="/admin/updateDONHANG" method="POST">
+                                                    <input type="hidden" name="MADONHANG" value="<%= DONHANGONLINE[index].MADONHANG %>">
+                                                    <select class="form-control form-control-sm" onchange="this.form.submit()" name="TRANGTHAI" >
+                                                        <option>status</option>
+                                                        <option value="Đã đặt">Đã đặt</option>
+                                                        <option value="Đã huỷ">Đã huỷ</option>
+                                                        <option value="Đang chuẩn bị">Đang chuẩn bị</option>
+                                                        <option value="Đang vận chuyển">Đang vận chuyển</option>
+                                                        <option value="Đã giao">Đã giao</option>
+                                                        <option value="Giao không thành công">Giao không thành công</option>
+                                                      </select>
+                                                </form>
+                                            <% } %>
+                                        </td>
                                     </tr>
                                 <% } %>
                             </tbody>

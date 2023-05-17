@@ -272,6 +272,15 @@ let getSearch = async (req, res) => {
     return res.render('sp.ejs', { user: req.session.user, THUOC: result.recordset, message: '' })
 }
 
+let updateDONHANG = async (req, res) => {
+    let pool = await connectDB();
+    let MADONHANG = req.body.MADONHANG;
+    let TRANGTHAI = req.body.TRANGTHAI;
+    console.log(MADONHANG, TRANGTHAI)
+    let result = await pool.request().query(`UPDATE DONHANGONLINE SET TRANGTHAIDH = N'${TRANGTHAI}' WHERE MADONHANG = '${MADONHANG}'`)
+    return res.redirect('/admin')
+}
+
 module.exports = {
     getHompage: getHompage,
     getConnect: getConnect,
@@ -293,4 +302,5 @@ module.exports = {
     handleUploadMultiPic: handleUploadMultiPic,
     getUploadPage: getUploadPage,
     getSearch: getSearch,
+    updateDONHANG: updateDONHANG,
 }

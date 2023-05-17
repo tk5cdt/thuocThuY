@@ -34,7 +34,6 @@ const upload = multer({ storage: storage, fileFilter: imageFilter })
 
 const initWebRoute = (app) => {
     router.get('/', homeController.getHompage)
-    router.get('/admin/db', homeController.getConnect)
     router.get('/thuoc/:MATHUOC', homeController.getTHUOC)
     router.post('/deleteTHUOC', homeController.deleteTHUOC)
     router.get('/editThuoc/:MATHUOC', homeController.editTHUOC)
@@ -42,7 +41,7 @@ const initWebRoute = (app) => {
     router.post('/addToCart/:MATHUOC', homeController.addToCart)
     router.get('/cart', homeController.getCart)
     router.post('/delCart', homeController.deleteCart)
-    router.get('/sp', homeController.getConnect)
+    router.get('/sp', homeController.getsp)
     router.get('/contact', homeController.getcontact)
     router.get('/info', homeController.getinfo)
     router.post('/search', homeController.getSearch)
@@ -54,6 +53,7 @@ const initWebRoute = (app) => {
     router.get('/logout', userController.logout);
     //admin
     router.get('/admin', homeController.admin)
+    router.get('/admin/db', homeController.getConnect)
     router.get('/admin/themthuoc', homeController.themthuoc)
     router.post('/createNewThuoc',upload.fields([{
         name: 'profile_pic', maxCount: 1
@@ -61,9 +61,10 @@ const initWebRoute = (app) => {
         name: 'pic', maxCount: 5
     }]) ,homeController.newTHUOC)
     router.get('/admin/upload', homeController.getUploadPage)
-    router.post('/admin/uploadProfilePic', upload.single('profile_pic'), homeController.handleUploadProfilePic)
-    router.post('/admin/uploadMultiple', upload.array('pic', 3), homeController.handleUploadMultiPic)
-  
+    // router.post('/admin/uploadProfilePic', upload.single('profile_pic'), homeController.handleUploadProfilePic)
+    // router.post('/admin/uploadMultiple', upload.array('pic', 3), homeController.handleUploadMultiPic)
+    router.post('/admin/updateDONHANG', homeController.updateDONHANG)
+
     return app.use('/', router);
 }
 
