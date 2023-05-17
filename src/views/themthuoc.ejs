@@ -5,61 +5,87 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/images/cat.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
     <title>db</title>
-    <style>
-        form {
-            display: flex;
-            flex-direction: column;
-            width: 30%;
-            margin: 0 auto;
-        }
-
-        input {
-            margin-bottom: 10px;
-        }
-
-        input[type="submit"] {
-            width: 50px;
-            margin: 0 auto;
-        }
-    </style>
 </head>
 
-<body>
-    <form action="/createNewThuoc" method="post" enctype="multipart/form-data">
-        <label for="MATHUOC">Mã thuốc</label>
-        <input type="text" name="MATHUOC" placeholder="Mã thuốc">
-        <label for="TENTHUOC">Tên thuốc</label>
-        <input type="text" name="TENTHUOC" placeholder="Tên thuốc">
-        <label for="MANHOM">Mã nhóm</label>
-        <input type="text" name="MANHOM" placeholder="Mã nhóm">
-        <label for="LOAISD">Loài sử dụng</label>
-        <input type="text" name="LOAISD" placeholder="Loại sử dụng">
-        <label for="THANHPHAN">Thành phần</label>
-        <input type="text" name="THANHPHAN" placeholder="Thành phần">
-        <label for="MANCC">Mã nhà cung cấp</label>
-        <input type="text" name="MANCC" placeholder="Mã nhà cung cấp">
-        <label for="GIASI">Giá sỉ</label>
-        <input type="text" name="GIASI" placeholder="Giá sỉ">
-        <label for="GIALE">Giá lẻ</label>
-        <input type="text" name="GIALE" placeholder="Giá lẻ">
-        <label for="GIANHAP">Giá nhập</label>
-        <input type="text" name="GIANHAP" placeholder="Giá nhập">
-        <label for="DANGBAOCHE">Dạng bảo chế</label>
-        <input type="text" name="DANGBAOCHE" placeholder="Dạng bảo chế">
-        <label for="QCDONGGOI">Quy cách đóng gói</label>
-        <input type="text" name="QCDONGGOI" placeholder="Quy cách đóng gói">
-        <label for="CONGDUNG">Công dụng</label>
-        <input type="text" name="CONGDUNG" placeholder="Công dụng">
-        <div>
-            <label>Select your profile picture:</label>
-            <input type="file" name="profile_pic" />
+<body style="padding: 0 1rem;">
+    <%- include('../views/adminnav.ejs', {active: "db"}) %>
+    <form action="/createNewThuoc" method="post" enctype="multipart/form-data" style="margin-top: 80px;">
+        <center><h1>Thêm thuốc mới</h1></center>
+        <div class="w-75" style="margin: 0 auto;">
+            <div class="row mb-2">
+                <div class="form-group col-md-4">
+                    <label class="text-success" for="MATHUOC">Mã thuốc</label>
+                    <input class="form-control" type="text" name="MATHUOC" placeholder="Mã thuốc">
+                </div>
+                <div class="form-group col-md-4">
+                    <label class="text-success" for="TENTHUOC">Tên thuốc</label>
+                    <input class="form-control" type="text" name="TENTHUOC" placeholder="Tên thuốc">
+                </div>
+                <div class="form-group col-md-4">
+                    <label class="text-success" for="MANHOM">Mã nhóm</label>
+                    <input class="form-control" type="text" name="MANHOM" placeholder="Mã nhóm">
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-6">
+                    <label class="text-success" for="LOAISD">Loài sử dụng</label>
+                    <input class="form-control" type="text" name="LOAISD" placeholder="Loại sử dụng">
+                </div>
+                <div class="col-md-6">
+                    <label class="text-success" for="THANHPHAN">Thành phần</label>
+                    <input class="form-control" type="text" name="THANHPHAN" placeholder="Thành phần">
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-3">
+                    <label class="text-success" for="MANCC">Mã nhà cung cấp</label>
+                    <input class="form-control" type="text" name="MANCC" placeholder="Mã nhà cung cấp">
+                </div>
+                <div class="col-md-3">
+                    <label class="text-success" for="GIASI">Giá sỉ</label>
+                    <input class="form-control" type="text" name="GIASI" placeholder="Giá sỉ">
+                </div>
+                <div class="col-md-3">
+                    <label class="text-success" for="GIALE">Giá lẻ</label>
+                    <input class="form-control" type="text" name="GIALE" placeholder="Giá lẻ">
+                </div>
+                <div class="col-md-3">
+                    <label class="text-success" for="GIANHAP">Giá nhập</label>
+                    <input class="form-control" type="text" name="GIANHAP" placeholder="Giá nhập">
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-6">
+                    <label class="text-success" for="DANGBAOCHE">Dạng bảo chế</label>
+                    <input class="form-control" type="text" name="DANGBAOCHE" placeholder="Dạng bảo chế">
+                </div>
+                <div class="col-md-6">
+                    <label class="text-success" for="QCDONGGOI">Quy cách đóng gói</label>
+                    <input class="form-control" type="text" name="QCDONGGOI" placeholder="Quy cách đóng gói">
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-12">
+                    <label class="text-success" for="CONGDUNG">Công dụng</label>
+                    <input class="form-control" type="text" name="CONGDUNG" placeholder="Công dụng">
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-6">
+                    <label class="text-success" for="profile_pic">Select your profile picture:</label>
+                    <input class="form-control" type="file" name="profile_pic">
+                </div>
+                <div class="col-md-6">
+                    <label class="text-success" for="pic">Select multiple images:</label>
+                    <input class="form-control" type="file" name="pic" multiple />
+                </div>
+            </div>
+            <input class="form-control" type="submit" value="Thêm" style="margin: 10px auto; max-width: 50%;">
         </div>
-        <div>
-            <label>Select multiple images:</label>
-            <input type="file" name="pic" multiple />
-        </div>
-        <input type="submit" value="Thêm"">
     </form>
 </body>
 
