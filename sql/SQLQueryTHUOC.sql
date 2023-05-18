@@ -1248,8 +1248,8 @@
       END
       GO
 
-      --tạo trigger khi thêm dữ liệu vào bảng GIOHANG
-      CREATE TRIGGER TRG_INSERT_GIOHANG
+ --tạo trigger khi thêm dữ liệu vào bảng GIOHANG
+      ALTER TRIGGER TRG_INSERT_GIOHANG
             ON GIOHANG
             INSTEAD OF INSERT
       AS
@@ -1283,28 +1283,19 @@
                   SET THANHTIEN = GIALE * GIOHANG.SOLUONG
                   FROM THUOC
                   WHERE THUOC.MATHUOC = GIOHANG.MATHUOC
-                  ROLLBACK TRAN
             END
 
-            INSERT INTO GIOHANG
-            VALUES (
-                        (SELECT USERNAME FROM inserted),
-                        (SELECT MATHUOC FROM inserted),
-                        (SELECT SOLUONG FROM inserted),
-                        (SELECT QCDONGGOI FROM THUOC, inserted WHERE THUOC.MATHUOC = inserted.MATHUOC),
-                        (SELECT SOLUONG * GIALE FROM THUOC, inserted WHERE THUOC.MATHUOC = inserted.MATHUOC)
-                        )
-      END
-      GO
-
-      CREATE TRIGGER TRG_UPDATE_GIOHANG
-            ON GIOHANG
-            FOR UPDATE
-      AS
-      BEGIN
-            --không thể thay đổi sản phẩm trong giỏ hàng
-            PRINT 'HÃY THỬ THÊM HOẶC XÓA CÁC SẢN PHẨM TRONG GIỎ HÀNG!'
-            ROLLBACK TRAN
+            ELSE
+            BEGIN
+                  INSERT INTO GIOHANG
+                  VALUES (
+                              (SELECT USERNAME FROM inserted),
+                              (SELECT MATHUOC FROM inserted),
+                              (SELECT SOLUONG FROM inserted),
+                              (SELECT QCDONGGOI FROM THUOC, inserted WHERE THUOC.MATHUOC = inserted.MATHUOC),
+                              (SELECT SOLUONG * GIALE FROM THUOC, inserted WHERE THUOC.MATHUOC = inserted.MATHUOC)
+                              )
+            END
       END
       GO
 
