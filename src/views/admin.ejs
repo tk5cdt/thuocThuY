@@ -76,7 +76,7 @@
                                         <td><%= DONHANGONLINE[index].TRANGTHAIDH %></td>
                                         <td><%= DONHANGONLINE[index].TONGTIEN %></td>
                                         <td>
-                                            <% if (DONHANGONLINE[index].TRANGTHAIDH === 'Đang lập đơn') { %>
+                                            <% if (DONHANGONLINE[index].TRANGTHAIDH === 'Đang lập đơn' || DONHANGONLINE[index].TRANGTHAIDH === 'Đang vận chuyển') { %>
                                                 <form action="/admin/updateDONHANG" method="POST">
                                                     <input type="hidden" name="MADONHANG" value="<%= DONHANGONLINE[index].MADONHANG %>">
                                                     <select class="form-control form-control-sm" onchange="this.form.submit()" name="TRANGTHAI" >

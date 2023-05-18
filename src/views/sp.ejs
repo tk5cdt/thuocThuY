@@ -14,7 +14,7 @@
 
 <body>
     <!-- header -->
-    <header>
+    <header class="mb-5">
         <% if (message) { %>
             <p style="color: brown;">
                 <%= message %>
@@ -37,11 +37,11 @@
                 <div class="card">
                     <img class="card-img-top" src="/public/uploads/<%= THUOC[index].MATHUOC %>/<%= THUOC[index].TENANH %>" alt="Card image cap">
                     <div class="card-body">
-                    <h5 class="card-title"><%= THUOC[index].TENTHUOC %></h5>
-                    <p class="card-text"><%= THUOC[index].CONGDUNG %></p>
-                    <a href="/thuoc/<%= THUOC[index].MATHUOC %>" class="btn btn-primary">BUY</a>
-                    <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-                </div>
+                        <h5 class="card-title"><%= THUOC[index].TENTHUOC %></h5>
+                        <p class="card-text"><%= THUOC[index].CONGDUNG %></p>
+                        <a href="/thuoc/<%= THUOC[index].MATHUOC %>" class="btn btn-primary">BUY</a>
+                    </div>
+                    <p class="card-footer"><small class="text-muted">Last updated 3 mins ago</small></p>
             </div>
         <% } %>
     </div>
@@ -49,7 +49,7 @@
     <nav aria-label="Page navigation example" style="margin: 10px">
         <ul class="pagination justify-content-center">
         <!-- Hiển thị nút Previous nếu không phải trang đầu tiên -->
-            <% if (pageNumber> 1) { %>
+            <% if (pageNumber > 1) { %>
                 <li class="page-item"><a class="page-link" href="/sp?pageNumber=<%= pageNumber - 1 %>&pageSize=<%= pageSize %>" aria-label="Previous">
                 <span aria-hidden="true">&laquo;</span>
                 </a></li>

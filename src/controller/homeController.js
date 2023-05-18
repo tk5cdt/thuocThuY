@@ -133,8 +133,11 @@ let getgiohang = async (req, res) => {
 }
 
 let addToCart = async (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
     let MATHUOC = req.params.MATHUOC;
-    let SOLUONG = req.body.SOLUONG | 1;
+    let SOLUONG = req.body.SOLUONG || 1;
     let USERNAME = req.session.user.USERNAME;
     let THANHTIEN = req.body.GIALE;
     console.log(MATHUOC, SOLUONG, USERNAME);
