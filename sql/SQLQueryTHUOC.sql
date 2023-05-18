@@ -1453,6 +1453,44 @@
       WHERE N.MANCC = D.MANCC
       AND D.CONGNO != 0
       GO
+
+	  --12.	Báo cáo thu tiền tổng hợp
+	  CREATE VIEW BangThuTien AS
+	  SELECT D.NGAYLAP, MADONHANG, D.MAKH, K.TENKHACH, N.TENNV, D.TONGTIEN FROM DONHANGXUAT D, KHACHHANG K, NHANVIEN N
+	  WHERE K.MAKH = D.MAKH
+	  AND N.MANV = D.MANV
+	  GO
+	  SELECT * FROM dbo.BangThuTien
+
+	  --13.	Báo cáo chi tiền tổng hợp
+	  CREATE VIEW BangChiTien AS
+	  SELECT D.NGAYLAP, MADONHANG, D.MANCC, N.TENNCC, D.TONGTIEN FROM DONHANGNHAP D, NHACUNGCAP N
+	  WHERE D.MANCC = N.MANCC
+	  GO
+
+	  SELECT * FROM dbo.BangChiTien
+
+	  --34.	Xuất những đơn mua hàng của khách sỉ
+	  CREATE VIEW V_DonMuaHangCuaKhachSi AS
+	  SELECT MADONHANG, TENKHACH, LOAIKH, TENNV AS NGUOILAP, TRANGTHAIDH, NGAYLAP, TONGTIEN, DATHANHTOAN, D.CONGNO,  dbo.UF_HanNo(D.NGAYLAP, K.LOAIKH, D.CONGNO) AS HANNO FROM DONHANGXUAT D, KHACHHANG K, NHANVIEN N
+	  WHERE D.MAKH = K.MAKH
+	  AND D.MANV = N.MANV
+	  AND K.LOAIKH = N'Khách sỉ'
+	  GO
+
+	  SELECT * FROM V_DonMuaHangCuaKhachSi
+
+	  --38.	Tìm nhà cung cấp có số lượng thuốc đã cung cấp nhiều nhất trong kho
+	  CREATE VIEW NCCSoLuongThuocCungCapNhieuNhat AS
+	  SELECT TOP 1 N.MANCC, N.TENNCC, COUNT(*) AS SOLUONG FROM NHACUNGCAP N, DONHANGNHAP D, NHAPTHUOC NCC
+	  WHERE N.MANCC = D.MANCC
+	  AND D.MADONHANG = NCC.MADONHANG
+	  GROUP BY N.MANCC, N.TENNCC
+	  ORDER BY SOLUONG DESC
+	  GO
+
+	  SELECT * FROM NCCSoLuongThuocCungCapNhieuNhat
+
       ---------------------------------------------THÊM DỮ LIỆU CHO CÁC BẢNG-----------------------------------------------
 
       --thêm dữ liệu cho bảng nhóm thuốc
@@ -1907,19 +1945,19 @@
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
             VALUES ('BD.TS5-19', 'profile_pic-BD.TS5-19-MD_Protect.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
-            VALUES ('BD.TS5-4', 'KJFJ')
+            VALUES ('BD.TS5-4', 'profile_pic-BD.TS5-4-Selenvit-E.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
             VALUES ('BD.TS5-5', 'profile_pic-BD.TS5-5-MD_Bio_Calcium.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
-            VALUES ('BN.TS2-15', 'profile_pic-BN.TS2-15-ECO-Doxyfish_Power_20%.png')
+            VALUES ('BN.TS2-15', 'profile_pic-BN.TS2-15-ECO-Doxyfish_Power_20%.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
-            VALUES ('BN.TS2-51', 'HFJV')
+            VALUES ('BN.TS2-51', 'profile_pic-BN.TS2-51-Iodin-200.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
             VALUES ('CME-3', 'profile_pic-CME-3-Vắc_xin_PRRS_JXA1-R.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
-            VALUES ('ETT-163', 'profile_pic-ETT-163-')
+            VALUES ('ETT-163', 'profile_pic-ETT-163-Dental_Creme_3.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
-            VALUES ('ETT-165', 'KVH')
+            VALUES ('ETT-165', 'profile_pic-ETT-165-Progesterone.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
             VALUES ('ETT-50', 'profile_pic-ETT-50-Eco-Terra_egg.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
@@ -1927,11 +1965,11 @@
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
             VALUES ('GDA-10', 'profile_pic-GDA-10-NVDC-JXA1_Strain.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
-            VALUES ('HCM-X2-16', 'HCG')
+            VALUES ('HCM-X2-16', 'profile_pic-HCM-X2-16-Fe-Dextran_B12.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
             VALUES ('HCM-X2-164', 'profile_pic-HCM-X2-164-Tylosin-200.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
-            VALUES ('HCM-X2-198', 'VBXG')
+            VALUES ('HCM-X2-198', 'profile_pic-HCM-X2-198-Tia-K.C.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
             VALUES ('HCM-X4-25', 'profile_pic-HCM-X4-25-Terramycin_Egg_Formula.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
@@ -1941,36 +1979,39 @@
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
             VALUES ('SAK-118', 'profile_pic-SAK-118-Sakan-Fipr.png')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
-            VALUES ('SAK-169', 'NBV')
+            VALUES ('SAK-169', 'profile_pic-SAK-169-Amitraz.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
-            VALUES ('SAK-185', 'HUGB')
+            VALUES ('SAK-185', 'profile_pic-SAK-185-Funguikur.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
             VALUES ('SAK-37', 'profile_pic-SAK-37-Flormax.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
-            VALUES ('UV-2', 'JGUUYTX')
+            VALUES ('UV-2', 'profile_pic-UV-2-APA-PLANKTON_FISH.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
-            VALUES ('UV-65', 'profile_pic-UV-65-RODO-UV.png')
-
+            VALUES ('UV-65', 'profile_pic-UV-65-RODO-UV.jpg')
 
       -- thêm dữ liệu cho bảng ALBUMPICTURE
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
             VALUES ('BD.TS5-19', 'pic-BD.TS5-19-MD_Protect_2.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
-            VALUES ('BD.TS5-4', '')
+            VALUES ('BD.TS5-4', 'pic-BD.TS5-4-Selenvit-E_2.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
             VALUES ('BD.TS5-5', 'pic-BD.TS5-5-MD_Bio_Calcium.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
-            VALUES ('BN.TS2-15', 'pic-BN.TS2-15-ECO-Doxyfish_Power_20%.png')
+            VALUES ('BN.TS2-15', 'pic-BN.TS2-15-ECO-Doxyfish_Power_20%.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
-            VALUES ('BN.TS2-51', '')
+            VALUES ('BN.TS2-51', 'pic-BN.TS2-51-Iodin-200.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
             VALUES ('CME-3', 'pic-CME-3-Vắc_xin_PRRS_JXA1-R_2.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
             VALUES ('CME-3', 'pic-CME-3-Vắc_xin_PRRS_JXA1-R_3.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
-            VALUES ('ETT-163', 'pic-ETT-163-')
+            VALUES ('ETT-163', 'pic-ETT-163-Dental_Creme_2.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
-            VALUES ('ETT-165', '')
+            VALUES ('ETT-163', 'pic-ETT-163-Dental_Creme.jpg')
+      INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
+            VALUES ('ETT-165', 'pic-ETT-165-Progesterone_2.jpg')
+      INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
+            VALUES ('ETT-165', 'pic-ETT-165-Progesterone.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
             VALUES ('ETT-50', 'pic-ETT-50-Eco-Terra_egg_2.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
@@ -1980,13 +2021,15 @@
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
             VALUES ('GDA-10', 'pic-GDA-10-NVDC-JXA1_Strain.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
-            VALUES ('HCM-X2-16', '')
+            VALUES ('HCM-X2-16', 'pic-Fe-HCM-X2-16-Dextran_B12_2.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
             VALUES ('HCM-X2-164', 'pic-HCM-X2-164-Tylosin-200_2.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
             VALUES ('HCM-X2-164', 'pic-HCM-X2-164-Tylosin-200_3.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
-            VALUES ('HCM-X2-198', '')
+            VALUES ('HCM-X2-198', 'pic-HCM-X2-198-Tia-K.C_2.jpg')
+      INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
+            VALUES ('HCM-X2-198', 'pic-HCM-X2-198-Tia-K.C_3.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
             VALUES ('HCM-X4-25', 'pic-HCM-X4-25-Terramycin_Egg_Formula_2.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
@@ -1996,221 +2039,24 @@
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
             VALUES ('LBF-1', 'pic-LBF-1-Foot_And_Mouth_Disease_Vaccine_2.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
-            VALUES ('SAK-118', 'pic-SAK-118-Sakan-Fipr_2.png')
+            VALUES ('SAK-118', 'pic-SAK-118-Sakan-Fipr_2.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
-            VALUES ('SAK-118', 'pic-SAK-118-Sakan-Fipr_3.png')
+            VALUES ('SAK-118', 'pic-SAK-118-Sakan-Fipr_3.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
-            VALUES ('SAK-169', '')
+            VALUES ('SAK-169', 'pic-SAK-169-Amitraz_2.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
-            VALUES ('SAK-185', '')
+            VALUES ('SAK-169', 'pic-SAK-169-Amitraz.jpg')
+      INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
+            VALUES ('SAK-185', 'pic-SAK-185-Funguikur_3.jpg')
+      INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
+            VALUES ('SAK-185', 'pic-SAK-185-Funguikur_1.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
             VALUES ('SAK-37', 'pic-SAK-37-Flormax_2.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
-            VALUES ('UV-2', '')
+            VALUES ('UV-2', 'pic-UV-2-APA-PLANKTON_FISH.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
-            VALUES ('UV-65', 'pic-UV-65-RODO-UV_2.png')
+            VALUES ('UV-65', 'pic-UV-65-RODO-UV_2.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
-            VALUES ('UV-65', 'pic-UV-65-RODO-UV_3.png')
+            VALUES ('UV-65', 'pic-UV-65-RODO-UV_3.jpg')
       GO
 
-------------------------------------------------Thanh Truc--------------
---2.	Báo cáo đơn hàng xuất
-SELECT * FROM DONHANGXUAT
-
---5.	Báo cáo lược sử giao dịch khách hàng
-CREATE FUNCTION UF_LuocSuGiaoDichKH(@makh VARCHAR(10))
-RETURNS TABLE
-AS RETURN SELECT K.MAKH, K.TENKHACH, K.DIACHI, K.DIENTHOAI, K.LOAIKH, D.MADONHANG, D.NGAYLAP, D.TRANGTHAIDH, D.TONGTIEN, D.DATHANHTOAN, D.CONGNO FROM KHACHHANG K, DONHANGXUAT D
-		  WHERE K.MAKH = D.MAKH
-		  AND K.MAKH = @makh
-GO
--- Báo cáo lược sử giao dịch với khách hàng có mã là KH001
-SELECT * FROM dbo.UF_LuocSuGiaoDichKH('KH001')
-
--- 7.	Trả nợ, chi tiền nhà cung cấp
-UPDATE DONHANGNHAP
-SET DATHANHTOAN = TONGTIEN
-WHERE TRANGTHAIDH = N'Đã nhận'
-
---8.	Báo cáo đơn hàng nhập
-SELECT * FROM DONHANGNHAP
-
---9.	Báo cáo nhập hàng chi tiết
-CREATE FUNCTION UF_DonNhapChiTiet(@Madonhang VARCHAR(10))
-RETURNS TABLE
-AS RETURN SELECT D.MADONHANG, D.MANCC, THUOC, SOLUONG, DONVITINH, NGAYLAP, D.TRANGTHAIDH, D.TONGTIEN, D.DATHANHTOAN, D.CONGNO FROM DONHANGNHAP D, NHAPTHUOC N
-          WHERE D.MADONHANG = N.MADONHANG
-          AND D.MADONHANG = @madonhang
-GO
--- Báo cáo nhập hàng chi tiết của đơn hàng có mã là DN005
-SELECT * FROM dbo.UF_DonNhapChiTiet('DN005')
-
---11.	Báo cáo lược sử giao dịch với nhà cung cấp
-CREATE FUNCTION UF_LuocSuGiaoDichNCC(@mancc VARCHAR(10))
-RETURNS TABLE
-AS RETURN SELECT N.MANCC, N.TENNCC, N.DIACHI, N.DIENTHOAI, D.MADONHANG, D.NGAYLAP, D.TRANGTHAIDH, D.TONGTIEN, D.DATHANHTOAN, D.CONGNO FROM NHACUNGCAP N, DONHANGNHAP D
-		  WHERE N.MANCC = D.MANCC
-		  AND N.MANCC = @mancc
-GO
--- Báo cáo lược sử giao dịch với nhà cung cấp có mã là 0305110871
-SELECT * FROM dbo.UF_LuocSuGiaoDichNCC('0305110871')
-
---16.	Xuất sản phẩm bán chạy theo năm/tháng/quý
-CREATE FUNCTION UF_XuatSanPhamBanChayTheoNam(@nam INT)
-RETURNS TABLE
-AS 
-      RETURN SELECT TOP 1 THUOC.MATHUOC, THUOC.TENTHUOC, THUOC.MANHOM, SUM(X.SOLUONG) AS SOLUONG FROM XUATTHUOC X, THUOC, DONHANGXUAT D
-      WHERE X.THUOC = THUOC.MATHUOC
-      AND YEAR(D.NGAYLAP) = @nam
-      GROUP BY THUOC.MATHUOC, THUOC.TENTHUOC, THUOC.MANHOM
-      ORDER BY SOLUONG DESC
-GO
--- Xuất sản phẩm bán chạy nhất năm 2023
-SELECT * FROM dbo.UF_XuatSanPhamBanChayTheoNam(2023)
-
-CREATE FUNCTION UF_XuatSanPhamBanChayTheoThang(@thang INT, @nam INT)
-RETURNS TABLE
-AS 
-      RETURN SELECT TOP 1 THUOC.MATHUOC, THUOC.TENTHUOC, THUOC.MANHOM, SUM(X.SOLUONG) AS SOLUONG FROM XUATTHUOC X, THUOC, DONHANGXUAT D
-      WHERE X.THUOC = THUOC.MATHUOC
-      AND YEAR(D.NGAYLAP) = @nam
-	  AND MONTH(D.NGAYLAP) = @thang
-      GROUP BY THUOC.MATHUOC, THUOC.TENTHUOC, THUOC.MANHOM
-      ORDER BY SOLUONG DESC
-GO
--- Xuất sản phẩm bán chạy nhất tháng 3 năm 2023
-SELECT * FROM dbo.UF_XuatSanPhamBanChayTheoThang(3, 2023)
-
-CREATE FUNCTION UF_XuatSanPhamBanChayTheoQuy(@quy INT, @nam INT)
-RETURNS TABLE
-AS 
-      RETURN SELECT TOP 1 THUOC.MATHUOC, THUOC.TENTHUOC, THUOC.MANHOM, SUM(X.SOLUONG) AS SOLUONG FROM XUATTHUOC X, THUOC, DONHANGXUAT D
-      WHERE X.THUOC = THUOC.MATHUOC
-      AND YEAR(D.NGAYLAP) = @nam
-	  AND DATEPART(QUARTER, NGAYLAP) = @quy
-      GROUP BY THUOC.MATHUOC, THUOC.TENTHUOC, THUOC.MANHOM
-      ORDER BY SOLUONG DESC
-GO
--- Xuất sản phẩm bán chạy nhất trong quý 1 năm 2023 (tháng 1 2 3 năm 2023)
-SELECT * FROM dbo.UF_XuatSanPhamBanChayTheoQuy(1, 2023)
-
---19.	Báo cáo danh sách xuất hàng theo tuần/ tháng/ năm / quý
--- Báo cáo danh sách xuất hàng theo năm 
-CREATE FUNCTION UF_DanhSachXuatHangTheoNam(@nam INT)
-RETURNS TABLE
-AS 
-      RETURN SELECT X.MADONHANG, TENNCC, THUOC.TENTHUOC, X.SOLUONG, X.DONVITINH, D.NGAYLAP
-      FROM XUATTHUOC X, DONHANGXUAT D, NHACUNGCAP NCC, THUOC
-      WHERE D.MADONHANG = X.MADONHANG
-      AND THUOC.MATHUOC = X.THUOC
-	  AND THUOC.MANCC = NCC.MANCC
-      AND YEAR(NGAYLAP) = @nam
-GO
--- Báo cáo danh sách xuất hàng theo năm 2023
-SELECT * FROM dbo.UF_DanhSachXuatHangTheoNam(2023)
-
-CREATE FUNCTION UF_DanhSachXuatHangTheoThang(@thang INT, @nam INT)
-RETURNS TABLE
-AS 
-      RETURN SELECT X.MADONHANG, TENNCC, THUOC.TENTHUOC, X.SOLUONG, X.DONVITINH, D.NGAYLAP
-      FROM XUATTHUOC X, DONHANGXUAT D, NHACUNGCAP NCC, THUOC
-      WHERE D.MADONHANG = X.MADONHANG
-      AND THUOC.MATHUOC = X.THUOC
-	  AND THUOC.MANCC = NCC.MANCC
-      AND YEAR(NGAYLAP) = @nam
-	  AND MONTH(NGAYLAP) = @thang
-GO
--- Báo cáo danh sách xuất hàng theo tháng 3/2023
-SELECT * FROM dbo.UF_DanhSachXuatHangTheoThang(3, 2023)
-
-CREATE FUNCTION UF_DanhSachXuatHangTheoQuy(@quy INT, @nam INT)
-RETURNS TABLE
-AS 
-      RETURN SELECT X.MADONHANG, TENNCC, THUOC.TENTHUOC, X.SOLUONG, X.DONVITINH, D.NGAYLAP
-      FROM XUATTHUOC X, DONHANGXUAT D, NHACUNGCAP NCC, THUOC
-      WHERE D.MADONHANG = X.MADONHANG
-      AND THUOC.MATHUOC = X.THUOC
-	  AND THUOC.MANCC = NCC.MANCC
-      AND YEAR(NGAYLAP) = @nam
-	  AND DATEPART(QUARTER, NGAYLAP) = @quy
-GO
--- Báo cáo danh sách xuất hàng theo quý 1/2023
-SELECT * FROM dbo.UF_DanhSachXuatHangTheoQuy(1, 2023)
-
--------------------------------------------------TẠO CÁC BẢNG ẢO------------------------------------------------------
-
---tạo bảng phiếu bán hàng
-CREATE VIEW PhieuBanHang AS
-SELECT MADONHANG, TENKHACH, LOAIKH, TENNV AS NGUOILAP, TRANGTHAIDH, NGAYLAP, TONGTIEN, DATHANHTOAN, D.CONGNO, dbo.UF_HanNo(D.NGAYLAP, K.LOAIKH, D.CONGNO) AS HANNO FROM DONHANGXUAT D, KHACHHANG K, NHANVIEN N
-WHERE D.MAKH = K.MAKH
-AND D.MANV = N.MANV
-GO
-SELECT * FROM PhieuBanHang
-
---12.	Báo cáo thu tiền tổng hợp
-CREATE VIEW BangThuTien AS
-SELECT D.NGAYLAP, MADONHANG, D.MAKH, K.TENKHACH, N.TENNV, D.TONGTIEN FROM DONHANGXUAT D, KHACHHANG K, NHANVIEN N
-WHERE K.MAKH = D.MAKH
-AND N.MANV = D.MANV
-GO
-SELECT * FROM dbo.BangThuTien
-
---13.	Báo cáo chi tiền tổng hợp
-CREATE VIEW BangChiTien AS
-SELECT D.NGAYLAP, MADONHANG, D.MANCC, N.TENNCC, D.TONGTIEN FROM DONHANGNHAP D, NHACUNGCAP N
-WHERE D.MANCC = N.MANCC
-GO
-
-SELECT * FROM dbo.BangChiTien
-
---28.	Xóa những sản phẩm quá hạn
-DELETE KHOHANG
-WHERE DATEDIFF(DAY, GETDATE(), NGAYHETHAN) < 0
-SELECT * FROM KHOHANG
-
---tính hạn thanh toán nợ cho Khách hàng
-CREATE FUNCTION UF_HanNo(@Ngaylap DATE, @loaikh NVARCHAR(15), @congno MONEY)
-RETURNS DATE
-AS
-BEGIN
-      IF @congno = 0
-      BEGIN
-            RETURN NULL
-      END
-      DECLARE @HANNO DATE
-      IF @loaikh =N'Khách lẻ'
-      BEGIN
-            SELECT @HANNO = DATEADD(DAY, 5, @Ngaylap)
-      END
-      IF @loaikh =N'Khách sỉ'
-      BEGIN
-            SELECT @HANNO = DATEADD(DAY, 15, @Ngaylap)
-      END
-      RETURN @HANNO
-END
-GO
---34.	Xuất những đơn mua hàng của khách sỉ
-CREATE VIEW V_DonMuaHangCuaKhachSi AS
-SELECT MADONHANG, TENKHACH, LOAIKH, TENNV AS NGUOILAP, TRANGTHAIDH, NGAYLAP, TONGTIEN, DATHANHTOAN, D.CONGNO,  dbo.UF_HanNo(D.NGAYLAP, K.LOAIKH, D.CONGNO) AS HANNO FROM DONHANGXUAT D, KHACHHANG K, NHANVIEN N
-WHERE D.MAKH = K.MAKH
-AND D.MANV = N.MANV
-AND K.LOAIKH = N'Khách sỉ'
-GO
-
-SELECT * FROM V_DonMuaHangCuaKhachSi
-
---37.	Thêm sản phẩm vào danh mục thuốc
-INSERT INTO THUOC(MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG)
-VALUES ('MATHUOC1', N'Thuốc ví dụ', 'N001', N'Gia cầm', N'Oxytetracyclin' ,'3600278732', 50000, N'Bột', N'Chai 100g', N'Nâng cao năng suất trứng.')
-
-SELECT * FROM THUOC
---38.	Tìm nhà cung cấp có số lượng thuốc đã cung cấp nhiều nhất trong kho
-CREATE VIEW NCCSoLuongThuocCungCapNhieuNhat AS
-SELECT TOP 1 N.MANCC, N.TENNCC, COUNT(*) AS SOLUONG FROM NHACUNGCAP N, DONHANGNHAP D, NHAPTHUOC NCC
-WHERE N.MANCC = D.MANCC
-AND D.MADONHANG = NCC.MADONHANG
-GROUP BY N.MANCC, N.TENNCC
-ORDER BY SOLUONG DESC
-GO
-
-SELECT * FROM NCCSoLuongThuocCungCapNhieuNhat
