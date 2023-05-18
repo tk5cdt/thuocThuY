@@ -1249,7 +1249,7 @@
       GO
 
  --tạo trigger khi thêm dữ liệu vào bảng GIOHANG
-      ALTER TRIGGER TRG_INSERT_GIOHANG
+      CREATE TRIGGER TRG_INSERT_GIOHANG
             ON GIOHANG
             INSTEAD OF INSERT
       AS
