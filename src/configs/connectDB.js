@@ -2,7 +2,7 @@ import sql from 'mssql';
 const config = {
     user: 'sa',
     password: '123',
-    server: 'TRUONG',
+    server: 'TONDZP',
     database: 'QL_NHATHUOCTY',
     options: {
         encrypt: true, // for azure

@@ -17,14 +17,14 @@ let getConnect = async (req, res) => {
     const pageNumber = parseInt(req.query.pageNumber) || 1;
     const pageSize = parseInt(req.query.pageSize) || 10;
     try {
-        const result = await pool.request().query(`select THUOC.*, TENANH from THUOC, PROFILEPICTURE where THUOC.MATHUOC = PROFILEPICTURE.MATHUOC order by MATHUOC offset ${(pageNumber - 1) * pageSize} rows fetch next ${pageSize} rows only`);
+        const result = await pool.request().query(`select THUOC.*, TENANH, SOLUONG from THUOC, PROFILEPICTURE, TonKho where THUOC.MATHUOC = PROFILEPICTURE.MATHUOC and THUOC.TENTHUOC = TonKho.TENTHUOC order by MATHUOC offset ${(pageNumber - 1) * pageSize} rows fetch next ${pageSize} rows only`);
         const totalRows = await pool.request().query(`select count(*) as total from THUOC`);
         const totalPages = Math.ceil(totalRows.recordset[0].total / pageSize);
-        const isAdmin = await pool.request().query(`select * from TAIKHOAN where USERNAME = '${req.session.user}' and QUANTRI = 1`);
-        if (isAdmin.recordset > 0) {
-            return res.render("admin.ejs", { THUOC: result.recordset, user: req.session.user, totalPages, pageNumber, pageSize });
+        const user = req.session.user;
+        if (user && user.QUANTRI == 1) {
+            return res.render("db.ejs", { THUOC: result.recordset, user: req.session.user, totalPages, pageNumber, pageSize, message: "" });
         }
-        return res.render("db.ejs", { THUOC: result.recordset, user: req.session.user, totalPages, pageNumber, pageSize });
+        return res.render("sp.ejs", { THUOC: result.recordset, user: req.session.user, totalPages, pageNumber, pageSize, message: "" });
     }
     catch (err) {
         console.log(err);
@@ -45,6 +45,10 @@ let getTHUOC = async (req, res) => {
 }
 
 let themthuoc = (req, res) => {
+    const user = req.session.user;
+    if (!user || user.QUANTRI == 0) {
+        return res.redirect('/');
+    }
     return res.render("themthuoc.ejs", { message: "", user: req.session.user });
 }
 
@@ -79,7 +83,7 @@ let newTHUOC = async (req, res) => {
     for (let i = 0; i < files.length; i++) {
         let result2 = await pool.request().query(`INSERT INTO ALBUMPICTURES VALUES ('${MATHUOC}', '${files[i].filename}')`)
     }
-    return res.redirect('/db');
+    return res.redirect('/thuoc/' + MATHUOC);
 }
 
 let deleteTHUOC = async (req, res) => {
@@ -108,8 +112,8 @@ let updateTHUOC = async (req, res) => {
 let getsp = async (req, res) => {
     const pool = await connectDB();
     try {
-        const result = await pool.request().query('select * from THUOC');
-        return res.render("sp.ejs", { THUOC: result.recordset, user: req.session.user });
+        const result = await pool.request().query('select THUOC.*, TENANH from THUOC join PROFILEPICTURE on THUOC.MATHUOC = PROFILEPICTURE.MATHUOC');
+        return res.render("sp.ejs", { THUOC: result.recordset, user: req.session.user, message: ""});
     }
     catch (err) {
         console.log(err);
@@ -129,8 +133,11 @@ let getgiohang = async (req, res) => {
 }
 
 let addToCart = async (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
     let MATHUOC = req.params.MATHUOC;
-    let SOLUONG = req.body.SOLUONG | 1;
+    let SOLUONG = req.body.SOLUONG || 1;
     let USERNAME = req.session.user.USERNAME;
     let THANHTIEN = req.body.GIALE;
     console.log(MATHUOC, SOLUONG, USERNAME);
@@ -169,7 +176,21 @@ let admin = async (req, res) => {
     if (req.session.user == null) {
         return res.redirect('/login')
     }
-    return res.render("admin.ejs", { user: req.session.user });
+    const pool = await connectDB();
+    const doanhthuThang = []
+    for(let i = 1; i <= 12; i++) {
+        const result = await pool.request().query(`SELECT dbo.UF_TinhDoanhThuTheoThang(${i}, YEAR(GETDATE())) as DOANHTHU`)
+        doanhthuThang.push(result.recordset[0].DOANHTHU)
+    }
+    const doanhthuQuy = []
+    for(let i = 1; i <= 4; i++) {
+        const result = await pool.request().query(`SELECT dbo.UF_TinhDoanhThuTheoQuy(${i}, YEAR(GETDATE())) as DOANHTHU`)
+        doanhthuQuy.push(result.recordset[0].DOANHTHU)
+    }
+    const result = await pool.request().query(`SELECT dbo.UF_TinhDoanhThuTheoNam(YEAR(GETDATE())) as DOANHTHU`)
+    const doanhthuNam = result.recordset[0].DOANHTHU
+    const result2 = await pool.request().query(`SELECT * FROM DONHANGONLINE`)
+    return res.render("admin.ejs", { user: req.session.user, doanhthuThang: doanhthuThang, doanhthuQuy: doanhthuQuy, doanhthuNam: doanhthuNam, DONHANGONLINE: result2.recordset });
 }
 
 let getUploadPage = async (req, res) => {
@@ -234,14 +255,33 @@ let handleUploadMultiPic = async (req, res) => {
 let getSearch = async (req, res) => {
     let search = req.body.search;
     let pool = await connectDB();
+    const user = req.session.user;
     if (search == '') {
-        return res.redirect('/sp')
+        if (user.QUANTRI == 1) {
+            return res.redirect('/admin')
+        }
+        return res.redirect('/')
     }
-    let result = await pool.request().query(`SELECT * FROM THUOC WHERE TENTHUOC LIKE N'%${search}%' OR MATHUOC LIKE '%${search}%' OR LOAISD LIKE N'%${search}%' OR CONGDUNG LIKE N'%${search}%'`)
+    let result = await pool.request().query(`SELECT THUOC.*, TENANH FROM THUOC, PROFILEPICTURE WHERE THUOC.MATHUOC = PROFILEPICTURE.MATHUOC and (TENTHUOC LIKE N'%${search}%' OR THUOC.MATHUOC LIKE '%${search}%' OR LOAISD LIKE N'%${search}%' OR CONGDUNG LIKE N'%${search}%')`)
+    if(user.QUANTRI == 1){
+        if (result.recordset.length == 0) {
+            return res.render('db.ejs', { user: req.session.user, THUOC: result.recordset, pageNumber: -1, pageSize: 0, message: 'Không tìm thấy sản phẩm nào' })
+        }
+        return res.render('db.ejs', { user: req.session.user, THUOC: result.recordset, pageNumber: -1, pageSize: 0, message: '' })
+    }
     if (result.recordset.length == 0) {
-        return res.render('sp.ejs', { user: req.session.user, THUOC: result.recordset, message: 'Không tìm thấy sản phẩm nào' })
+        return res.render('sp.ejs', { user: req.session.user, THUOC: result.recordset, pageNumber: -1, pageSize: 0, message: 'Không tìm thấy sản phẩm nào' })
     }
-    return res.redirect('/thuoc/' + result.recordset[0].MATHUOC)
+    return res.render('sp.ejs', { user: req.session.user, THUOC: result.recordset, message: '' })
+}
+
+let updateDONHANG = async (req, res) => {
+    let pool = await connectDB();
+    let MADONHANG = req.body.MADONHANG;
+    let TRANGTHAI = req.body.TRANGTHAI;
+    console.log(MADONHANG, TRANGTHAI)
+    let result = await pool.request().query(`UPDATE DONHANGONLINE SET TRANGTHAIDH = N'${TRANGTHAI}' WHERE MADONHANG = '${MADONHANG}'`)
+    return res.redirect('/admin')
 }
 
 module.exports = {
@@ -265,4 +305,5 @@ module.exports = {
     handleUploadMultiPic: handleUploadMultiPic,
     getUploadPage: getUploadPage,
     getSearch: getSearch,
+    updateDONHANG: updateDONHANG,
 }

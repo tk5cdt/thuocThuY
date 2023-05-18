@@ -9,34 +9,46 @@
           <li class="nav-item">
             <a class="nav-link <%if(active=="admin"){%>active<%}%>" aria-current="page" href="/admin">Trang chủ</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link <%if(active=="db"){%>active<%}%>" href="/db">Sản phẩm</a>
-          </li>
-          <li class="nav-item">
+          <!-- <li class="nav-item">
+            <a class="nav-link <%if(active=="db"){%>active<%}%>" href="/admin/db">Sản phẩm</a>
+          </li> -->
+          <!-- <li class="nav-item">
             <a class="nav-link" href="/admin/donhang">Đơn hàng</a>
-          </li>
-          <li class="nav-item">
+          </li> -->
+          <!-- <li class="nav-item">
             <a class="nav-link" href="/admin/quanly">Quản lý</a>
-          </li>
-          <!-- <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Dropdown
+          </li> -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle <%if(active=="db"){%>active<%}%>" href="/admin/db" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Sản phẩm
             </a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="#">Action</a></li>
-              <li><a class="dropdown-item" href="#">Another action</a></li>
+              <!-- <li><a class="dropdown-item" href="#">Action</a></li> -->
+              <li><a class="dropdown-item" href="/admin/db">Danh mục sản phẩm</a></li>
               <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="#">Something else here</a></li>
+              <li><a class="dropdown-item" href="/admin/themthuoc">Thêm sản phẩm mới</a></li>
             </ul>
-          </li> -->
+          </li>
           <!-- <li class="nav-item">
             <a class="nav-link disabled">Disabled</a>
           </li> -->
         </ul>
-        <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="search" id="search">
-          <button class="btn btn-outline-success" formaction="/search" formmethod="post" type="submit">Search</button>
-        </form>
+        <div class="d-md-flex justify-content-md-between align-items-md-center">
+          <div class="d-flex align-items-center">
+            <% if (user) { %>
+              <span class="m-md-0 p-0">Hello <%= user.USERNAME %></span>
+              <form action="/logout" method="get">
+                <button type="submit" class="btn btn-light"><ion-icon name="log-out-outline" style="transform: translate(0,2px);"></ion-icon></button>
+              </form>
+            <% } %>
+          </div>
+            <form class="d-flex" role="search">
+              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="search" id="search">
+              <button class="btn btn-outline-success" formaction="/search" formmethod="post" type="submit">Search</button>
+            </form>
+          </div>
       </div>
     </div>
 </nav>
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>

@@ -1,30 +1,36 @@
-<div id="header">
-    <a href="" class="logo">
-        <img src="/images/logo.jpeg" alt="logo">
-    </a>
-    <div id="menu">
-        <div class="item">
-            <a href="/">Trang chủ</a>
-        </div>
-        <div class="item">
-            <a href="/sp">Sản phẩm</a>
-        </div>
-        <div class="item">
-            <a href="/contact">Liên hệ</a>
-        </div>
-        <div class="item">
-            <a href="/info">Về chúng tôi</a>
-        </div>
-    </div>
+<nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/"><img src="/images/logo.jpeg" alt="" style="width: 50px; border-radius: 10px;"></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link <%if(active=="user"){%>active<%}%>" aria-current="page" href="/">Trang chủ</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <%if(active=="sp"){%>active<%}%>" href="/sp">Sản phẩm</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <%if(active=="lh"){%>active<%}%>" href="/contact">Liên hệ</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <%if(active=="info"){%>active<%}%>"  href="/info">Về chúng tôi</a>
+          </li>
+          <li>
+        </li>
+    </ul>
     <% if (user) { %>
         <% if (!user.QUANTRI) { %>
             <div id="actions">
-                <div class="item">
-                    <a href="/logout">Logout</a>
-                </div>
-                <div class="item">
-                    <a id="login"><button class="taikhoan"> <a href="/cart" class="ti-shopping-cart">
-                            </a></button></a>
+                <div class="item d-flex">
+                    <a href="/logout" style="color: midnightblue; margin-top: 10px;">Logout</a>
+                    <a id="login">
+                        <button class="taikhoan"> 
+                            <a href="/cart" class="ti-shopping-cart" style="width: 70px;"></a>
+                        </button>
+                    </a>
                 </div>
             </div>
             <% } %>
@@ -37,4 +43,6 @@
                         </div>
                     </div>
                     <% } %>
-</div>
+      </div>
+    </div>
+</nav>
