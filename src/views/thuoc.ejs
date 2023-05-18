@@ -62,22 +62,26 @@
                                     <% if (user.QUANTRI) { %>
                                         <div class="cart my-3 align-items-center">
                                             <form action="/editThuoc/<%= THUOC.MATHUOC %>">
-                                                <button class="btn btn-danger text-uppercase mr-2 px-4" type="submit">Edit</button>
+                                                <button class="btn btn-danger text-uppercase mr-2 px-4" type="submit">Chỉnh sửa</button>
                                             </form>
                                         </div>
-                                    <% } %>
+                                        <% } else { %>
+                                            <h6 class="text-uppercase">Số lượng</h6>
+                                            <div class="cart my-3 align-items-center">
+                                                <form action="/addToCart/<%= THUOC.MATHUOC %>" method="POST"">
+                                                    <div class=" wrapper mb-2">
+                                                        <span class="minus">-</span>
+                                                        <input class="num" type="text" name="SOLUONG" id="SOLUONG" value=1>
+                                                        <span class="plus">+</span>
+                                                    </div>
+                                                    <button class="btn btn-danger text-uppercase mr-2 px-4" type="submit">Thêm vào giỏ hàng</button>
+                                                </form>
+                                            </div>    
+                                        <% } %>
                                     <% } else { %>
-                                    <h6 class="text-uppercase">Số lượng</h6>
-                                    <div class="cart my-3 align-items-center">
-                                        <form action="/addToCart/<%= THUOC.MATHUOC %>" method="POST"">
-                                            <div class=" wrapper mb-2">
-                                                <span class="minus">-</span>
-                                                <input class="num" type="text" name="SOLUONG" id="SOLUONG" value=1>
-                                                <span class="plus">+</span>
-                                            </div>
-                                            <button class="btn btn-danger text-uppercase mr-2 px-4" type="submit">Add to cart</button>
-                                        </form>
-                                    </div>    
+                                        <div class="cart my-3 align-items-center">
+                                            <a href="/login" class="text-decoration-none"><button class="btn btn-danger text-uppercase mr-2 px-4" type="submit">Đăng nhập</button></a>
+                                        </div> 
                                 <% } %>
                             </div>
                         </div>

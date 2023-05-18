@@ -173,13 +173,13 @@ let addToCart = async (req, res) => {
     let THANHTIEN = req.body.GIALE;
     console.log(MATHUOC, SOLUONG, USERNAME);
     const pool = await connectDB();
-    const re = await pool.request().query(`SELECT * FROM GIOHANG WHERE USERNAME = '${USERNAME}' AND MATHUOC = '${MATHUOC}'`)
-    if (re.recordset.length == 0) {
-        const result = await pool.request().query(`INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG) VALUES ('${USERNAME}', '${MATHUOC}', '${SOLUONG}')`)
-    }
-    else {
-        const result = await pool.request().query(`UPDATE GIOHANG SET SOLUONG = SOLUONG + '${SOLUONG}' WHERE USERNAME = '${USERNAME}' AND MATHUOC = '${MATHUOC}'`)
-    }
+    // const re = await pool.request().query(`SELECT * FROM GIOHANG WHERE USERNAME = '${USERNAME}' AND MATHUOC = '${MATHUOC}'`)
+    // if (re.recordset.length == 0) {
+    const result = await pool.request().query(`INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG) VALUES ('${USERNAME}', '${MATHUOC}', ${SOLUONG})`)
+    // }
+    // else {
+    //     const result = await pool.request().query(`UPDATE GIOHANG SET SOLUONG = SOLUONG + '${SOLUONG}' WHERE USERNAME = '${USERNAME}' AND MATHUOC = '${MATHUOC}'`)
+    // }
     return res.redirect('/cart')
 }
 
