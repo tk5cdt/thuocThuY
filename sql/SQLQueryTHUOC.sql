@@ -1272,9 +1272,9 @@
                   AND inserted.MATHUOC = GIOHANG.MATHUOC
             )
             BEGIN
-                  PRINT N'THUOC DA CO TRONG GIO HANG, SO LUONG SE DUOC CONG VAO GIO HANG'
+                  PRINT N'THUỐC ĐÃ CÓ TRONG GIỎ HÀNG, SỐ LƯỢNG MỚI SẼ ĐƯỢC CẬP NHẬT'
                   UPDATE GIOHANG
-                  SET SOLUONG += inserted.SOLUONG
+                  SET SOLUONG = inserted.SOLUONG
                   FROM inserted
                   WHERE inserted.USERNAME = GIOHANG.USERNAME
 
