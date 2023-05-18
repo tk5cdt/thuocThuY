@@ -33,18 +33,21 @@
     </header>
 
     <div class="products">
-        <% for( let index=0; index < THUOC.length; index++ ) { %>
-            <div class="card-deck">
+        <div class="row row-cols-1 row-cols-md-3 g-4">     
+            <% for( let index=0; index < 6; index++ ) { %>
+              <div class="col">
                 <div class="card">
-                    <img class="card-img-top" src="/public/uploads/<%= THUOC[index].MATHUOC %>/<%= THUOC[index].TENANH %>" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title"><%= THUOC[index].TENTHUOC %></h5>
-                        <p class="card-text"><%= THUOC[index].CONGDUNG %></p>
-                        <a href="/thuoc/<%= THUOC[index].MATHUOC %>" class="btn btn-primary">BUY</a>
-                    </div>
-                    <p class="card-footer"><small class="text-muted">Last updated 3 mins ago</small></p>
-            </div>
-        <% } %>
+                  <img class="card-img-top" src="/public/uploads/<%= THUOC[index].MATHUOC %>/<%= THUOC[index].TENANH %>" alt="Card image cap">
+                  <div class="card-body">
+                    <h5 class="card-title"><%= THUOC[index].TENTHUOC %></h5>
+                    <p class="card-text"><%= THUOC[index].CONGDUNG %></p>
+                    <a href="/thuoc/<%= THUOC[index].MATHUOC %>" class="btn btn-primary">BUY</a>
+                  </div>
+                  <p class="card-footer"><small class="text-muted">Last updated 3 mins ago</small></p>
+                </div>
+              </div>  
+            <% } %>
+              </div>
     </div>
     
     <nav aria-label="Page navigation example" style="margin: 10px">
