@@ -7,6 +7,10 @@ let upload = multer().single('profile_pic');
 let uploadMulti = multer().array('pic');
 
 let getHompage = async (req, res) => {
+    const user = req.session.user;
+    if (user && user.QUANTRI) {
+        return res.redirect("/admin");
+    }
     const pool = await connectDB();
     const result = await pool.request().query(`select THUOC.*, TENANH from THUOC, PROFILEPICTURE where THUOC.MATHUOC = PROFILEPICTURE.MATHUOC order by MATHUOC offset 0 rows fetch next 10 rows only`);
     return res.render("index.ejs", { user: req.session.user, appRoot: appRoot.path, THUOC: result.recordset });
@@ -96,6 +100,10 @@ let deleteTHUOC = async (req, res) => {
 }
 
 let editTHUOC = async (req, res) => {
+    const user = req.session.user;
+    if (!user || !user.QUANTRI) {
+        return res.redirect('/');
+    }
     let MATHUOC = req.params.MATHUOC;
     const pool = await connectDB();
     const result = await pool.request().query(`select * from THUOC where MATHUOC = '${MATHUOC}'`)
@@ -103,10 +111,33 @@ let editTHUOC = async (req, res) => {
 }
 
 let updateTHUOC = async (req, res) => {
+    const user = req.session.user;
+    if (!user || !user.QUANTRI) {
+        return res.redirect('/');
+    }
     let { MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIASI, GIALE, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG } = req.body;
     const pool = await connectDB();
     const result = await pool.request().query(`update THUOC set TENTHUOC = '${TENTHUOC}', MANHOM = '${MANHOM}', LOAISD = N'${LOAISD}', THANHPHAN = '${THANHPHAN}', MANCC = '${MANCC}', GIASI = '${GIASI}', GIALE = '${GIALE}', GIANHAP = '${GIANHAP}', DANGBAOCHE = N'${DANGBAOCHE}', QCDONGGOI = N'${QCDONGGOI}', CONGDUNG = N'${CONGDUNG}' where MATHUOC = '${MATHUOC}'`)
-    return res.redirect('/db/thuoc')
+    return res.redirect('/admin/db')
+}
+
+let getLOAISD = async (req, res) => {
+    let LOAISD = req.params.LOAISD;
+    if(LOAISD === 'thucung') {
+        LOAISD = 'Thú cưng';
+    }
+    else if(LOAISD === 'thuysan') {
+        LOAISD = 'Thủy sản';
+    }
+    else if(LOAISD === 'giacam') {
+        LOAISD = 'Gia cầm';
+    }
+    else if(LOAISD === 'giasuc') {
+        LOAISD = 'Gia súc';
+    }
+    const pool = await connectDB();
+    const result = await pool.request().query(`select THUOC.*, TENANH from THUOC join PROFILEPICTURE on THUOC.MATHUOC = PROFILEPICTURE.MATHUOC where LOAISD = N'${LOAISD}'`);
+    return res.render("sp.ejs", { THUOC: result.recordset, user: req.session.user, pageNumber: -1, pageSize: 10, message: ""});
 }
 
 let getsp = async (req, res) => {
@@ -125,7 +156,7 @@ let getcontact = async (req, res) => {
 }
 
 let getinfo = async (req, res) => {
-    return res.render("info.ejs", { user: req.session.user });
+    return res.render("about.ejs", { user: req.session.user });
 }
 
 let getgiohang = async (req, res) => {
@@ -133,8 +164,11 @@ let getgiohang = async (req, res) => {
 }
 
 let addToCart = async (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
     let MATHUOC = req.params.MATHUOC;
-    let SOLUONG = req.body.SOLUONG | 1;
+    let SOLUONG = req.body.SOLUONG || 1;
     let USERNAME = req.session.user.USERNAME;
     let THANHTIEN = req.body.GIALE;
     console.log(MATHUOC, SOLUONG, USERNAME);
@@ -303,4 +337,5 @@ module.exports = {
     getUploadPage: getUploadPage,
     getSearch: getSearch,
     updateDONHANG: updateDONHANG,
+    getLOAISD: getLOAISD,
 }
