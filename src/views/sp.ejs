@@ -49,6 +49,8 @@
     <nav aria-label="Page navigation example" style="margin: 10px">
         <ul class="pagination justify-content-center">
         <!-- Hiển thị nút Previous nếu không phải trang đầu tiên -->
+        <% if (pageNumber == -1) { %>
+            <% } else { %>
             <% if (pageNumber > 1) { %>
                 <li class="page-item"><a class="page-link" href="/sp?pageNumber=<%= pageNumber - 1 %>&pageSize=<%= pageSize %>" aria-label="Previous">
                 <span aria-hidden="true">&laquo;</span>
@@ -70,6 +72,7 @@
                     <span aria-hidden="true">&raquo;</span>
                 </a></li>
             <% } %>
+        <% } %>
         </ul>
     </nav>
 

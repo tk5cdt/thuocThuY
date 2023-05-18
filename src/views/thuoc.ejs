@@ -11,13 +11,15 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
         crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
     <link rel="stylesheet" href="/css/thuoc.css">
     <title>
         <%= THUOC.TENTHUOC %>
     </title>
 </head>
 
-<body>
+<body class="px-5">
     <div class="container mt-5 mb-5">
         <div class="row d-flex justify-content-center">
             <div class="col-md-12">
@@ -52,28 +54,40 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="about w-90">
-                                <%= THUOC.CONGDUNG %>
+                            <p class="about">
+                                Công dụng: <%= THUOC.CONGDUNG %>
                             </p>
-                            <div class="sizes mt-5">
-                                <h6 class="text-uppercase">Số lượng</h6>
-                                <div class="col-lg-2">
-                                </div>
-                                <div class="cart my-3 align-items-center">
-                                    <form action="/addToCart/<%= THUOC.MATHUOC %>" method="POST"">
-                                    <div class=" wrapper mb-2">
-                                        <span class="minus">-</span>
-                                        <input class="num" type="text" name="SOLUONG" id="SOLUONG" value=1>
-                                        <span class="plus">+</span>
-                                    </div>
-                                    <button class="btn btn-danger text-uppercase mr-2 px-4" type="submit">Add to cart</button>
-                                </form>
+                            <div class="soluong mt-5">
+                                <% if (user) { %>
+                                    <% if (user.QUANTRI) { %>
+                                        <div class="cart my-3 align-items-center">
+                                            <form action="/editThuoc/<%= THUOC.MATHUOC %>">
+                                                <button class="btn btn-danger text-uppercase mr-2 px-4" type="submit">Edit</button>
+                                            </form>
+                                        </div>
+                                    <% } %>
+                                    <% } else { %>
+                                    <h6 class="text-uppercase">Số lượng</h6>
+                                    <div class="cart my-3 align-items-center">
+                                        <form action="/addToCart/<%= THUOC.MATHUOC %>" method="POST"">
+                                            <div class=" wrapper mb-2">
+                                                <span class="minus">-</span>
+                                                <input class="num" type="text" name="SOLUONG" id="SOLUONG" value=1>
+                                                <span class="plus">+</span>
+                                            </div>
+                                            <button class="btn btn-danger text-uppercase mr-2 px-4" type="submit">Add to cart</button>
+                                        </form>
+                                    </div>    
+                                <% } %>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="foot">
+        <%- include('../views/footer.ejs') %>
     </div>
 </body>
 <script>

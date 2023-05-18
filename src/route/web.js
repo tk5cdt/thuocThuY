@@ -42,6 +42,7 @@ const initWebRoute = (app) => {
     router.get('/cart', homeController.getCart)
     router.post('/delCart', homeController.deleteCart)
     router.get('/sp', homeController.getConnect)
+    router.get('/sp/:LOAISD', homeController.getLOAISD)
     router.get('/contact', homeController.getcontact)
     router.get('/info', homeController.getinfo)
     router.post('/search', homeController.getSearch)

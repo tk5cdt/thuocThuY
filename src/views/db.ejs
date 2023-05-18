@@ -11,7 +11,7 @@
     <title>db</title>
 </head>
 
-<body>
+<body class="px-5">
     <%- include('../views/adminnav.ejs', {active: "db"}) %>
     <div class="table-responsive-md" style="margin-top: 80px;">
         <% if (message) { %>
@@ -96,37 +96,42 @@
                         </tr>
                         <% } %>
                 </tbody>
-            </table>
-            <% if (pageNumber == -1) { %>
-            <% } else { %>
-                <nav aria-label="Page navigation example" style="margin: 10px">
-                    <ul class="pagination justify-content-center">
-                        <!-- Hiển thị nút Previous nếu không phải trang đầu tiên -->
-                        <% if (pageNumber> 1) { %>
-                            <li class="page-item"><a class="page-link" href="/admin/db?pageNumber=<%= pageNumber - 1 %>&pageSize=<%= pageSize %>" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a></li>
+            </table>  
+    </div>
+    <div class="fixed">
+        <% if (pageNumber == -1) { %>
+        <% } else { %>
+            <nav aria-label="Page navigation example" style="margin: 10px">
+                <ul class="pagination justify-content-center">
+                    <!-- Hiển thị nút Previous nếu không phải trang đầu tiên -->
+                    <% if (pageNumber> 1) { %>
+                        <li class="page-item"><a class="page-link" href="/admin/db?pageNumber=<%= pageNumber - 1 %>&pageSize=<%= pageSize %>" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a></li>
+                    <% } %>
+                        <!-- Hiển thị các nút phân trang -->
+                    <% for (let i=1; i <=totalPages; i++) { %>
+                        <% if (i===pageNumber) { %>
+                            <span>
+                                <li class="page-item active" style="cursor: default;"><a class="page-link"><%= i %></a></li>
+                            </span>
+                        <% } else { %>
+                            <li class="page-item"><a class="page-link" href="/admin/db?pageNumber=<%= i %>&pageSize=<%= pageSize %>"><%= i %></a></li>
                         <% } %>
-                            <!-- Hiển thị các nút phân trang -->
-                        <% for (let i=1; i <=totalPages; i++) { %>
-                            <% if (i===pageNumber) { %>
-                                <span>
-                                    <li class="page-item active" style="cursor: default;"><a class="page-link"><%= i %></a></li>
-                                </span>
-                            <% } else { %>
-                                <li class="page-item"><a class="page-link" href="/admin/db?pageNumber=<%= i %>&pageSize=<%= pageSize %>"><%= i %></a></li>
-                            <% } %>
-                        <% } %>
-                        <!-- Hiển thị nút Next nếu không phải trang cuối cùng -->
-                        <% if (pageNumber < totalPages) { %>
-                            <li class="page-item"><a class="page-link" href="/admin/db?pageNumber=<%= pageNumber + 1 %>&pageSize=<%= pageSize %>" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a></li>
-                        <% } %>
-                    </ul>
+                    <% } %>
+                    <!-- Hiển thị nút Next nếu không phải trang cuối cùng -->
+                    <% if (pageNumber < totalPages) { %>
+                        <li class="page-item"><a class="page-link" href="/admin/db?pageNumber=<%= pageNumber + 1 %>&pageSize=<%= pageSize %>" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a></li>
+                    <% } %>
+                </ul>
             </nav>
-            <% } %>
         <% } %>
+        <% } %>
+    </div>
+    <div class="foot">
+        <%- include('../views/footer.ejs') %>
     </div>
 </body>
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
