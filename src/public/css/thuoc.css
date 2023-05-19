@@ -13,7 +13,7 @@
 .wrapper span, input{
   width: 100%;
   text-align: center;
-  font-size: 10px;
+  font-size: 20px;
   font-weight: 600;
   cursor: pointer;
   user-select: none;
@@ -21,7 +21,7 @@
   border: none;
 }
 .wrapper input.num{
-  font-size: 10px;
+  font-size: 16px;
   outline: none;
   border: none;
   border-right: 2px solid rgba(0,0,0,0.2);
