@@ -13,7 +13,7 @@
     <link href="https://cdn.jsdelivr.net/gh/hung1001/font-awesome-pro@4cac1a6/css/all.css" rel="stylesheet" type="text/css" />
 </head>
 
-<body style="padding-top: 5rem;">
+<body class="px-5" style="padding-top: 5rem;">
     <!-- header -->
     <header class="mb-5">
         <% if (message) { %>
@@ -35,7 +35,7 @@
     <div class="products">
         <div class="row row-cols-1 row-cols-md-3 g-4">     
             <% for( let index=0; index < THUOC.length; index++ ) { %>
-              <div class="col d-flex align-items-stretch">
+              <div class="col d-flex align-items-stretch justify-content-center">
                 <div class="card">
                   <img class="card-img-top" src="/public/uploads/<%= THUOC[index].MATHUOC %>/<%= THUOC[index].TENANH %>" alt="Card image cap">
                   <div class="card-body">
