@@ -25,9 +25,10 @@
             
             <div class="content-nav">
                 <%- include('../views/nav.ejs', {active: "sp"}) %>
-                <form>
-                    <input type="text" name="search" placeholder="Tìm kiếm sản phẩm..." />
-                </form>
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="search" id="search">
+                    <button class="btn btn-outline-success" formaction="/search" formmethod="post" type="submit">Search</button>
+                  </form>
             </div>
         </nav>
     </header>

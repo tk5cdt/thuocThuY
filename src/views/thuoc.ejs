@@ -110,7 +110,7 @@
                 style="text-align: center; margin-bottom: 100px; font-size: 45px; font-style: italic; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: rgb(228, 42, 42);">
                 SẢN PHẨM LIÊN QUAN</h1>
             <div class="row row-cols-1 row-cols-md-3 g-4">
-                <% for( let index = 0; index < 3; index++ ) { %>
+                <% for( let index = 0; index < THUOC.length; index++ ) { %>
                     <div class="col d-flex align-items-stretch">
                         <div class="card shadow border-0">
                             <img src="/public/uploads/<%= THUOCLOAISD[index].MATHUOC %>/<%= THUOCLOAISD[index].TENANH %>" alt="" class="card-img-top">

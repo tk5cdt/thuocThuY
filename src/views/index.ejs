@@ -70,7 +70,7 @@
         <h1 style="text-align: center; padding-top: 100px; margin-bottom: 100px; font-size: 45px; font-style: italic; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: rgb(228, 42, 42);">SẢN PHẨM NỔI BẬT</h1>
         <div class="row row-cols-1 row-cols-md-3 g-4">     
         <% for( let index=0; index < 6; index++ ) { %>
-          <div class="col">
+          <div class="col d-flex align-items-stretch justify-content-center">
             <div class="card">
               <img class="card-img-top" src="/public/uploads/<%= THUOC[index].MATHUOC %>/<%= THUOC[index].TENANH %>" alt="Card image cap">
               <div class="card-body">
@@ -84,12 +84,12 @@
           </div>
       </div>
     </section>
-    <section style="background-color: #d4d4d4;">
+    <section style="background-color: #d4d4d4; margin-top: 100px; padding-bottom: 100px;">
       <div class="special-product">
         <h1 style="text-align: center; padding-top: 100px; margin-bottom: 100px; font-size: 45px; font-style: italic; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: rgb(228, 42, 42);">SẢN PHẨM ĐA DẠNG</h1>
         <div class="row row-cols-1 row-cols-md-3 g-4">     
-        <% for( let index=2; index < 5; index++ ) { %>
-          <div class="col">
+        <% for( let index=3; index < 6; index++ ) { %>
+          <div class="col d-flex align-items-stretch justify-content-center">
             <div class="card">
               <img class="card-img-top" src="/public/uploads/<%= THUOC[index].MATHUOC %>/<%= THUOC[index].TENANH %>" alt="Card image cap">
               <div class="card-body">

@@ -172,6 +172,8 @@ let addToCart = async (req, res) => {
     if (!req.session.user) {
         return res.redirect('/login');
     }
+    // Tấn mới thêm cái tên ảnh để test hiện ảnh trong trang giỏ hàng
+    let TENANH = req.params.TENANH;
     let MATHUOC = req.params.MATHUOC;
     let SOLUONG = req.body.SOLUONG || 1;
     let USERNAME = req.session.user.USERNAME;
@@ -180,7 +182,7 @@ let addToCart = async (req, res) => {
     const pool = await connectDB();
     // const re = await pool.request().query(`SELECT * FROM GIOHANG WHERE USERNAME = '${USERNAME}' AND MATHUOC = '${MATHUOC}'`)
     // if (re.recordset.length == 0) {
-    const result = await pool.request().query(`INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG) VALUES ('${USERNAME}', '${MATHUOC}', ${SOLUONG})`)
+    const result = await pool.request().query(`INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG, TENANH) VALUES ('${USERNAME}', '${TENANH}', '${MATHUOC}', ${SOLUONG})`)
     // }
     // else {
     //     const result = await pool.request().query(`UPDATE GIOHANG SET SOLUONG = SOLUONG + '${SOLUONG}' WHERE USERNAME = '${USERNAME}' AND MATHUOC = '${MATHUOC}'`)
@@ -196,6 +198,7 @@ let getCart = async (req, res) => {
     const pool = await connectDB();
     const result = await pool.request().query(`SELECT * FROM GIOHANG WHERE USERNAME = '${USERNAME}'`)
     const result2 = await pool.request().query(`SELECT * FROM THUOC WHERE MATHUOC IN (SELECT MATHUOC FROM GIOHANG WHERE USERNAME = '${USERNAME}')`)
+    // biến lấy tên ảnh
     const tongTien = await pool.request().query(`SELECT SUM(THANHTIEN) AS TONGTIEN FROM GIOHANG WHERE USERNAME = '${USERNAME}'`)
     return res.render("cart.ejs", { user: req.session.user, GIOHANG: result.recordset, THUOC: result2.recordset, TONGTIEN: tongTien.recordset[0].TONGTIEN });
 }
