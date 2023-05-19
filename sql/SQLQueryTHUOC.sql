@@ -1460,7 +1460,7 @@
 	  WHERE K.MAKH = D.MAKH
 	  AND N.MANV = D.MANV
 	  GO
-	  SELECT * FROM dbo.BangThuTien
+	--   SELECT * FROM dbo.BangThuTien
 
 	  --13.	Báo cáo chi tiền tổng hợp
 	  CREATE VIEW BangChiTien AS
@@ -1468,7 +1468,7 @@
 	  WHERE D.MANCC = N.MANCC
 	  GO
 
-	  SELECT * FROM dbo.BangChiTien
+	--   SELECT * FROM dbo.BangChiTien
 
 	  --34.	Xuất những đơn mua hàng của khách sỉ
 	  CREATE VIEW V_DonMuaHangCuaKhachSi AS
@@ -1478,7 +1478,7 @@
 	  AND K.LOAIKH = N'Khách sỉ'
 	  GO
 
-	  SELECT * FROM V_DonMuaHangCuaKhachSi
+	--   SELECT * FROM V_DonMuaHangCuaKhachSi
 
 	  --38.	Tìm nhà cung cấp có số lượng thuốc đã cung cấp nhiều nhất trong kho
 	  CREATE VIEW NCCSoLuongThuocCungCapNhieuNhat AS
@@ -1489,7 +1489,7 @@
 	  ORDER BY SOLUONG DESC
 	  GO
 
-	  SELECT * FROM NCCSoLuongThuocCungCapNhieuNhat
+	--   SELECT * FROM NCCSoLuongThuocCungCapNhieuNhat
 
       ---------------------------------------------THÊM DỮ LIỆU CHO CÁC BẢNG-----------------------------------------------
 

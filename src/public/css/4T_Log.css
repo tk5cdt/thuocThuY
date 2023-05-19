@@ -11,7 +11,7 @@ section{
     min-height: 100vh;
     width: 100%;
     
-    background: url(/images/chick.png) no-repeat;
+    background: url(/images/banner/bn.jpg) no-repeat;
     background-position: center;
     background-size: cover;
 }
@@ -132,8 +132,9 @@ button{
 
 .thongbao
 {
-    color: red;
-    font-size: 1.2em;
+    margin-top: 10px;
+    color: rgb(254, 238, 69);
+    font-size: 1em;
     text-align: center;
     margin-bottom: 10px;
 }

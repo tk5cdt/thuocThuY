@@ -13,11 +13,6 @@
         <div class="form-box">
             <div class="form-value">
                 <form action="/login" method="POST">
-                    <% if (message) { %>
-                        <p style="color: brown;">
-                            <%= message %>
-                        </p>
-                        <% } %>
                     <h2>Login</h2>
                     <div class="form-group">
                         <ion-icon name="mail-outline"></ion-icon>
@@ -30,6 +25,13 @@
                         <label class="form-label" for="password">Password</label>
                     </div>
                     <button type="submit">Log in</button>
+                    <div class="thongbao">
+                        <% if (message) { %>
+                            <p>
+                                <%= message %>
+                            </p>
+                            <% } %>
+                    </div>
                     <div class="register">
                         <p>Don't have a account <a href="/signup">Register</a></p>
                     </div>
