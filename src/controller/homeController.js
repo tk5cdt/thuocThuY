@@ -37,11 +37,15 @@ let getConnect = async (req, res) => {
 
 let getTHUOC = async (req, res) => {
     let MATHUOC = req.params.MATHUOC;
+    console.log(MATHUOC);
     const pool = await connectDB();
     try {
         const result = await pool.request().query(`select THUOC.*, PROFILEPICTURE.TENANH from THUOC, PROFILEPICTURE where THUOC.MATHUOC = '${MATHUOC}' and THUOC.MATHUOC = PROFILEPICTURE.MATHUOC`)
+        const LOAISD = result.recordset[0].LOAISD;
+        console.log(LOAISD);
         const result2 = await pool.request().query(`select * from ALBUMPICTURES where MATHUOC = '${MATHUOC}'`);
         const result1 = await pool.request().query(`select THUOC.*, PROFILEPICTURE.TENANH from THUOC, PROFILEPICTURE where THUOC.MATHUOC = PROFILEPICTURE.MATHUOC and THUOC.LOAISD = N'${result.recordset[0].LOAISD}'`);
+        console.log(result.recordset, result1.recordset);
         return res.render("thuoc.ejs", { THUOC: result.recordset[0], user: req.session.user, appRoot: appRoot.path, ALBUMPICTURES: result2.recordset, THUOCLOAISD: result1.recordset });
     }
     catch (err) {
@@ -60,7 +64,7 @@ let themthuoc = (req, res) => {
 let newTHUOC = async (req, res) => {
     let { MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIASI, GIALE, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG } = req.body;
     const pool = await connectDB();
-    const result = await pool.request().query(`insert into THUOC(MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIASI, GIALE, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG) values ('${MATHUOC}', N'${TENTHUOC}', '${MANHOM}', N'${LOAISD}', '${THANHPHAN}', '${MANCC}', '${GIASI}', '${GIALE}', '${GIANHAP}', N'${DANGBAOCHE}', N'${QCDONGGOI}', N'${CONGDUNG}')`)
+    const result = await pool.request().query(`insert into THUOC(MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIASI, GIALE, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG) values ('${MATHUOC}', N'${TENTHUOC}', '${MANHOM}', N'${LOAISD}', N'${THANHPHAN}', '${MANCC}', '${GIASI}', '${GIALE}', '${GIANHAP}', N'${DANGBAOCHE}', N'${QCDONGGOI}', N'${CONGDUNG}')`)
     upload(req, res, function (err) {
         // req.file contains information of uploaded file
         // req.body contains information of text fields, if there were any

@@ -14,17 +14,22 @@
     <link href="https://cdn.jsdelivr.net/gh/hung1001/font-awesome-pro@4cac1a6/css/all.css" rel="stylesheet"
         type="text/css" />
 
+    <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/thuoc.css">
+    <link rel="stylesheet" href="/font/themify-icons-font/themify-icons/themify-icons.css">
     <title>
         <%= THUOC.TENTHUOC %>
     </title>
 </head>
 
 <body class="px-5">
-    <div class="container mt-5 mb-5">
+    <header>
+        <%- include('../views/nav.ejs' , {active: "thuoc"}) %>
+    </header>
+    <div class="container mt-5 mb-5" style="padding-top: 100px;">
         <div class="row d-flex justify-content-center">
             <div class="col-md-12">
-                <div class="card">
+                <div class="card" style="transform: none; box-shadow: none;">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="images p-3">
@@ -56,6 +61,9 @@
                                 </div>
                             </div>
                             <p class="about">
+                                Thành phần: <%= THUOC.THANHPHAN %>
+                            </p>
+                            <p class="about">
                                 Công dụng: <%= THUOC.CONGDUNG %>
                             </p>
                             <div class="soluong mt-5">
@@ -79,7 +87,7 @@
                                             <button class="btn btn-danger text-uppercase mr-2 px-4" type="submit">Thêm
                                                 vào giỏ hàng</button>
                                             </form>
-                            </div>
+                                </div>
                             <% } %>
                                 <% } else { %>
                                     <div class="cart my-3 align-items-center">
@@ -99,20 +107,27 @@
     <section>
         <div class="related-product">
             <h1
-                style="text-align: center; padding-top: 100px; margin-bottom: 100px; font-size: 45px; font-style: italic; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: rgb(228, 42, 42);">
+                style="text-align: center; margin-bottom: 100px; font-size: 45px; font-style: italic; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: rgb(228, 42, 42);">
                 SẢN PHẨM LIÊN QUAN</h1>
             <div class="row row-cols-1 row-cols-md-3 g-4">
-                <% for( let index = 0; index < THUOCLOAISD.length; index++ ) { %>
-                    <div class="col">
-                        <div class="card">
+                <% for( let index = 0; index < 3; index++ ) { %>
+                    <div class="col d-flex align-items-stretch">
+                        <div class="card shadow border-0">
                             <img src="/public/uploads/<%= THUOCLOAISD[index].MATHUOC %>/<%= THUOCLOAISD[index].TENANH %>" alt="" class="card-img-top">
-                            <div class="card-body"></div>
+                            <div class="card-body">
+                                <h5 class="card-title"><%= THUOCLOAISD[index].TENTHUOC %></h5>
+                                <p class="card-text"><%= THUOCLOAISD[index].CONGDUNG %></p>
+                                <a href="/thuoc/<%= THUOCLOAISD[index].MATHUOC %>" class="btn btn-primary stretched-link">BUY</a>
+                            </div>
                         </div>
                     </div>
                 <% } %>
             </div>
         </div>
     </section>
+    <div class="d-flex justify-content-center align-items-center">
+        <a href="/sp/<%= THUOC.LOAISD %>" class="btn btn-danger text-uppercase px-4 mx-auto" type="submit">Xem thêm</a>
+    </div>
     <div class="foot">
         <%- include('../views/footer.ejs') %>
     </div>

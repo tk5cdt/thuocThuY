@@ -18,19 +18,12 @@
       <%- include('../views/nav.ejs' , {active: "user"}) %>
     </header>
     <section class="main-container1">
-      <article class="index-intro">
-        <div class="container">
-          <div class="jumbotron">
-            <div class="row">
-              <div class="col-sm-8">
-                <h1>4T VETPHARMA</h1>
-                <p class="col-sm-6">Chuyên cung cấp các loại thuốc thú y với giá cả phải chăng và chất lượng ổn định.</p>    
-              </div>
-              <div class="col-sm-4"></div>
-            </div>
-          </div>
+      <div class="jumbotron d-flex align-items-start flex-end justify-content-end">
+        <div class="d-flex-row" style="max-width: 450px;">
+          <h1>4T VetPharma</h1>
+          <p>Chuyên cung cấp các sản phẩm thuốc thú y chất lượng cao</p>
         </div>
-      </article>
+      </div>
     </section>
     <section>
       <div id="carouselExampleAutoplaying" class="carousel slide" data-bs-ride="carousel">
@@ -83,9 +76,8 @@
               <div class="card-body">
                 <h5 class="card-title"><%= THUOC[index].TENTHUOC %></h5>
                 <p class="card-text"><%= THUOC[index].CONGDUNG %></p>
-                <a href="/thuoc/<%= THUOC[index].MATHUOC %>" class="btn btn-primary">BUY</a>
+                <a href="/thuoc/<%= THUOC[index].MATHUOC %>" class="btn btn-primary stretched-link">BUY</a>
               </div>
-              <p class="card-footer"><small class="text-muted">Last updated 3 mins ago</small></p>
             </div>
           </div>  
         <% } %>
@@ -103,9 +95,8 @@
               <div class="card-body">
                 <h5 class="card-title"><%= THUOC[index].TENTHUOC %></h5>
                 <p class="card-text"><%= THUOC[index].DANGBAOCHE %></p>
-                <a href="/thuoc/<%= THUOC[index].MATHUOC %>" class="btn btn-primary">BUY</a>
+                <a href="/thuoc/<%= THUOC[index].MATHUOC %>" class="btn btn-primary stretched-link">BUY</a>
               </div>
-              <p class="card-footer"><small class="text-muted">Last updated 3 mins ago</small></p>
             </div>
           </div>  
         <% } %>

@@ -1472,7 +1472,7 @@
 
 	  --34.	Xuất những đơn mua hàng của khách sỉ
 	  CREATE VIEW V_DonMuaHangCuaKhachSi AS
-	  SELECT MADONHANG, TENKHACH, LOAIKH, TENNV AS NGUOILAP, TRANGTHAIDH, NGAYLAP, TONGTIEN, DATHANHTOAN, D.CONGNO,  dbo.UF_HanNo(D.NGAYLAP, K.LOAIKH, D.CONGNO) AS HANNO FROM DONHANGXUAT D, KHACHHANG K, NHANVIEN N
+	  SELECT MADONHANG, TENKHACH, LOAIKH, TENNV AS NGUOILAP, TRANGTHAIDH, NGAYLAP, TONGTIEN, DATHANHTOAN, D.CONGNO,  dbo.UF_HanNoKH(D.NGAYLAP, K.LOAIKH, D.CONGNO) AS HANNO FROM DONHANGXUAT D, KHACHHANG K, NHANVIEN N
 	  WHERE D.MAKH = K.MAKH
 	  AND D.MANV = N.MANV
 	  AND K.LOAIKH = N'Khách sỉ'
@@ -1526,7 +1526,7 @@
             ('HCM-X2-16', N'Fe-Dextran B12', 'N002', N'Gia súc', N'Vitamin B12' ,'0311987413', 50000, N'Dung dịch', N'Chai 100ml', N'Phòng chống thiếu máu do thiếu sắt.'),
             ('HCM-X2-164', N'Tylosin 200', 'N002', N'Gia súc', N'Tylosin tartrate' ,'0311987413', 55000, N'Dung dịch tiêm', N'Chai 100ml', N'Trị viêm phổi, viêm tử cung, bệnh lepto, viêm ruột'),
             ('HCM-X2-198', N'Tia-K.C', 'N002', N'Gia súc', N'Tiamulin hydrogen fumarate' ,'0311987413', 20000, N'Dung dịch', N'Chai 100ml', N'Trị bệnh đường hô hấp, tiêu hóa.'),
-            ('GDA-10', N'NVDC-JXA1 Strain', 'N003', N'Gia súc', N'Virus chủng NVDC-JXA1 vô hoạt' ,'0102137268', 27000, N'Dung dịch tiêm', N'Chai 100ml', N'Phòng bệnh lợn tai xanh'),
+            ('GDA-10', N'NVDC-JXA1-Strain', 'N003', N'Gia súc', N'Virus chủng NVDC-JXA1 vô hoạt' ,'0102137268', 27000, N'Dung dịch tiêm', N'Chai 100ml', N'Phòng bệnh lợn tai xanh'),
             ('ETT-163', N'Dental Creme', 'N002', N'Thú cưng', N'Recicort' ,'0102137268', 100000, N'Dung dịch', N'Chai 500ml', N'Trị viêm tai ngoài, viêm da tiết bã nhờn trên chó, mèo.'),
             ('UV-65', N'RODO-UV', 'N005', N'Thủy sản', N'Rhodopseudomonas' ,'0305110871',150000, N'Dung dịch', N'Can 5L', N'Ức chế vi khuẩn gây bệnh trong ao nuôi'),
             ('ETT-165', N'Progesterone', 'N001', N'Thú cưng', N'Progesterone' ,'0102137268', 100000 , N'Dung dịch', N'Chai 500ml', N'Giảm co bóp, ổn định tử cung, an thai trong trường hợp đe dọa sẩy thai'),
@@ -1537,7 +1537,7 @@
             ('BD.TS5-5', N'MD Bio Calcium', 'N001', N'Thủy sản', N'Biotin' ,'0301460240', 200000, N'Dung dịch', N'Can 5l', N'Thúc đẩy quá trình lột vỏ ở tôm và giúp mau cứng vỏ sau khi lột.'),
             ('BD.TS5-19', N'MD Protect', 'N004', N'Thủy sản', N'1,5 Pentanedial' ,'0301460240', 200000, N'Dung dịch', N'Can 5 lít', N'Diệt các loại vi khuẩn, nấm, vi sinh động vật trong nước ao nuôi'),
             ('BN.TS2-51', N'Iodin-200', 'N004', N'Thủy sản', N'Benzalkonium chloride' ,'0102137268', 100000, N'Dung dịch', N'Chai 500ml', N'Sát trùng nguồn nước nuôi trồng thủy sản'),
-            ('BN.TS2-15', N'ECO-Doxyfish Power 20%', 'N002', N'Thủy sản', N'Doxycyclin' ,'0102137268', 34000, N'Bột', N'Gói 500g', N'Trị bệnh đỏ thân trên tôm do vi khuẩn Vibrio alginolyticus'),
+            ('BN.TS2-15', N'ECO-Doxyfish Power 20', 'N002', N'Thủy sản', N'Doxycyclin' ,'0102137268', 34000, N'Bột', N'Gói 500g', N'Trị bệnh đỏ thân trên tôm do vi khuẩn Vibrio alginolyticus'),
             ('SAK-37', N'Flormax', 'N002', N'Gia súc', N'Doxycycline hyclate' ,'0105298457', 43000, N'Bột', N'Gói 100g', N'Trị nhiễm trùng đường tiêu hóa, hô hấp trên heo, trâu, bò, dê, cừu.'),
             ('CME-3', N'Vắc xin PRRS JXA1-R', 'N003', N'Gia súc', N'Virus PRRS nhược độc chủng JXA1-R' ,'0105298457',57000, N'Dung dịch tiêm', N'Chai 50ml', N'Phòng hội chứng rối loạn hô hấp và sinh sản (PRRS) trên heo.'),
             ('LBF-1', N'Foot And Mouth Disease Vaccine', 'N003', N'Gia súc', N'Virus Lở mồm Long móng type O' ,'0105298457', 34000, N'Dung dịch tiêm', N'Chai 100ml', N'Phòng bệnh Lở mồm long móng trên lợn'),
@@ -1949,11 +1949,11 @@
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
             VALUES ('BD.TS5-5', 'profile_pic-BD.TS5-5-MD_Bio_Calcium.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
-            VALUES ('BN.TS2-15', 'profile_pic-BN.TS2-15-ECO-Doxyfish_Power_20%.jpg')
+            VALUES ('BN.TS2-15', 'profile_pic-BN.TS2-15-ECO-Doxyfish_Power_20.png')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
             VALUES ('BN.TS2-51', 'profile_pic-BN.TS2-51-Iodin-200.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
-            VALUES ('CME-3', 'profile_pic-CME-3-Vắc_xin_PRRS_JXA1-R.jpg')
+            VALUES ('CME-3', N'profile_pic-CME-3-Vắc_xin_PRRS_JXA1-R.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
             VALUES ('ETT-163', 'profile_pic-ETT-163-Dental_Creme_3.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
@@ -1963,7 +1963,7 @@
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
             VALUES ('ETT-94', 'profile_pic-ETT-94-ECO_Erycol_10.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
-            VALUES ('GDA-10', 'profile_pic-GDA-10-NVDC-JXA1_Strain.jpg')
+            VALUES ('GDA-10', 'profile_pic-GDA-10-NVDC-JXA1-Strain.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
             VALUES ('HCM-X2-16', 'profile_pic-HCM-X2-16-Fe-Dextran_B12.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
@@ -1977,7 +1977,7 @@
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
             VALUES ('LBF-1', 'profile_pic-LBF-1-Foot_And_Mouth_Disease_Vaccine.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
-            VALUES ('SAK-118', 'profile_pic-SAK-118-Sakan-Fipr.png')
+            VALUES ('SAK-118', 'profile_pic-SAK-118-Sakan-Fipr.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
             VALUES ('SAK-169', 'profile_pic-SAK-169-Amitraz.jpg')
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
@@ -1989,6 +1989,8 @@
       INSERT INTO PROFILEPICTURE(MATHUOC, TENANH)
             VALUES ('UV-65', 'profile_pic-UV-65-RODO-UV.jpg')
 
+            SELECT * FROM PROFILEPICTURE
+
       -- thêm dữ liệu cho bảng ALBUMPICTURE
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
             VALUES ('BD.TS5-19', 'pic-BD.TS5-19-MD_Protect_2.jpg')
@@ -1997,7 +1999,7 @@
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
             VALUES ('BD.TS5-5', 'pic-BD.TS5-5-MD_Bio_Calcium.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
-            VALUES ('BN.TS2-15', 'pic-BN.TS2-15-ECO-Doxyfish_Power_20%.jpg')
+            VALUES ('BN.TS2-15', 'pic-BN.TS2-15-ECO-Doxyfish_Power_20.png')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
             VALUES ('BN.TS2-51', 'pic-BN.TS2-51-Iodin-200.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
@@ -2005,9 +2007,9 @@
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
             VALUES ('BN.TS2-51', 'pic-BN.TS2-51-Iodin-200_2.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
-            VALUES ('CME-3', 'pic-CME-3-Vắc_xin_PRRS_JXA1-R_2.jpg')
+            VALUES ('CME-3', N'pic-CME-3-Vắc_xin_PRRS_JXA1-R_2.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
-            VALUES ('CME-3', 'pic-CME-3-Vắc_xin_PRRS_JXA1-R_3.jpg')
+            VALUES ('CME-3', N'pic-CME-3-Vắc_xin_PRRS_JXA1-R_3.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
             VALUES ('ETT-163', 'pic-ETT-163-Dental_Creme_2.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
@@ -2021,9 +2023,9 @@
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
             VALUES ('ETT-94', 'pic-ETT-94-ECO_Erycol_10.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
-            VALUES ('GDA-10', 'pic-GDA-10-NVDC-JXA1_Strain_2.jpg')
+            VALUES ('GDA-10', 'pic-GDA-10-NVDC-JXA1-Strain-2.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
-            VALUES ('GDA-10', 'pic-GDA-10-NVDC-JXA1_Strain.jpg')
+            VALUES ('GDA-10', 'pic-GDA-10-NVDC-JXA1-Strain.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
             VALUES ('HCM-X2-16', 'pic-Fe-HCM-X2-16-Dextran_B12_1.jpg')
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
@@ -2068,3 +2070,6 @@
             VALUES ('UV-65', 'pic-UV-65-RODO-UV_3.jpg')
       GO
 
+use QL_NHATHUOCTY
+UPDATE TAIKHOAN SET QUANTRI = 1 WHERE USERNAME = 'tan'
+SELECT * FROM TAIKHOAN
