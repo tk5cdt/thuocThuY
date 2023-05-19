@@ -32,10 +32,10 @@
         <% if (!user.QUANTRI) { %>
             <div id="actions">
                 <div class="item d-flex">
-                    <a href="/logout" style="color: midnightblue; margin-top: 10px;">Logout</a>
-                    <a id="login">
+                    <a href="/logout" style="color: midnightblue; margin-top: 10px; margin-right: 10px;">Logout</a>
+                    <a id="login" href="/cart">
                         <button class="taikhoan"> 
-                            <a href="/cart" class="ti-shopping-cart" style="width: 70px;"></a>
+                            <div class="ti-shopping-cart" style="width: 50px;"></div>
                         </button>
                     </a>
                 </div>
@@ -44,9 +44,12 @@
                 <% } else { %>
                     <div id="actions">
                         <div class="item">
-                            <a id="login"><button class="taikhoan"> <a href="/login"> TÀI KHOẢN
-                                        <i class="ti-user"></i>
-                                    </a></button></a>
+                            <a id="login" href="/login">
+                              <button class="taikhoan"> 
+                                 TÀI KHOẢN
+                                <i class="ti-user"></i>
+                              </button>
+                            </a>
                         </div>
                     </div>
                     <% } %>

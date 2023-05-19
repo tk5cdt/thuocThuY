@@ -17,15 +17,22 @@
     <header>
       <%- include('../views/nav.ejs' , {active: "user"}) %>
     </header>
-    <div id="wrapper">
-      <div id="banner" style="background-image: url(/images/banner1.jpg);">
-        <h1>
-          <span>THUỐC ĐỘNG VẬT</span>
-        </h1>
-        <p>Chuyên cung cấp thuốc đặc trị cũng như thực phẩm bổ sung
-          cho động vật và thú cưng
-        </p>
-      </div>
+    <section class="main-container1">
+      <article class="index-intro">
+        <div class="container">
+          <div class="jumbotron">
+            <div class="row">
+              <div class="col-sm-8">
+                <h1>4T VETPHARMA</h1>
+                <p class="col-sm-6">Chuyên cung cấp các loại thuốc thú y với giá cả phải chăng và chất lượng ổn định.</p>    
+              </div>
+              <div class="col-sm-4"></div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+    <section>
       <div id="carouselExampleAutoplaying" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-indicators">
           <button type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
@@ -63,47 +70,48 @@
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Next</span>
           </button>
-        </div>
-        <hr style="margin-top: 100px ">
-        <section>
-          <div class="special-product">
-            <h1 style="text-align: center; margin-top: 100px; margin-bottom: 100px; font-size: 45px; font-style: italic; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: rgb(228, 42, 42);">SẢN PHẨM NỔI BẬT</h1>
-            <div class="row row-cols-1 row-cols-md-3 g-4">     
-            <% for( let index=0; index < 6; index++ ) { %>
-              <div class="col">
-                <div class="card">
-                  <img class="card-img-top" src="/public/uploads/<%= THUOC[index].MATHUOC %>/<%= THUOC[index].TENANH %>" alt="Card image cap">
-                  <div class="card-body">
-                    <h5 class="card-title"><%= THUOC[index].TENTHUOC %></h5>
-                    <p class="card-text"><%= THUOC[index].CONGDUNG %></p>
-                    <a href="/thuoc/<%= THUOC[index].MATHUOC %>" class="btn btn-primary">BUY</a>
-                  </div>
-                  <p class="card-footer"><small class="text-muted">Last updated 3 mins ago</small></p>
-                </div>
-              </div>  
-            <% } %>
-              </div>
-          </div>
-        </section>
-        <br>
-        <section style="background-color: #ff0000;">
-        <hr style="margin-top: 100px ">
-          <div class="species-product">
-            <h1 style="text-align: center; margin-top: 100px; margin-bottom: 100px; font-size: 45px; font-style: italic; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: rgb(228, 42, 42);">SẢN PHẨM ĐA DẠNG</h1>
-              <% for( let index=0; index < 6; index++ ) { %>
-                <div class="card">
-                  <img class="card-img-top" src="/public/uploads/<%= THUOC[index].MATHUOC %>/<%= THUOC[index].TENANH %>" alt="Card image cap">
-                  <div class="card-body">
-                    <h5 class="card-title"><%= THUOC[index].TENTHUOC %></h5>
-                    <p class="card-text"><%= THUOC[index].DANGBAOCHE %></p>
-                    <a href="/thuoc/<%= THUOC[index].MATHUOC %>" class="btn btn-primary">Chi tiết</a>
-                  </div>
-                  <p class="card-footer"><small class="text-muted">Last updated 3 mins ago</small></p>
-                </div>
-              <% } %>
-          </div>
-        </section>
       </div>
+    </section>
+    <section>
+      <div class="special-product">
+        <h1 style="text-align: center; padding-top: 100px; margin-bottom: 100px; font-size: 45px; font-style: italic; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: rgb(228, 42, 42);">SẢN PHẨM NỔI BẬT</h1>
+        <div class="row row-cols-1 row-cols-md-3 g-4">     
+        <% for( let index=0; index < 6; index++ ) { %>
+          <div class="col">
+            <div class="card">
+              <img class="card-img-top" src="/public/uploads/<%= THUOC[index].MATHUOC %>/<%= THUOC[index].TENANH %>" alt="Card image cap">
+              <div class="card-body">
+                <h5 class="card-title"><%= THUOC[index].TENTHUOC %></h5>
+                <p class="card-text"><%= THUOC[index].CONGDUNG %></p>
+                <a href="/thuoc/<%= THUOC[index].MATHUOC %>" class="btn btn-primary">BUY</a>
+              </div>
+              <p class="card-footer"><small class="text-muted">Last updated 3 mins ago</small></p>
+            </div>
+          </div>  
+        <% } %>
+          </div>
+      </div>
+    </section>
+    <section style="background-color: #d4d4d4;">
+      <div class="special-product">
+        <h1 style="text-align: center; padding-top: 100px; margin-bottom: 100px; font-size: 45px; font-style: italic; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: rgb(228, 42, 42);">SẢN PHẨM ĐA DẠNG</h1>
+        <div class="row row-cols-1 row-cols-md-3 g-4">     
+        <% for( let index=2; index < 5; index++ ) { %>
+          <div class="col">
+            <div class="card">
+              <img class="card-img-top" src="/public/uploads/<%= THUOC[index].MATHUOC %>/<%= THUOC[index].TENANH %>" alt="Card image cap">
+              <div class="card-body">
+                <h5 class="card-title"><%= THUOC[index].TENTHUOC %></h5>
+                <p class="card-text"><%= THUOC[index].DANGBAOCHE %></p>
+                <a href="/thuoc/<%= THUOC[index].MATHUOC %>" class="btn btn-primary">BUY</a>
+              </div>
+              <p class="card-footer"><small class="text-muted">Last updated 3 mins ago</small></p>
+            </div>
+          </div>  
+        <% } %>
+          </div>
+      </div>
+    </section>
     <div class="foot">
       <%- include('../views/footer.ejs') %>
     </div>

@@ -31,7 +31,7 @@ section{
 .form-box-2{
     position: relative;
     width: 400px;
-    height: 500px;
+    height: 700px;
     background: transparent;
     border: 2px solid rgba(255,255,255,0.5);
     border-radius: 20px;
@@ -46,13 +46,13 @@ h2{
     color: #fff;
     text-align: center;
 }
-.inputbox{
+.form-group{
     position: relative;
     margin: 30px 0;
     width: 310px;
     border-bottom: 2px solid #fff;
 }
-.inputbox label{
+.form-group label{
     position: absolute;
     top: 50%;
     left: 5px;
@@ -66,7 +66,7 @@ input:focus ~ label,
 input:valid ~ label{
 top: -5px;
 }
-.inputbox input {
+.form-group input {
     width: 100%;
     height: 50px;
     background: transparent;
@@ -76,31 +76,12 @@ top: -5px;
     padding:0 35px 0 5px;
     color: #fff;
 }
-.inputbox ion-icon{
+.form-group ion-icon{
     position: absolute;
     right: 8px;
     color: #fff;
     font-size: 1.2em;
     top: 20px;
-}
-.forget{
-    margin: -15px 0 15px ;
-    font-size: .9em;
-    color: #fff;
-    display: flex;
-    justify-content: space-between;  
-}
-
-.forget label input{
-    margin-right: 3px;
-    
-}
-.forget label a{
-    color: #fff;
-    text-decoration: none;
-}
-.forget label a:hover{
-    text-decoration: underline;
 }
 button{
     width: 100%;
@@ -147,4 +128,12 @@ button{
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.thongbao
+{
+    color: red;
+    font-size: 1.2em;
+    text-align: center;
+    margin-bottom: 10px;
 }
