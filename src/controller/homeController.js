@@ -364,6 +364,22 @@ const thanhToan = async (req, res) => {
     }
 };
 
+let donHang = async (req, res) => {
+    let user = req.session.user;
+    if (!user) {
+        return res.redirect('/login');
+    }
+    try{
+        let pool = await connectDB();
+        let result = await pool.request().query(`SELECT * FROM DONHANGONLINE WHERE USERNAME = '${user.USERNAME}'`);
+        return res.render('donhang.ejs', { user: req.session.user, DONHANG: result.recordset });
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).send('Internal Server Error');
+    }
+}
+
 module.exports = {
     getHompage: getHompage,
     getConnect: getConnect,
@@ -388,4 +404,5 @@ module.exports = {
     updateDONHANG: updateDONHANG,
     getLOAISD: getLOAISD,
     thanhToan: thanhToan,
+    donHang: donHang,
 }

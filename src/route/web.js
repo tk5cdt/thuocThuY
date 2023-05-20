@@ -47,6 +47,7 @@ const initWebRoute = (app) => {
     router.get('/info', homeController.getinfo)
     router.post('/search', homeController.getSearch)
     router.post('/thanhtoan', homeController.thanhToan)
+    router.get('/donhang', homeController.donHang)
     //login signup logout
     router.get('/signup', userController.dangky);
     router.post('/signup', userController.signup);

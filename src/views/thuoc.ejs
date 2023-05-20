@@ -33,8 +33,8 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="images p-3">
-                                <div class="text-center p-md-4"> <img class="w-100 mb-3" id="main-image"
-                                        src="/public/uploads/<%= THUOC.MATHUOC %>/<%= THUOC.TENANH %>" style="height: 222px; width: 222px;"/>
+                                <div class="text-center p-md-4"> <img class="mb-3 w-100" id="main-image"
+                                        src="/public/uploads/<%= THUOC.MATHUOC %>/<%= THUOC.TENANH %>" style="height: 222px;"/>
                                 </div>
                                 <div class="thumbnail text-center">
                                     <% for( let index=0; index < ALBUMPICTURES.length; index++ ) { %>
@@ -118,6 +118,7 @@
                                 <div class="card-body">
                                     <h5 class="card-title"><%= THUOCLOAISD[index].TENTHUOC %></h5>
                                     <p class="card-text"><%= THUOCLOAISD[index].CONGDUNG %></p>
+                                    <a href="/thuoc/<%= THUOCLOAISD[index].MATHUOC %>" class="stretched-link"></a>
                                 </div>
                             </div>
                         </div>
@@ -130,6 +131,7 @@
                                 <div class="card-body">
                                     <h5 class="card-title"><%= THUOCLOAISD[index].TENTHUOC %></h5>
                                     <p class="card-text"><%= THUOCLOAISD[index].CONGDUNG %></p>
+                                    <a href="/thuoc/<%= THUOCLOAISD[index].MATHUOC %>" class="stretched-link"></a>
                                 </div>
                             </div>
                         </div>
