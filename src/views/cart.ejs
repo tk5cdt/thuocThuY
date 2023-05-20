@@ -83,13 +83,6 @@
                             <p class="col-6">Phí vận chuyển</p>
                             <p class="col-6">Miễn phí</p>
                         </div>
-
-                        <div class="row mb-4">
-                            <p class="col-6">Tổng cộng</p>
-                            <p class="col-6">
-                                <%= TONGTIEN %> VNĐ
-                            </p>
-                        </div>
                         <form id="form-valid" action="/thanhtoan" method="post">
                             <input type="hidden" name="GIOHANG" value="<%= JSON.stringify(GIOHANG) %>">
                             <input type="hidden" name="THUOC" value="<%= JSON.stringify(THUOC) %>">
@@ -103,7 +96,7 @@
                             <div class="row row-cols-1 mb-3">
                                 <div class="form-group col">
                                     <label class="text-dark" for="DIACHI">Địa chỉ</label>
-                                    <input class="form-control" type="text" name="DIACHI" placeholder="Địa chỉ">
+                                    <input class="form-control" type="text" id="DIACHI" name="DIACHI" placeholder="Địa chỉ">
                                     <span class="form-message"></span>
                                 </div>
                             </div>

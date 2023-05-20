@@ -1,15 +1,16 @@
 function ValidateForm(form){
-    let dienthoai = form.DIENTHOAI;
+    let DIENTHOAI = form.DIENTHOAI;
     let DIACHI = form.DIACHI;
     let isValid = true
 
     function showError(input){
-        input.parentElement.classList.add('invalid')
-        if(input.id === 'dienthoai'){
-            input.parentElement.querySelector('.form-message').innerHTML = ('Invalid phone number')
+        let a = input.parentElement
+        a.classList.add('invalid')
+        if(input.id === 'DIENTHOAI'){
+            a.querySelector('.form-message').innerHTML = ('Invalid phone number')
         }
         if(input.id === 'DIACHI'){
-            input.parentElement.querySelector('.form-message').innerHTML = ('Invalid address')
+            input.parentElement.querySelector('.form-message').innerHTML = 'Invalid address'
         }
     }
 
@@ -19,15 +20,15 @@ function ValidateForm(form){
     }
 
     //check valid phone number
-    dienthoai.addEventListener('focus', () => {
-        valid(dienthoai)
+    DIENTHOAI.addEventListener('focus', () => {
+        valid(DIENTHOAI)
     })
 
-    dienthoai.addEventListener('blur', function(){
-        dienthoai.value = dienthoai.value.trim()
+    DIENTHOAI.addEventListener('blur', function(){
+        DIENTHOAI.value = DIENTHOAI.value.trim()
         var regexPhone = /^[0]*[0-9]{10,10}$/
-        if(!regexPhone.test(dienthoai.value)){
-            showError(dienthoai)
+        if(!regexPhone.test(DIENTHOAI.value)){
+            showError(DIENTHOAI)
             isValid = false
         }
     })
@@ -39,7 +40,7 @@ function ValidateForm(form){
 
     DIACHI.addEventListener('blur', function(){
         DIACHI.value = DIACHI.value.trim()
-        var regexAddress = /^[a-zA-Z0-9\s,.'-]{4,}$/
+        var regexAddress = /^[a-zA-Z0-9\s,.'-]{4,}$/u;
         if(!regexAddress.test(DIACHI.value)){
             showError(DIACHI)
             isValid = false
@@ -47,8 +48,8 @@ function ValidateForm(form){
     })
 
     form.addEventListener('submit', function(e){
-        if(dienthoai.value === '') {
-            showError(dienthoai)
+        if(DIENTHOAI.value === '') {
+            showError(DIENTHOAI)
             isValid = false
         }
         if(DIACHI.value === '') {
