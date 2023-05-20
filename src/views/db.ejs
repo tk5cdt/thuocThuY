@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+    <title>db</title>
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td,
+        th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #ccc;
+        }
+
+        thead {
+            background-color: #ccc;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            width: 30%;
+            margin: 0 auto;
+        }
+
+        input {
+            margin-bottom: 10px;
+        }
+
+        input[type="submit"] {
+            width: 50px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+    <table>
+        <thead>
+            <th>Mã thuốc</th>
+            <th>Tên thuốc</th>
+            <th>Mã nhóm</th>
+            <th>Loại sử dụng</th>
+            <th>Thành phần</th>
+            <th>Mã nhà cung cấp</th>
+            <th>Giá sỉ</th>
+            <th>Giá lẻ</th>
+            <th>Giá nhập</th>
+            <th>Dạng bảo chế</th>
+            <th>Quy cách đóng gói</th>
+            <th>Công dụng</th>
+            <th>Chi tiết</th>
+        </thead>
+        <tbody>
+            <% for( let index=0; index < THUOC.length; index++ ) { %>
+                <tr>
+                    <td>
+                        <%= THUOC[index].MATHUOC %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].TENTHUOC %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].MANHOM %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].LOAISD %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].THANHPHAN %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].MANCC %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].GIASI %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].GIALE %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].GIANHAP %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].DANGBAOCHE %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].QCDONGGOI %>
+                    </td>
+                    <td>
+                        <%= THUOC[index].CONGDUNG %>
+                    </td>
+                    <td style="display: flex; flex-direction: column;">
+                        <a href="/thuoc/<%= THUOC[index].MATHUOC %>">details</a>
+                        <form action="/deleteThuoc" method="post" style="margin: 0%;">
+                            <input type="hidden" name="MATHUOC" value="<%= THUOC[index].MATHUOC %>">
+                            <input type="submit" value="Xóa">
+                        </form>
+                        <form action="/editThuoc/<%= THUOC[index].MATHUOC %>" method="get" style="margin: 0%;">
+                            <input type="hidden" name="MATHUOC" value="<%= THUOC[index].MATHUOC %>">
+                            <input type="submit" value="sửa">
+                        </form>
+                    </td>
+                </tr>
+                <% } %>
+        </tbody>
+    </table>
+    <nav aria-label="Page navigation example" style="margin: 10px">
+        <ul class="pagination justify-content-center">
+            <!-- Hiển thị nút Previous nếu không phải trang đầu tiên -->
+            <% if (pageNumber> 1) { %>
+                <li class="page-item"><a class="page-link" href="/db?pageNumber=<%= pageNumber - 1 %>&pageSize=<%= pageSize %>" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a></li>
+            <% } %>
+            <!-- Hiển thị các nút phân trang -->
+            <% for (let i=1; i <=totalPages; i++) { %>
+                <% if (i===pageNumber) { %>
+                    <span>
+                        <li class="page-item active" style="cursor: default;"><a class="page-link"><%= i %></a></li>
+                    </span>
+                <% } else { %>
+                    <li class="page-item"><a class="page-link" href="/db?pageNumber=<%= i %>&pageSize=<%= pageSize %>"><%= i %></a></li>
+                <% } %>
+            <% } %>
+            <!-- Hiển thị nút Next nếu không phải trang cuối cùng -->
+            <% if (pageNumber < totalPages) { %>
+                <li class="page-item"><a class="page-link" href="/db?pageNumber=<%= pageNumber + 1 %>&pageSize=<%= pageSize %>" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a></li>
+            <% } %>
+        </ul>
+    </nav>
+</body>
+
+</html>

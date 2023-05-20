@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang sign up</title>
+    <link rel="stylesheet" href="/css/4T_Log.css">
+    <link rel="stylesheet" href="/font/themify-icons-font/themify-icons/themify-icons.css">
+</head>
+<body>
+    
+    <section>
+        <div class="form-box-2">
+            <% if (message) { %>
+                <p>
+                    <%= message %>
+                </p>
+                <% } %>
+            <div class="form-value">
+                <form action="/signup" method="POST">
+                    <h2>Register</h2>
+                    <div class="inputbox">
+                        <ion-icon name="mail-outline"></ion-icon>
+                        <input type="text" required name="username">
+                        <label for="">Username</label>
+                    </div>
+                    <div class="inputbox">
+                        <ion-icon name="mail-outline"></ion-icon>
+                        <input type="email" required name="email">
+                        <label for="">Email</label>
+                    </div>
+                    <div class="inputbox">
+                        <ion-icon name="lock-closed-outline"></ion-icon>
+                        <input type="password" required name="password">
+                        <label for="">Password</label>
+                    </div>
+                    <div class="inputbox">
+                        <ion-icon name="lock-closed-outline"></ion-icon>
+                        <input type="password" required name="rePassword">
+                        <label for="">Re-enter Pasword</label>
+                    </div>
+                    <button type="submit">OK</button>
+
+                    <div class="back-to-login">
+                        <p>Already have a account <a href="/login">Login</a></p>
+                    </div>
+
+                    <div class="social">
+                        <a href="https://www.facebook.com/profile.php?id=100051520097468"><i class="ti-facebook"></i></a>
+                        <a href=""><i class="ti-google"></i></a>
+                        
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+</body>
+</html>

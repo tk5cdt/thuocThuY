@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ hàng</title>
+</head>
+<body>
+    <section class="cart">
+        <h2>Giỏ Hàng</h2>
+        <form action="">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Giá</th>
+                        <th>SL</th>
+                        <th>Chọn</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for( let index = 0; index < GIOHANG.length; index++ ) { %>    
+                        <% for( let i = 0; i < THUOC.length; i++ ) { %>
+                            <% if (GIOHANG[index].MATHUOC == THUOC[i].MATHUOC) { %>
+                                <tr>
+                                    <td><%= THUOC[i].TENTHUOC %></td>
+                                    <td><%= THUOC[i].GIALE %></td>
+                                    <td><%= GIOHANG[index].SOLUONG %></td>
+                                    <td style="display: flex; flex-direction: column;">
+                                        <a href="/thuoc/<%= THUOC[i].MATHUOC %>">details</a>
+                                        <a href="/delCart">delete</a>
+                                    </td>
+                                </tr>
+                                <% } %>
+                            <% } %>
+                        <% } %>
+                </tbody>
+            </table>
+            <div style="text-align:center" class="price-total">
+                <p style="font-weight:900;">Tổng tiền:<span><%= TONGTIEN %>đ</span></p>
+            </div>
+        </form>
+    </section>
+</body>
+</html>
