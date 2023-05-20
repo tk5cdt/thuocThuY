@@ -19,7 +19,7 @@ let getHompage = async (req, res) => {
 let getConnect = async (req, res) => {
     const pool = await connectDB();
     const pageNumber = parseInt(req.query.pageNumber) || 1;
-    const pageSize = parseInt(req.query.pageSize) || 10;
+    const pageSize = parseInt(req.query.pageSize) || 9;
     try {
         const result = await pool.request().query(`select THUOC.*, TENANH, SOLUONG from THUOC, PROFILEPICTURE, TonKho where THUOC.MATHUOC = PROFILEPICTURE.MATHUOC and THUOC.TENTHUOC = TonKho.TENTHUOC order by MATHUOC offset ${(pageNumber - 1) * pageSize} rows fetch next ${pageSize} rows only`);
         const totalRows = await pool.request().query(`select count(*) as total from THUOC`);
