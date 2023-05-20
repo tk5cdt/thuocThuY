@@ -287,13 +287,13 @@ let getSearch = async (req, res) => {
     let pool = await connectDB();
     const user = req.session.user;
     if (search == '') {
-        if (user.QUANTRI == 1) {
+        if (user && user.QUANTRI == 1) {
             return res.redirect('/admin')
         }
         return res.redirect('/')
     }
     let result = await pool.request().query(`SELECT THUOC.*, TENANH FROM THUOC, PROFILEPICTURE WHERE THUOC.MATHUOC = PROFILEPICTURE.MATHUOC and (TENTHUOC LIKE N'%${search}%' OR THUOC.MATHUOC LIKE '%${search}%' OR LOAISD LIKE N'%${search}%' OR CONGDUNG LIKE N'%${search}%')`)
-    if(user.QUANTRI == 1){
+    if(user && user.QUANTRI == 1){
         if (result.recordset.length == 0) {
             return res.render('db.ejs', { user: req.session.user, THUOC: result.recordset, pageNumber: -1, pageSize: 0, message: 'Không tìm thấy sản phẩm nào' })
         }
@@ -302,7 +302,7 @@ let getSearch = async (req, res) => {
     if (result.recordset.length == 0) {
         return res.render('sp.ejs', { user: req.session.user, THUOC: result.recordset, pageNumber: -1, pageSize: 0, message: 'Không tìm thấy sản phẩm nào' })
     }
-    return res.render('sp.ejs', { user: req.session.user, THUOC: result.recordset, message: '' })
+    return res.render('sp.ejs', { user: req.session.user, THUOC: result.recordset, pageNumber: -1, pageSize: 0, message: '' })
 }
 
 let updateDONHANG = async (req, res) => {
