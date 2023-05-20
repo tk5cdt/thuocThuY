@@ -90,19 +90,21 @@
                                 <%= TONGTIEN %> VNĐ
                             </p>
                         </div>
-                        <form action="/thanhtoan" method="post">
+                        <form id="form-valid" action="/thanhtoan" method="post">
                             <input type="hidden" name="GIOHANG" value="<%= JSON.stringify(GIOHANG) %>">
                             <input type="hidden" name="THUOC" value="<%= JSON.stringify(THUOC) %>">
                             <div class="row row-cols-1 my-3">
                                 <div class="form-group col">
                                     <label class="text-dark" for="DIENTHOAI">Điện thoại</label>
-                                    <input class="form-control" type="text" name="DIENTHOAI" placeholder="Điện thoại">
+                                    <input class="form-control" type="text" id="DIENTHOAI" name="DIENTHOAI" placeholder="Điện thoại">
+                                    <span class="form-message"></span>
                                 </div>
                             </div>
                             <div class="row row-cols-1 mb-3">
                                 <div class="form-group col">
                                     <label class="text-dark" for="DIACHI">Địa chỉ</label>
                                     <input class="form-control" type="text" name="DIACHI" placeholder="Địa chỉ">
+                                    <span class="form-message"></span>
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-info btn-block btn-lg"
@@ -126,5 +128,9 @@
         <%- include('../views/footer.ejs') %>
     </div>
 </body>
-
+<script src="/js/dt.js"></script>
+<script>
+    let form = document.getElementById('form-valid');
+    ValidateForm(form);
+</script>
 </html>
