@@ -357,7 +357,7 @@ const thanhToan = async (req, res) => {
 
         let result4 = await pool.request().query(`DELETE FROM GIOHANG WHERE USERNAME = '${user.USERNAME}'`);
 
-        res.status(200).json({ message: "Payment successful" });
+        res.redirect('/donhang')
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error occurred during payment" });

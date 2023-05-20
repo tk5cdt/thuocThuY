@@ -36,7 +36,7 @@ function ValidateForm(form)
 
     username.addEventListener('blur', function(){
         username.value = username.value.trim()
-        var regexUsername = /^[a-zA-Z0-9]{6,}$/
+        var regexUsername = /^[a-zA-Z0-9]{3,}$/
         if(!regexUsername.test(username.value)){
             showError(username)
             isValid = false
@@ -64,7 +64,7 @@ function ValidateForm(form)
 
     password.addEventListener('blur', function(){
         password.value = password.value.trim()
-        var regexPassword = /^[a-zA-Z0-9]{6,}$/
+        var regexPassword = /^[a-zA-Z0-9]{3,}$/
         if(!regexPassword.test(password.value)){
             showError(password)
             isValid = false
