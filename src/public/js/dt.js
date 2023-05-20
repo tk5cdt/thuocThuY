@@ -17,6 +17,7 @@ function ValidateForm(form){
     function valid(input) {
         input.parentElement.classList.remove('invalid')
         input.parentElement.querySelector('.form-message').innerHTML = null
+        isValid = true
     }
 
     //check valid phone number
@@ -40,19 +41,20 @@ function ValidateForm(form){
 
     DIACHI.addEventListener('blur', function(){
         DIACHI.value = DIACHI.value.trim()
-        var regexAddress = /^[a-zA-Z0-9\s,.'-]{4,}$/u;
-        if(!regexAddress.test(DIACHI.value)){
+        //kiểm tra nếu chuỗi có chứa các ký tự @#$%^&*()<>?/\|{}[]~` và có độ dài < 4 thì không hợp lệ
+        let regex = /[@#$%^&*()<>?/\|{}[]~`]/g
+        if(regex.test(DIACHI.value) || DIACHI.value.length < 4){
             showError(DIACHI)
             isValid = false
         }
     })
 
     form.addEventListener('submit', function(e){
-        if(DIENTHOAI.value === '') {
+        if(DIENTHOAI.value === '' || DIENTHOAI.value == null) {
             showError(DIENTHOAI)
             isValid = false
         }
-        if(DIACHI.value === '') {
+        if(DIACHI.value === '' || DIACHI.value == null) {
             showError(DIACHI)
             isValid = false
         }
