@@ -81,9 +81,6 @@ let newTHUOC = async (req, res) => {
             return res.send(err);
         }
     });
-
-    // console.log(req.files.profile_pic);
-    // console.log(req.files.pic);
     let result1 = await pool.request().query(`INSERT INTO PROFILEPICTURE VALUES ('${MATHUOC}', '${req.files.profile_pic[0].filename}')`)
     let files = req.files.pic;
     for (let i = 0; i < files.length; i++) {
