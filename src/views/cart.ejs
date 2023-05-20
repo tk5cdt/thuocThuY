@@ -1,46 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/gh/hung1001/font-awesome-pro@4cac1a6/css/all.css" rel="stylesheet"
+        type="text/css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <link rel="stylesheet" href="/font/themify-icons-font/themify-icons/themify-icons.css">
+    <link rel="stylesheet" href="css/style.css">
     <title>Giỏ hàng</title>
 </head>
-<body>
-    <section class="cart">
-        <h2>Giỏ Hàng</h2>
-        <form action="">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Sản phẩm</th>
-                        <th>Giá</th>
-                        <th>SL</th>
-                        <th>Chọn</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% for( let index = 0; index < GIOHANG.length; index++ ) { %>    
-                        <% for( let i = 0; i < THUOC.length; i++ ) { %>
-                            <% if (GIOHANG[index].MATHUOC == THUOC[i].MATHUOC) { %>
-                                <tr>
-                                    <td><%= THUOC[i].TENTHUOC %></td>
-                                    <td><%= THUOC[i].GIALE %></td>
-                                    <td><%= GIOHANG[index].SOLUONG %></td>
-                                    <td style="display: flex; flex-direction: column;">
-                                        <a href="/thuoc/<%= THUOC[i].MATHUOC %>">details</a>
-                                        <a href="/delCart">delete</a>
-                                    </td>
-                                </tr>
-                                <% } %>
-                            <% } %>
-                        <% } %>
-                </tbody>
-            </table>
-            <div style="text-align:center" class="price-total">
-                <p style="font-weight:900;">Tổng tiền:<span><%= TONGTIEN %>đ</span></p>
+
+<body class="px-5" style="padding-top: 5rem;">
+    <header>
+        <%- include('../views/nav.ejs' , {active: "user" }) %>
+    </header>
+    <!-- <section class="cart h-100 h-custom" style="background-color: #eee;">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-12">
+                    <div class="card" style="transform: none; box-shadow: none;">
+                        <div class="card-body p-4"> 
+                            <div class="row">
+                                <h5 class="mb-3"><a href="/sp" class="text-body"><i
+                                      class="fas fa-long-arrow-alt-left me-2"></i>Continue shopping</a></h5>
+                                <hr>
+                                
+                                <h2 class="col-lg-7">Giỏ Hàng</h2>
+                                <h2 class="col-lg-5">Thành tiền</h2>
+                                <div class="col-lg-7">
+                                    <% for( let index = 0; index < GIOHANG.length; index++ ) { %>    
+                                        <% for( let i = 0; i < THUOC.length; i++ ) { %>
+                                            <% if( GIOHANG[index].MATHUOC == THUOC[i].MATHUOC ) { %>
+                                                <div class="card mb-3 w-100" style="transform: none; box-shadow: none;">
+                                                    <div class="card-body">
+                                                    <div class="d-flex justify-content-between">
+                                                        <div class="d-flex flex-row align-items-center">
+                                                        <div>
+                                                            <img
+                                                            src="/public/uploads/<%= THUOC[i].MATHUOC %>/<%= THUOC[i].TENANH %>"
+                                                            class="img-fluid rounded-3" alt="Shopping item" style="width: 65px;">
+                                                        </div>
+                                                        <div class="ms-5">
+                                                            <h5><%= THUOC[i].TENTHUOC %></h5>
+                                                            <a class="small mb-0" href="/thuoc/<%= THUOC[i].MATHUOC %>">details</a>
+                                                        </div>
+                                                        </div>
+                                                        <div class="d-flex flex-row align-items-center">
+                                                        <div style="width: 100px;">
+                                                            <h5 class="fw-normal mb-0"><%= GIOHANG[index].SOLUONG %> sp</h5>
+                                                        </div>
+                                                        <div style="width: 80px;">
+                                                            <h5 class="mb-0"><%= GIOHANG[index].THANHTIEN %> VNĐ</h5>
+                                                        </div>
+                                                        <a href="#!" style="color: #cecece;"><i class="fas fa-trash-alt"></i></a>
+                                                        </div>
+                                                    </div>
+                                                    </div>
+                                                </div>
+                                            <% } %>
+                                        <% } %>
+                                    <% } %>
+                                </div>
+                                
+                                <div class="col-lg-5" style="padding-right: 0px;">
+          
+                                    <div class="card bg-primary text-white rounded-7" style="transform: none; box-shadow: none;">
+                                        <div class="card-body" style="transform: none; box-shadow: none;">
+                                            <div class="d-flex justify-content-between">
+                                                <p class="mb-2">Subtotal</p>
+                                                <p class="mb-2"><%= TONGTIEN %> VNĐ</p>
+                                            </div>
+                    
+                                        <div class="d-flex justify-content-between">
+                                            <p class="mb-2">Shipping</p>
+                                            <p class="mb-2">FREE</p>
+                                        </div>
+                    
+                                        <div class="d-flex justify-content-between mb-4">
+                                            <p class="mb-2">Total(Incl. taxes)</p>
+                                            <p class="mb-2"><%= TONGTIEN %> VNĐ </p>
+                                        </div>
+                    
+                                        <button type="button" class="btn btn-info btn-block btn-lg">
+                                            <div class="d-flex justify-content-between">
+                                                <span><%= TONGTIEN %> VNĐ Checkout</span>
+                                                <span><i class="fas fa-long-arrow-alt-right ms-2"></i></span>
+                                            </div>
+                                        </button>
+                    
+                                    </div>
+                                </div>
+                    
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </form>
-    </section>
+        </div>
+    </div>
+    </section> -->
+    <div class="align-middle p-3" style="background-color: #eee;">
+        <h5 class="mb-3"><a href="/sp" class="text-body"><i class="fas fa-long-arrow-alt-left me-2"></i>Continue
+                shopping</a></h5>
+        <hr>
+        <div class="row row-cols-1 row-cols-md-2">
+            <div class="col-md-8">
+                <h2 class="mb-3">Giỏ hàng</h2>
+                <% for( let index=0; index < GIOHANG.length; index++ ) { %>
+                    <% for( let i=0; i < THUOC.length; i++ ) { %>
+                        <% if( GIOHANG[index].MATHUOC==THUOC[i].MATHUOC ) { %>
+                            <div class="d-flex flex-wrap justify-content-between my-3 p-2" style="
+                                border-radius: 10px;
+                                background: #ffffff;
+                                box-shadow:  11px 11px 32px #e3e3e3,
+                                            -11px -11px 32px #ffffff;">
+                                <div class="d-flex align-items-center">
+                                    <div>
+                                        <img src="/public/uploads/<%= THUOC[i].MATHUOC %>/<%= THUOC[i].TENANH %>"
+                                            class="img-fluid rounded-3" alt="Shopping item"
+                                            style="width: 65px; height: 65px;">
+                                    </div>
+                                    <div class="ms-5">
+                                        <h5>
+                                            <%= THUOC[i].TENTHUOC %>
+                                        </h5>
+                                        <a class="small mb-0" href="/thuoc/<%= THUOC[i].MATHUOC %>">details</a>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-row align-items-center">
+                                    <div>
+                                        <h5 class="fw-normal mb-0">
+                                            <%= GIOHANG[index].SOLUONG %> sp
+                                        </h5>
+                                    </div>
+                                    <div class="mx-5" style="width: 80px;">
+                                        <h5 class="mb-0">
+                                            <%= GIOHANG[index].THANHTIEN %> VNĐ
+                                        </h5>
+                                    </div>
+                                    <form>
+                                        <input type="hidden" name="MATHUOC" value="<%= THUOC[i].MATHUOC %>">
+                                        <button type="submit" formaction="/delCart" formmethod="post"
+                                            style="color: #cecece; background-color: #ffffff; border: none;"><i
+                                                class="fas fa-trash-alt bg-none"></i></button>
+                                    </form>
+                                </div>
+                            </div>
+                        <% } %>
+                    <% } %>
+                <% } %>
+            </div>
+            <div class="col-md-4">
+                <h2 class="mb-3">Thành tiền</h2>
+                <div class="card text-dark rounded-7 w-100"
+                    style="transform: none; box-shadow: none; background-color: #DDE0E6;">
+                    <div class="card-body" style="transform: none; box-shadow: none;">
+                        <div class="row">
+                            <p class="col-6">Subtotal</p>
+                            <p class="col-6">
+                                <%= TONGTIEN %> VNĐ
+                            </p>
+                        </div>
+
+                        <div class="row">
+                            <p class="col-6">Shipping</p>
+                            <p class="col-6">FREE</p>
+                        </div>
+
+                        <div class="row mb-4">
+                            <p class="col-6">Total(Incl. taxes)</p>
+                            <p class="col-6">
+                                <%= TONGTIEN %> VNĐ
+                            </p>
+                        </div>
+                        <form action="/thanhtoan" method="post">
+                            <button type="submit" class="btn btn-info btn-block btn-lg"
+                                style="background-color: #bed2e1; border-color: #bed2e1;">
+                                <div class="">
+                                    <span>
+                                        <%= TONGTIEN %> VNĐ Checkout
+                                    </span>
+                                    <span><i class="fas fa-long-arrow-alt-right ms-2"></i></span>
+                                </div>
+                            </button>
+                        </form>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="foot">
+        <%- include('../views/footer.ejs') %>
+    </div>
 </body>
+
 </html>

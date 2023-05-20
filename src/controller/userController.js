@@ -21,7 +21,7 @@ const signup = async (req, res) => {
                 return res.redirect('/login')
             } catch (error) {
                 console.log(error);
-                return res.render("signup.ejs", { message: "Đăng ký thất bại" });
+                return res.render("signup.ejs", { message: "email phải là dạng abc@xyz.com" });
             }
         }
     }

@@ -1,18 +1,45 @@
       --tạo database
       CREATE DATABASE QL_NHATHUOCTY
       GO
+      --tạo database
+      CREATE DATABASE QL_NHATHUOCTY
+      GO
 
       --DROP DATABASE QL_NHATHUOCTY
+      --DROP DATABASE QL_NHATHUOCTY
 
+      --sử dụng database
+      USE QL_NHATHUOCTY
+      GO
       --sử dụng database
       USE QL_NHATHUOCTY
       GO
 
       --mặc định kiểu ngày tháng
       SET DATEFORMAT DMY
+      --mặc định kiểu ngày tháng
+      SET DATEFORMAT DMY
 
       ---------------------------------------------TẠO CÁC BẢNG-----------------------------------------------
+      ---------------------------------------------TẠO CÁC BẢNG-----------------------------------------------
 
+      --tạo bảng thuốc
+      CREATE TABLE THUOC
+      (
+            MATHUOC VARCHAR(10) NOT NULL,
+            TENTHUOC NVARCHAR(30),
+            MANHOM VARCHAR(5),
+            LOAISD NVARCHAR(10),
+            THANHPHAN NVARCHAR(40) DEFAULT NULL,
+            MANCC VARCHAR(10) NOT NULL,
+            GIASI MONEY DEFAULT 0,
+            GIALE MONEY DEFAULT 0,
+            GIANHAP MONEY DEFAULT 0,
+            DANGBAOCHE NVARCHAR(20),
+            QCDONGGOI VARCHAR(10) NOT NULL,
+            CONGDUNG NVARCHAR(100),
+            PRIMARY KEY(MATHUOC)
+      )
       --tạo bảng thuốc
       CREATE TABLE THUOC
       (
@@ -39,6 +66,14 @@
             SOLUONG INT DEFAULT 0,
             PRIMARY KEY(MANHOM)
       )
+      --tạo bảng nhóm thuốc
+      CREATE TABLE NHOMTHUOC
+      (
+            MANHOM VARCHAR(5) NOT NULL,
+            TENNHOM NVARCHAR(20),
+            SOLUONG INT DEFAULT 0,
+            PRIMARY KEY(MANHOM)
+      )
 
 
       --tạo bảng nhà cung cấp
@@ -51,7 +86,30 @@
             CONGNO MONEY DEFAULT 0,
             PRIMARY KEY(MANCC)
       )
+      --tạo bảng nhà cung cấp
+      CREATE TABLE NHACUNGCAP
+      (
+            MANCC VARCHAR(10) NOT NULL,
+            TENNCC NVARCHAR(50),
+            DIACHI NVARCHAR(80) DEFAULT NULL,
+            DIENTHOAI NCHAR(11) UNIQUE,
+            CONGNO MONEY DEFAULT 0,
+            PRIMARY KEY(MANCC)
+      )
 
+      --tạo bảng nhân viên
+      CREATE TABLE NHANVIEN
+      (
+            MANV VARCHAR(10) NOT NULL,
+            TENNV NVARCHAR(50),
+            NGAYSINH DATE,
+            VANBANG NVARCHAR(30) DEFAULT NULL,
+            DIACHI NVARCHAR(80),
+            PHAI NVARCHAR(3),
+            VITRI NVARCHAR(15),
+            BOPHAN NVARCHAR(15),
+            PRIMARY KEY(MANV)
+      )
       --tạo bảng nhân viên
       CREATE TABLE NHANVIEN
       (
@@ -77,7 +135,31 @@
             CONGNO MONEY DEFAULT 0,
             PRIMARY KEY(MAKH)
       )
+      --tạo bảng khách hàng
+      CREATE TABLE KHACHHANG
+      (
+            MAKH VARCHAR(10) NOT NULL,
+            TENKHACH NVARCHAR(30),
+            DIACHI NVARCHAR(80) DEFAULT NULL,
+            DIENTHOAI NCHAR(11) UNIQUE,
+            LOAIKH NVARCHAR(15),
+            CONGNO MONEY DEFAULT 0,
+            PRIMARY KEY(MAKH)
+      )
 
+      --tạo bảng đơn hàng xuất
+      CREATE TABLE DONHANGXUAT
+      (
+            MADONHANG VARCHAR(10) NOT NULL DEFAULT 'DX000',
+            MAKH VARCHAR(10) NOT NULL,
+            MANV VARCHAR(10) NOT NULL,
+            TRANGTHAIDH  NVARCHAR(30) DEFAULT N'Đang chuẩn bị', --đang chuẩn bị, đã hủy, đang vận chuyển, đã giao, giao không thành công
+            NGAYLAP DATE NOT NULL,
+            TONGTIEN MONEY DEFAULT 0,
+            DATHANHTOAN MONEY DEFAULT 0,
+            CONGNO MONEY DEFAULT 0,
+            PRIMARY KEY(MADONHANG)
+      )
       --tạo bảng đơn hàng xuất
       CREATE TABLE DONHANGXUAT
       (
@@ -105,7 +187,32 @@
             CONGNO MONEY DEFAULT 0,
             PRIMARY KEY(MADONHANG)
       )
+      --tạo bảng đơn hàng nhập
+      CREATE TABLE DONHANGNHAP
+      (
+            MADONHANG VARCHAR(10) NOT NULL DEFAULT 'DN000',
+            MANCC VARCHAR(10) NOT NULL,
+            MANV VARCHAR(10) NOT NULL,
+            TRANGTHAIDH  NVARCHAR(30) DEFAULT N'Đang chuẩn bị', --đang chuẩn bị, đã hủy, đang vận chuyển, đã giao, giao không thành công
+            NGAYLAP DATE,
+            TONGTIEN MONEY DEFAULT 0,
+            DATHANHTOAN MONEY DEFAULT 0,
+            CONGNO MONEY DEFAULT 0,
+            PRIMARY KEY(MADONHANG)
+      )
 
+      --tạo bảng nhập thuốc
+      CREATE TABLE NHAPTHUOC
+      (
+            MADONHANG VARCHAR(10) NOT NULL,
+            THUOC VARCHAR(10) NOT NULL,
+            SOLUONG INT DEFAULT 1,
+            DONVITINH NVARCHAR(20),
+            THANHTIEN MONEY,
+            NGAYSX DATE,
+            NGAYHETHAN DATE,
+            PRIMARY KEY(MADONHANG, THUOC)
+      )
       --tạo bảng nhập thuốc
       CREATE TABLE NHAPTHUOC
       (
@@ -129,6 +236,16 @@
             THANHTIEN MONEY
             PRIMARY KEY(MADONHANG, THUOC)
       )
+      --tạo bảng xuất thuốc
+      CREATE TABLE XUATTHUOC
+      (
+            MADONHANG VARCHAR(10) NOT NULL,
+            THUOC VARCHAR(10) NOT NULL,
+            SOLUONG INT DEFAULT 1,
+            DONVITINH NVARCHAR(20),
+            THANHTIEN MONEY
+            PRIMARY KEY(MADONHANG, THUOC)
+      )
 
       --tạo bảng kho hàng
       CREATE TABLE KHOHANG
@@ -139,7 +256,47 @@
             NGAYHETHAN DATE,
             PRIMARY KEY(MATHUOC, DONNHAP, TONKHO)
       )
+      --tạo bảng kho hàng
+      CREATE TABLE KHOHANG
+      (
+            MATHUOC VARCHAR(10) NOT NULL,
+            DONNHAP VARCHAR(10),
+            TONKHO INT DEFAULT 0,
+            NGAYHETHAN DATE,
+            PRIMARY KEY(MATHUOC, DONNHAP, TONKHO)
+      )
 
+      --tạo bảng người dùng
+      CREATE TABLE TAIKHOAN
+      (
+            USERNAME VARCHAR(20) NOT NULL,
+            MATKHAU VARCHAR(61),
+            EMAIL VARCHAR(50),
+            QUANTRI BIT,
+            PRIMARY KEY(USERNAME)
+      )
+
+      --tạo bảng giỏ hàng
+      CREATE TABLE GIOHANG
+      (
+            USERNAME VARCHAR(20) NOT NULL,
+            MATHUOC VARCHAR(10) NOT NULL,
+            SOLUONG INT,
+            DONVITINH NVARCHAR(20),
+            THANHTIEN MONEY,
+            PRIMARY KEY(USERNAME, MATHUOC)
+      )
+      --tạo bảng đơn hàng oline
+      CREATE TABLE DONHANGONLINE
+      (
+            MADONHANG VARCHAR(10) NOT NULL DEFAULT 'DHO000',
+            USERNAME VARCHAR(20) NOT NULL,
+            DIENTHOAI NCHAR(11) NOT NULL,
+            DIACHI NVARCHAR(80) NOT NULL,
+            TRANGTHAIDH NVARCHAR(30) DEFAULT N'Đang lập đơn', --đang lập đơn, đã đặt, đang chuẩn bị, đang vận chuyển, đã giao, giao không thành công
+            TONGTIEN MONEY DEFAULT 0,
+            PRIMARY KEY(MADONHANG)
+      )
       --tạo bảng người dùng
       CREATE TABLE TAIKHOAN
       (
@@ -182,7 +339,24 @@
             THANHTIEN MONEY
             PRIMARY KEY(MADONHANG, THUOC)
       )
+      --tạo bảng xuất thuốc
+      CREATE TABLE DONXUATONLINECHITIET
+      (
+            MADONHANG VARCHAR(10) NOT NULL,
+            THUOC VARCHAR(10) NOT NULL,
+            SOLUONG INT DEFAULT 1,
+            DONVITINH NVARCHAR(20),
+            THANHTIEN MONEY
+            PRIMARY KEY(MADONHANG, THUOC)
+      )
 
+      -- tạo table lưu ảnh chính
+      CREATE TABLE PROFILEPICTURE
+      (
+            MATHUOC VARCHAR(10) NOT NULL,
+            TENANH NVARCHAR(100) UNIQUE,
+            PRIMARY KEY(MATHUOC, TENANH)
+      )
       -- tạo table lưu ảnh chính
       CREATE TABLE PROFILEPICTURE
       (
@@ -198,10 +372,23 @@
             TENALBUM NVARCHAR(100),
             PRIMARY KEY(MATHUOC, TENALBUM)
       )
+      -- tạo table lưu album
+      CREATE TABLE ALBUMPICTURES
+      (
+            MATHUOC VARCHAR(10) NOT NULL,
+            TENALBUM NVARCHAR(100),
+            PRIMARY KEY(MATHUOC, TENALBUM)
+      )
 
 
       ---------------------------------------------TẠO RÀNG BUỘC KHÓA NGOẠI-----------------------------------------------
+      ---------------------------------------------TẠO RÀNG BUỘC KHÓA NGOẠI-----------------------------------------------
 
+      --tạo khóa ngoại bảng thuốc và nhóm thuốc
+      ALTER TABLE THUOC
+      ADD CONSTRAINT FK_THUOC_NHOMTHUOC FOREIGN KEY(MANHOM)
+      REFERENCES NHOMTHUOC(MANHOM)
+      GO
       --tạo khóa ngoại bảng thuốc và nhóm thuốc
       ALTER TABLE THUOC
       ADD CONSTRAINT FK_THUOC_NHOMTHUOC FOREIGN KEY(MANHOM)
@@ -213,7 +400,17 @@
       ADD CONSTRAINT FK_THUOC_NHACC FOREIGN KEY(MANCC)
       REFERENCES NHACUNGCAP(MANCC)
       GO
+      --tạo khóa ngoại bảng thuốc và nhà cung cấp
+      ALTER TABLE THUOC
+      ADD CONSTRAINT FK_THUOC_NHACC FOREIGN KEY(MANCC)
+      REFERENCES NHACUNGCAP(MANCC)
+      GO
 
+      --tạo khóa ngoại bảng đơn hàng xuất và khách hàng
+      ALTER TABLE DONHANGXUAT
+      ADD CONSTRAINT FK_DONHANGXUAT_KHACHHANG FOREIGN KEY(MAKH)
+      REFERENCES KHACHHANG(MAKH)
+      GO
       --tạo khóa ngoại bảng đơn hàng xuất và khách hàng
       ALTER TABLE DONHANGXUAT
       ADD CONSTRAINT FK_DONHANGXUAT_KHACHHANG FOREIGN KEY(MAKH)
@@ -225,7 +422,17 @@
       ADD CONSTRAINT FK_DONHANGXUAT_NHANVIEN FOREIGN KEY(MANV)
       REFERENCES NHANVIEN(MANV)
       GO
+      --tạo khóa ngoại bảng đơn hàng xuất và nhân viên
+      ALTER TABLE DONHANGXUAT
+      ADD CONSTRAINT FK_DONHANGXUAT_NHANVIEN FOREIGN KEY(MANV)
+      REFERENCES NHANVIEN(MANV)
+      GO
 
+      --tạo khóa ngoại bảng đơn hàng nhập và nhà cung cấp
+      ALTER TABLE DONHANGNHAP
+      ADD CONSTRAINT FK_DONHANGNHAP_NHACUNGCAP FOREIGN KEY(MANCC)
+      REFERENCES NHACUNGCAP(MANCC)
+      GO
       --tạo khóa ngoại bảng đơn hàng nhập và nhà cung cấp
       ALTER TABLE DONHANGNHAP
       ADD CONSTRAINT FK_DONHANGNHAP_NHACUNGCAP FOREIGN KEY(MANCC)
@@ -243,7 +450,23 @@
       ADD CONSTRAINT FK_KHOHANG_NHAPTHUOC FOREIGN KEY(DONNHAP, MATHUOC)
       REFERENCES NHAPTHUOC(MADONHANG, THUOC)
       GO
+      --tạo khóa ngoại bảng đơn hàng nhập và nhân viên
+      ALTER TABLE DONHANGNHAP
+      ADD CONSTRAINT FK_DONHANGNHAP_NHANVIEN FOREIGN KEY(MANV)
+      REFERENCES NHANVIEN(MANV)
+      GO
 
+      --tạo khóa ngoại bảng kho hàng và thuốc
+      ALTER TABLE KHOHANG
+      ADD CONSTRAINT FK_KHOHANG_NHAPTHUOC FOREIGN KEY(DONNHAP, MATHUOC)
+      REFERENCES NHAPTHUOC(MADONHANG, THUOC)
+      GO
+
+      --tạo khóa ngoại bảng xuất thuốc và đơn hàng xuất
+      ALTER TABLE XUATTHUOC
+      ADD CONSTRAINT FK_XUATTHUOC_DONHANGXUAT FOREIGN KEY(MADONHANG)
+      REFERENCES DONHANGXUAT(MADONHANG)
+      GO
       --tạo khóa ngoại bảng xuất thuốc và đơn hàng xuất
       ALTER TABLE XUATTHUOC
       ADD CONSTRAINT FK_XUATTHUOC_DONHANGXUAT FOREIGN KEY(MADONHANG)
@@ -255,7 +478,17 @@
       ADD CONSTRAINT FK_NHAPTHUOC_DONHANGNHAP FOREIGN KEY(MADONHANG)
       REFERENCES DONHANGNHAP(MADONHANG)
       GO
+      --tạo khóa ngoại bảng nhập thuốc và đơn hàng nhập
+      ALTER TABLE NHAPTHUOC
+      ADD CONSTRAINT FK_NHAPTHUOC_DONHANGNHAP FOREIGN KEY(MADONHANG)
+      REFERENCES DONHANGNHAP(MADONHANG)
+      GO
 
+      --tạo khóa ngoại bảng xuất thuốc và thuốc
+      ALTER TABLE XUATTHUOC
+      ADD CONSTRAINT FK_XUATTHUOC_THUOC FOREIGN KEY(THUOC)
+      REFERENCES THUOC(MATHUOC)
+      GO
       --tạo khóa ngoại bảng xuất thuốc và thuốc
       ALTER TABLE XUATTHUOC
       ADD CONSTRAINT FK_XUATTHUOC_THUOC FOREIGN KEY(THUOC)
@@ -267,13 +500,28 @@
       ADD CONSTRAINT FK_NHAPTHUOC_THUOC FOREIGN KEY(THUOC)
       REFERENCES THUOC(MATHUOC)
       GO
+      --tạo khóa ngoại bảng nhập thuốc và thuốc
+      ALTER TABLE NHAPTHUOC
+      ADD CONSTRAINT FK_NHAPTHUOC_THUOC FOREIGN KEY(THUOC)
+      REFERENCES THUOC(MATHUOC)
+      GO
 
       --tạo khóa ngoại bảng giỏ hàng và user
       ALTER TABLE GIOHANG
       ADD CONSTRAINT FK_GIOHANG_USER FOREIGN KEY(USERNAME)
       REFERENCES TAIKHOAN(USERNAME)
       GO
+      --tạo khóa ngoại bảng giỏ hàng và user
+      ALTER TABLE GIOHANG
+      ADD CONSTRAINT FK_GIOHANG_USER FOREIGN KEY(USERNAME)
+      REFERENCES TAIKHOAN(USERNAME)
+      GO
 
+      --tạo khóa ngoại bảng giỏ hàng và thuốc
+      ALTER TABLE GIOHANG
+      ADD CONSTRAINT FK_GIOHANG_THUOC FOREIGN KEY(MATHUOC)
+      REFERENCES THUOC(MATHUOC)
+      GO
       --tạo khóa ngoại bảng giỏ hàng và thuốc
       ALTER TABLE GIOHANG
       ADD CONSTRAINT FK_GIOHANG_THUOC FOREIGN KEY(MATHUOC)
@@ -297,7 +545,29 @@
       ADD CONSTRAINT FK_DXOLCT_THUOC FOREIGN KEY(THUOC)
       REFERENCES THUOC(MATHUOC)
       GO
+      --tạo khóa ngoại cho bảng đơn hàng online và user
+      ALTER TABLE DONHANGONLINE
+      ADD CONSTRAINT FK_DONHANGONLINE_TAIKHOAN FOREIGN KEY(USERNAME)
+      REFERENCES TAIKHOAN(USERNAME)
+      GO
 
+      --tạo khóa ngoại cho đơn xuất online chi tiết và đơn hàng online
+      ALTER TABLE DONXUATONLINECHITIET
+      ADD CONSTRAINT FK_DXOLCT_DONHANGONLINE FOREIGN KEY(MADONHANG)
+      REFERENCES DONHANGONLINE(MADONHANG)
+      GO
+
+      --tạo khóa ngoại cho đơn xuất online chi tiết và thuốc
+      ALTER TABLE DONXUATONLINECHITIET
+      ADD CONSTRAINT FK_DXOLCT_THUOC FOREIGN KEY(THUOC)
+      REFERENCES THUOC(MATHUOC)
+      GO
+
+      -- tạo khóa ngoại bảng profile picture và thuốc
+      ALTER TABLE PROFILEPICTURE
+      ADD CONSTRAINT FK_PROFILEPICTURE_THUOC FOREIGN KEY(MATHUOC)
+      REFERENCES THUOC(MATHUOC)
+      GO
       -- tạo khóa ngoại bảng profile picture và thuốc
       ALTER TABLE PROFILEPICTURE
       ADD CONSTRAINT FK_PROFILEPICTURE_THUOC FOREIGN KEY(MATHUOC)
@@ -309,9 +579,18 @@
       ADD CONSTRAINT FK_ALBUMPICTURES_THUOC FOREIGN KEY(MATHUOC)
       REFERENCES THUOC(MATHUOC)
       GO
+      -- tạo khóa ngoại bảng album picture và thuốc
+      ALTER TABLE ALBUMPICTURES
+      ADD CONSTRAINT FK_ALBUMPICTURES_THUOC FOREIGN KEY(MATHUOC)
+      REFERENCES THUOC(MATHUOC)
+      GO
 
       ---------------------------------------------TẠO RÀNG BUỘC CHECK-----------------------------------------------
+      ---------------------------------------------TẠO RÀNG BUỘC CHECK-----------------------------------------------
 
+      --tạo điều kiện ngày hết hạn của kho hàng
+      ALTER TABLE NHAPTHUOC
+      ADD CONSTRAINT CK_NGAYHETHAN CHECK (NGAYHETHAN > NGAYSX)
       --tạo điều kiện ngày hết hạn của kho hàng
       ALTER TABLE NHAPTHUOC
       ADD CONSTRAINT CK_NGAYHETHAN CHECK (NGAYHETHAN > NGAYSX)
@@ -319,7 +598,13 @@
       --tạo điều kiện số lượng của bảng xuất thuốc
       ALTER TABLE XUATTHUOC
       ADD CONSTRAINT CK_XUATTHUOC_SOLUONG CHECK( SOLUONG > 0)
+      --tạo điều kiện số lượng của bảng xuất thuốc
+      ALTER TABLE XUATTHUOC
+      ADD CONSTRAINT CK_XUATTHUOC_SOLUONG CHECK( SOLUONG > 0)
 
+      --tạo điều kiện số lượng của bảng nhập thuốc
+      ALTER TABLE NHAPTHUOC
+      ADD CONSTRAINT CK_NHAPTHUOC_SOLUONG CHECK( SOLUONG > 0)
       --tạo điều kiện số lượng của bảng nhập thuốc
       ALTER TABLE NHAPTHUOC
       ADD CONSTRAINT CK_NHAPTHUOC_SOLUONG CHECK( SOLUONG > 0)
@@ -327,7 +612,13 @@
       --tạo điều kiện đã thanh toán của bảng đơn hàng nhập
       ALTER TABLE DONHANGNHAP
       ADD CONSTRAINT CK_DATHANHTOAN_NHAP CHECK (DATHANHTOAN >= 0)
+      --tạo điều kiện đã thanh toán của bảng đơn hàng nhập
+      ALTER TABLE DONHANGNHAP
+      ADD CONSTRAINT CK_DATHANHTOAN_NHAP CHECK (DATHANHTOAN >= 0)
 
+      --tạo điều kiện đã thanh toán của bảng đơn hàng xuất    
+      ALTER TABLE DONHANGXUAT
+      ADD CONSTRAINT CK_DATHANHTOAN_XUAT CHECK (DATHANHTOAN >= 0)
       --tạo điều kiện đã thanh toán của bảng đơn hàng xuất    
       ALTER TABLE DONHANGXUAT
       ADD CONSTRAINT CK_DATHANHTOAN_XUAT CHECK (DATHANHTOAN >= 0)
@@ -335,7 +626,14 @@
       --tạo điều kiện cho bảng khách hàng
       ALTER TABLE KHACHHANG
       ADD CONSTRAINT CK_KHACHHANG_LOAIKH CHECK (LOAIKH = N'Khách lẻ' OR LOAIKH = N'Khách sỉ')
+      --tạo điều kiện cho bảng khách hàng
+      ALTER TABLE KHACHHANG
+      ADD CONSTRAINT CK_KHACHHANG_LOAIKH CHECK (LOAIKH = N'Khách lẻ' OR LOAIKH = N'Khách sỉ')
 
+      --tạo điều kiện cho bảng nhân viên
+      ALTER TABLE NHANVIEN 
+      ADD CONSTRAINT CK_NHANVIEN_PHAI CHECK (PHAI = N'Nam' OR PHAI = N'Nữ')
+      GO
       --tạo điều kiện cho bảng nhân viên
       ALTER TABLE NHANVIEN 
       ADD CONSTRAINT CK_NHANVIEN_PHAI CHECK (PHAI = N'Nam' OR PHAI = N'Nữ')
@@ -345,7 +643,119 @@
       ALTER TABLE GIOHANG
       ADD CONSTRAINT CK_GIOHANG_SOLUONG CHECK( SOLUONG > 0)
       GO
+      --tạo điều kiện số lượng của bảng nhập thuốc
+      ALTER TABLE GIOHANG
+      ADD CONSTRAINT CK_GIOHANG_SOLUONG CHECK( SOLUONG > 0)
+      GO
 
+      ALTER TABLE DONHANGNHAP
+      ADD CONSTRAINT CK_DONHANGNHAP_TTDH CHECK(TRANGTHAIDH = N'Đang chuẩn bị' OR TRANGTHAIDH = N'Đã hủy' OR TRANGTHAIDH = N'Đang vận chuyển' OR TRANGTHAIDH = N'Đã nhận' OR TRANGTHAIDH = N'Giao không thành công')
+      GO
+
+      ALTER TABLE DONHANGXUAT
+      ADD CONSTRAINT CK_DONHANGXUAT_TTDH CHECK(TRANGTHAIDH = N'Đang chuẩn bị' OR TRANGTHAIDH = N'Đã hủy' OR TRANGTHAIDH = N'Đang vận chuyển' OR TRANGTHAIDH = N'Đã giao' OR TRANGTHAIDH = N'Giao không thành công')
+      GO
+
+      ALTER TABLE DONHANGONLINE
+      ADD CONSTRAINT CK_DONHANGONLINE_TTDH CHECK(TRANGTHAIDH = N'Đang lập đơn' OR TRANGTHAIDH = N'Đã đặt' OR TRANGTHAIDH = N'Đã hủy' OR TRANGTHAIDH = N'Đang vận chuyển' OR TRANGTHAIDH = N'Đã giao' OR TRANGTHAIDH = N'Giao không thành công')
+      GO
+
+
+      -----------------------------------------------TẠO CÁC PROCEDURE-----------------------------------------
+
+      CREATE PROC usp_TimMaDonHangNhapTiepTheo
+            @madonhang VARCHAR(10) OUT
+      AS
+      BEGIN
+            SET @madonhang = 'DN001'
+
+            DECLARE @index INT
+
+            SET @index = 1
+
+            WHILE EXISTS(SELECT MADONHANG FROM DONHANGNHAP WHERE MADONHANG = @madonhang)
+            BEGIN
+                  SET @index = @index + 1
+                  SET @madonhang = 'DN' + REPLICATE('0',3 - LEN(CAST(@index AS VARCHAR))) + CAST(@index AS VARCHAR)
+            END
+      END
+      GO
+
+      CREATE PROC usp_TimMaDonHangXuatTiepTheo
+            @madonhang VARCHAR(10) OUT
+      AS
+      BEGIN
+            SET @madonhang = 'DX001'
+
+            DECLARE @index INT
+
+            SET @index = 1
+
+            WHILE EXISTS(SELECT MADONHANG FROM DONHANGXUAT WHERE MADONHANG = @madonhang)
+            BEGIN
+                  SET @index = @index + 1
+                  SET @madonhang = 'DX' + REPLICATE('0',3 - LEN(CAST(@index AS VARCHAR))) + CAST(@index AS VARCHAR)
+            END
+      END
+      GO
+
+      CREATE PROC usp_TimMaDonHangOnlineTiepTheo
+            @madonhang VARCHAR(10) OUT
+      AS
+      BEGIN
+            SET @madonhang = 'DHO001'
+
+            DECLARE @index INT
+
+            SET @index = 1
+
+            WHILE EXISTS(SELECT MADONHANG FROM DONHANGONLINE WHERE MADONHANG = @madonhang)
+            BEGIN
+                  SET @index = @index + 1
+                  SET @madonhang = 'DHO' + REPLICATE('0',3 - LEN(CAST(@index AS VARCHAR))) + CAST(@index AS VARCHAR)
+            END
+      END
+      GO
+
+      --cài đặt hiển thị giỏ hàng của user
+      CREATE PROC usp_GioHangCuaUser
+            @username VARCHAR(20)
+      AS 
+            SELECT *
+            FROM GIOHANG
+            WHERE @username = USERNAME
+      GO
+
+      --cài đặt hóa đơn xuất chi tiết
+      CREATE PROC usp_DonXuatChiTiet
+            @Madonhang VARCHAR(10)
+      AS 
+            SELECT TENTHUOC, SOLUONG, DONVITINH, THANHTIEN FROM DONHANGXUAT D, XUATTHUOC X, THUOC
+            WHERE D.MADONHANG = X.MADONHANG
+            AND X.THUOC = THUOC.MATHUOC
+            AND D.MADONHANG = @madonhang
+      GO
+
+      --cài đặt hóa đơn nhập chi tiết
+      CREATE PROC usp_DonNhapChiTiet
+            @Madonhang VARCHAR(10)
+      AS 
+            SELECT TENTHUOC, SOLUONG, DONVITINH, THANHTIEN FROM DONHANGNHAP D, NHAPTHUOC N, THUOC
+            WHERE D.MADONHANG = N.MADONHANG
+            AND N.THUOC = THUOC.MATHUOC
+            AND D.MADONHANG = @madonhang
+      GO
+
+      --cài đặt hóa đơn online chi tiết
+      CREATE PROC usp_DonOnlineChiTiet
+            @Madonhang VARCHAR(10)
+      AS 
+            SELECT TENTHUOC, SOLUONG, DONVITINH, THANHTIEN FROM DONHANGONLINE D, DONXUATONLINECHITIET DCT, THUOC
+            WHERE D.MADONHANG = DCT.MADONHANG
+            AND DCT.THUOC = THUOC.MATHUOC
+            AND D.MADONHANG = @madonhang
+      GO
+      ---------------------------------------------TẠO TRIGGER-----------------------------------------------
       ALTER TABLE DONHANGNHAP
       ADD CONSTRAINT CK_DONHANGNHAP_TTDH CHECK(TRANGTHAIDH = N'Đang chuẩn bị' OR TRANGTHAIDH = N'Đã hủy' OR TRANGTHAIDH = N'Đang vận chuyển' OR TRANGTHAIDH = N'Đã nhận' OR TRANGTHAIDH = N'Giao không thành công')
       GO
@@ -469,7 +879,34 @@
             ON THUOC.MATHUOC = inserted.MATHUOC
       END
       GO
+      -- tạo trigger khi thêm dữ liệu vào bảng THUOC
+      CREATE TRIGGER TRG_INSERT_THUOC
+            ON THUOC
+            AFTER INSERT
+      AS
+      BEGIN
+            --cập nhật dữ liệu cho thuộc tính giá sỉ và giá lẻ cho thuốc vừa nhập
+            UPDATE THUOC
+            SET GIASI = inserted.GIANHAP + inserted.GIANHAP * 7/100,
+            GIALE = inserted.GIANHAP + inserted.GIANHAP * 10/100
+            FROM THUOC JOIN inserted
+            ON THUOC.MATHUOC = inserted.MATHUOC
+      END
+      GO
 
+      -- tạo trigger khi xóa dữ liệu từ bảng THUOC
+      CREATE TRIGGER TRG_DELETE_THUOC
+            ON THUOC
+            INSTEAD OF DELETE
+      AS
+      BEGIN
+            --khi thuốc bị xóa thì hình ảnh của thuốc đó cũng bị xóa theo
+            IF EXISTS (SELECT MATHUOC FROM deleted WHERE MATHUOC IN (SELECT MATHUOC FROM ALBUMPICTURES) OR MATHUOC IN (SELECT MATHUOC FROM PROFILEPICTURE))
+            BEGIN
+                  PRINT N'DỮ LIỆU HÌNH ẢNH CỦA THUỐC SẼ ĐƯỢC XÓA'
+                  DELETE ALBUMPICTURES
+                  WHERE MATHUOC = (SELECT MATHUOC FROM deleted)
+            END
       -- tạo trigger khi xóa dữ liệu từ bảng THUOC
       CREATE TRIGGER TRG_DELETE_THUOC
             ON THUOC
@@ -490,12 +927,40 @@
                   DELETE PROFILEPICTURE
                   WHERE MATHUOC = (SELECT MATHUOC FROM deleted)
             END
+            IF EXISTS (SELECT MATHUOC FROM deleted WHERE MATHUOC IN (SELECT MATHUOC FROM PROFILEPICTURE))
+            BEGIN
+                  PRINT N'DỮ LIỆU HÌNH ẢNH CỦA THUỐC SẼ ĐƯỢC XÓA'
+                  DELETE PROFILEPICTURE
+                  WHERE MATHUOC = (SELECT MATHUOC FROM deleted)
+            END
 
             DELETE THUOC 
             WHERE MATHUOC = (SELECT MATHUOC FROM deleted)
       END
       GO
+            DELETE THUOC 
+            WHERE MATHUOC = (SELECT MATHUOC FROM deleted)
+      END
+      GO
 
+      --tạo trigger khi thêm dữ liệu vào bảng NHOMTHUOC
+      CREATE TRIGGER TRG_INSERT_NHOMTHUOC
+            ON NHOMTHUOC
+            FOR INSERT
+      AS
+      BEGIN
+            --reset giá trị số lượng bằng 0 khi người dùng nhập dữ liệu khác
+            IF (SELECT SOLUONG FROM inserted) != 0
+            BEGIN
+                  PRINT N'SỐ LƯỢNG THUỐC CỦA NHÓM TRONG KHO HÀNG SẼ ĐƯỢC TỰ ĐỘNG CẬP NHẬT TRONG QUÁ TRÌNH NHẬP XUẤT THUỐC'
+                  PRINT N'RESET SỐ LƯỢNG = 0'
+                  UPDATE NHOMTHUOC
+                  SET SOLUONG = 0
+                  FROM inserted
+                  WHERE NHOMTHUOC.MANHOM = inserted.MANHOM
+            END
+      END
+      GO
       --tạo trigger khi thêm dữ liệu vào bảng NHOMTHUOC
       CREATE TRIGGER TRG_INSERT_NHOMTHUOC
             ON NHOMTHUOC
@@ -533,9 +998,46 @@
                   PRINT N'CÔNG NỢ CỦA NHÀ CUNG CẤP SẼ ĐƯỢC THAY ĐỔI THEO CÔNG NỢ CỦA ĐƠN HÀNG NHẬP'
                   ROLLBACK TRAN
             END
+      CREATE TRIGGER TRG_UPDATE_NCC
+            ON NHACUNGCAP
+            FOR UPDATE
+      AS
+      BEGIN
+            --kiểm tra người dùng nhập vào giá trị công nợ không đúng
+            IF EXISTS (
+                  SELECT * FROM inserted, deleted
+                  WHERE inserted.CONGNO != deleted.CONGNO
+                  AND inserted.CONGNO != (
+                        SELECT SUM(CONGNO) FROM DONHANGNHAP D
+                        WHERE D.MANCC = inserted.MANCC
+                  )
+            )
+            BEGIN
+                  PRINT N'CÔNG NỢ CỦA NHÀ CUNG CẤP SẼ ĐƯỢC THAY ĐỔI THEO CÔNG NỢ CỦA ĐƠN HÀNG NHẬP'
+                  ROLLBACK TRAN
+            END
       END
       GO
+      GO
 
+      --tạo trigger khi them dữ liệu vào bảng NHACUNGCAP
+      CREATE TRIGGER TRG_INSERT_NCC
+            ON NHACUNGCAP
+            FOR INSERT
+      AS
+      BEGIN
+            --reset giá trị công nợ bằng 0 khi người dùng nhập dữ liệu khác
+            IF (SELECT CONGNO FROM inserted) != 0
+            BEGIN
+                  PRINT N'CÔNG NỢ SẼ ĐƯỢC TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG NHẬP'
+                  PRINT N'RESET CÔNG NỢ = 0'
+                  UPDATE NHACUNGCAP
+                  SET CONGNO = 0
+                  FROM inserted
+                  WHERE NHACUNGCAP.MANCC = inserted.MANCC
+            END
+      END
+      GO
       --tạo trigger khi them dữ liệu vào bảng NHACUNGCAP
       CREATE TRIGGER TRG_INSERT_NCC
             ON NHACUNGCAP
@@ -573,7 +1075,43 @@
             END
       END
       GO
+      --tạo trigger khi thêm dữ liệu vào bảng KHACHHANG
+      CREATE TRIGGER TRG_INSERT_KHACHHANG
+            ON KHACHHANG
+            FOR INSERT
+      AS
+      BEGIN
+            --reset giá trị công nợ bằng 0 khi người dùng nhập dữ liệu khác
+            IF (SELECT CONGNO FROM inserted) != 0
+            BEGIN
+                  PRINT N'CÔNG NỢ SẼ ĐƯỢC TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG XUẤT'
+                  PRINT N'RESET CÔNG NỢ = 0'
+                  UPDATE KHACHHANG
+                  SET CONGNO = 0
+                  FROM inserted
+                  WHERE KHACHHANG.MAKH = inserted.MAKH
+            END
+      END
+      GO
 
+      CREATE TRIGGER TRG_UPDATE_KHACHHANG
+            ON KHACHHANG
+            FOR UPDATE
+      AS
+      BEGIN
+            --kiểm tr khi người dùng nhập vào giá trị công nợ khác
+            IF EXISTS (
+                  SELECT * FROM inserted, deleted
+                  WHERE inserted.CONGNO != deleted.CONGNO
+                  AND inserted.CONGNO != (
+                        SELECT SUM(CONGNO) FROM DONHANGXUAT K
+                        WHERE K.MAKH = inserted.MAKH
+                  )
+            )
+            BEGIN
+                  PRINT N'CÔNG NỢ CỦA KHÁCH HÀNG SẼ ĐƯỢC THAY ĐỔI THEO CÔNG NỢ CỦA ĐƠN HÀNG XUẤT'
+                  ROLLBACK TRAN
+            END
       CREATE TRIGGER TRG_UPDATE_KHACHHANG
             ON KHACHHANG
             FOR UPDATE
@@ -594,7 +1132,42 @@
             END
       END
       GO
+      GO
 
+      --tạo trigger khi thêm dữ liệu vào bảng DONHANGXUAT
+      CREATE TRIGGER TRG_INSERT_DONHANGXUAT
+            ON DONHANGXUAT
+            FOR INSERT
+      AS
+      BEGIN
+            --set mã đơn hàng tự động
+            PRINT N'MÃ ĐƠN HÀNG SẼ ĐƯỢC SET TỰ ĐỘNG'
+
+            DECLARE @result VARCHAR(10) 
+            EXEC usp_TimMaDonHangXuatTiepTheo @result OUT
+
+            UPDATE DONHANGXUAT
+            SET MADONHANG = @result
+            FROM DONHANGXUAT JOIN inserted
+            ON DONHANGXUAT.MADONHANG = inserted.MADONHANG
+
+            --phải do nhân viên bán hàng hoặc nhân viên quản lý chịu trách nhiệm lập đơn
+            IF((SELECT MANV FROM inserted) NOT IN (SELECT MANV FROM NHANVIEN WHERE BOPHAN = N'Quản lý' OR BOPHAN = N'Bán hàng'))
+            BEGIN
+                  PRINT N'DƠN HÀNG PHẢI DO NHÂN VIÊN BỘ PHẬN BÁN HÀNG HOẶC QUẢN LÝ LẬP!'
+                  ROLLBACK TRAN
+            END
+
+            --reset giá trị tổng tiền về 0 khi người dùng nhập giá trị khác
+            IF(SELECT TONGTIEN FROM inserted) !=0
+            BEGIN
+                  PRINT N'TỔNG TIỀN SẼ ĐƯỢC HỆ THỐNG TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG'
+                  PRINT N'RESET TỔNG TIỀN'
+                  UPDATE DONHANGXUAT
+                  SET TONGTIEN = 0
+                  FROM inserted
+                  WHERE DONHANGXUAT.MADONHANG = inserted.MADONHANG
+            END
       --tạo trigger khi thêm dữ liệu vào bảng DONHANGXUAT
       CREATE TRIGGER TRG_INSERT_DONHANGXUAT
             ON DONHANGXUAT
@@ -642,6 +1215,18 @@
             END
       END
       GO
+            --reset giá trị công nợ về 0 khi người dùng nhập giá trị khác
+            IF(SELECT CONGNO FROM inserted) != 0
+            BEGIN
+                  PRINT N'CÔNG NỢ SẼ ĐƯỢC HỆ THỐNG TỰ ĐỘNG CẬP NHẬT'
+                  PRINT N'RESET CÔNG NỢ'
+                  UPDATE DONHANGXUAT
+                  SET CONGNO = 0
+                  FROM inserted
+                  WHERE DONHANGXUAT.MADONHANG = inserted.MADONHANG
+            END
+      END
+      GO
 
       -- tạo trigger khi thay đổi dữ liệu trong bảng DONHANGXUAT
       CREATE TRIGGER TRG_UPDATE_DONHANGXUAT
@@ -670,7 +1255,55 @@
                   FROM DONHANGXUAT JOIN inserted
                   ON inserted.TRANGTHAIDH = N'Đã giao'
                   AND inserted.MADONHANG = DONHANGXUAT.MADONHANG
+      -- tạo trigger khi thay đổi dữ liệu trong bảng DONHANGXUAT
+      CREATE TRIGGER TRG_UPDATE_DONHANGXUAT
+            ON  DONHANGXUAT
+            FOR UPDATE
+      AS
+      BEGIN
+            --chỉ được hủy đơn hàng khi đơn hàng đang trong trạng thái đang chuẩn bị
+            IF ((SELECT TRANGTHAIDH FROM deleted) != N'Đang chuẩn bị' AND (SELECT TRANGTHAIDH FROM inserted) = N'Đã hủy')
+            BEGIN
+                  PRINT N'KHÔNG THỂ HỦY ĐƠN HÀNG'
+                  ROLLBACK TRAN
+            END
 
+            -- thông báo khi đơn hàng bị hủy hoặc giao hàng không thành công
+            IF ((SELECT TRANGTHAIDH FROM deleted) = N'Đang chuẩn bị' AND (SELECT TRANGTHAIDH FROM inserted) = N'Đã hủy') OR (SELECT TRANGTHAIDH FROM inserted) = N'Giao không thành công'
+            BEGIN
+                  PRINT N'ĐƠN HÀNG ĐÃ NẰM TRONG TRẠNG THÁI KHÔNG THỂ UPDATE'
+            END
+
+            ELSE
+            BEGIN
+                  --cập nhật công nợ cho đơn hàng vừa thay đổi
+                  UPDATE DONHANGXUAT
+                  SET CONGNO = inserted.TONGTIEN - inserted.DATHANHTOAN
+                  FROM DONHANGXUAT JOIN inserted
+                  ON inserted.TRANGTHAIDH = N'Đã giao'
+                  AND inserted.MADONHANG = DONHANGXUAT.MADONHANG
+
+                  --cập nhật công nợ của khách hàng với cửa hàng
+                  UPDATE KHACHHANG
+                  SET CONGNO = (
+                        SELECT SUM(CONGNO)
+                        FROM DONHANGXUAT
+                        WHERE KHACHHANG.MAKH = DONHANGXUAT.MAKH
+                  )
+            END
+      END
+      GO
+
+      CREATE TRIGGER TRG_DELETE_DONHANGXUAT
+            ON DONHANGXUAT
+            FOR DELETE
+      AS
+      BEGIN
+            --không thể xóa đơn hàng, chỉ có thể thay đổi trạng thái bằng đã hủy hoặc giao không thành công
+            PRINT N'ĐƠN HÀNG ĐÃ ĐƯỢC LƯU VÀO HỆ THỐNG, KHÔNG THỂ XÓA!'
+            ROLLBACK TRAN
+      END
+      GO
                   --cập nhật công nợ của khách hàng với cửa hàng
                   UPDATE KHACHHANG
                   SET CONGNO = (
@@ -727,7 +1360,53 @@
                   FROM inserted
                   WHERE DONHANGNHAP.MADONHANG = inserted.MADONHANG
             END
+      --tạo trigger khi thêm dữ liệu vào bảng DONHANGNHAP
+      CREATE TRIGGER TRG_INSERT_DONHANGNHAP
+            ON DONHANGNHAP
+            FOR INSERT
+      AS
+      BEGIN
+            --set mã đơn hàng tự động
+            PRINT N'MÃ ĐƠN HÀNG SẼ ĐƯỢC SET TỰ ĐỘNG'
 
+            DECLARE @result VARCHAR(10) 
+            EXEC usp_TimMaDonHangNhapTiepTheo @result OUT
+
+            UPDATE DONHANGNHAP
+            SET MADONHANG = @result
+            FROM DONHANGNHAP JOIN inserted
+            ON DONHANGNHAP.MADONHANG = inserted.MADONHANG
+
+            --phải do nhân viên bán hàng hoặc nhân viên quản lý chịu trách nhiệm lập đơn
+            IF(SELECT MANV FROM inserted) NOT IN (SELECT MANV FROM NHANVIEN WHERE BOPHAN = N'Quản lý' OR BOPHAN = N'Kho')
+            BEGIN
+                  PRINT N'DƠN HÀNG PHẢI DO NHÂN VIÊN BỘ PHẬN KHO HOẶC QUẢN LÝ LẬP!'
+                  ROLLBACK TRAN
+            END
+
+            --reset giá trị tổng tiền về 0 khi người dùng nhập giá trị khác
+            IF(SELECT TONGTIEN FROM inserted) !=0
+            BEGIN
+                  PRINT N'TỔNG TIỀN SẼ ĐƯỢC HỆ THỐNG TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG'
+                  PRINT N'RESET TỔNG TIỀN'
+                  UPDATE DONHANGNHAP
+                  SET TONGTIEN = 0
+                  FROM inserted
+                  WHERE DONHANGNHAP.MADONHANG = inserted.MADONHANG
+            END
+
+            --reset giá trị công nợ về 0 khi người dùng nhập giá trị khác
+            IF(SELECT CONGNO FROM inserted) != 0
+            BEGIN
+                  PRINT N'CÔNG NỢ SẼ ĐƯỢC HỆ THỐNG TỰ ĐỘNG CẬP NHẬT'
+                  PRINT N'RESET CÔNG NỢ'
+                  UPDATE DONHANGNHAP
+                  SET CONGNO = 0
+                  FROM inserted
+                  WHERE DONHANGNHAP.MADONHANG = inserted.MADONHANG
+            END
+      END
+      GO
             --reset giá trị công nợ về 0 khi người dùng nhập giá trị khác
             IF(SELECT CONGNO FROM inserted) != 0
             BEGIN
@@ -768,6 +1447,33 @@
                   FROM DONHANGNHAP JOIN inserted
                   ON inserted.TRANGTHAIDH = N'Đã nhận'
                   AND inserted.MADONHANG = DONHANGNHAP.MADONHANG
+      -- tạo trigger khi thay đổi dữ liệu trong bảng DONHANGNHAP
+      CREATE TRIGGER TRG_UPDATE_DONHANGNHAP
+            ON  DONHANGNHAP
+            AFTER UPDATE
+      AS
+      BEGIN
+            --đơn hàng chỉ được hủy khi đang trong trạng thái đang chuẩn bị
+            IF ((SELECT TRANGTHAIDH FROM deleted) != N'Đang chuẩn bị' AND (SELECT TRANGTHAIDH FROM inserted) = N'Đã hủy')
+            BEGIN
+                  PRINT N'KHÔNG THỂ HỦY ĐƠN HÀNG'
+                  ROLLBACK TRAN
+            END
+
+            -- thông báo khi hủy đơn hàng hoặc giao hàng không thành công
+            IF ((SELECT TRANGTHAIDH FROM deleted) = N'Đang chuẩn bị' AND (SELECT TRANGTHAIDH FROM inserted) = N'Đã hủy') OR (SELECT TRANGTHAIDH FROM inserted) = N'Giao không thành công'
+            BEGIN
+                  PRINT N'ĐƠN HÀNG ĐÃ ĐƯỢC HỦY'
+            END
+
+            ELSE
+            BEGIN
+                  --cập nhật công nợ của đơn hàng vừa thêm khi đơn hàng đã nhận thành công
+                  UPDATE DONHANGNHAP
+                  SET CONGNO = inserted.TONGTIEN - inserted.DATHANHTOAN
+                  FROM DONHANGNHAP JOIN inserted
+                  ON inserted.TRANGTHAIDH = N'Đã nhận'
+                  AND inserted.MADONHANG = DONHANGNHAP.MADONHANG
 
                   --cập nhật công nợ của nhà cung cấp với cửa hàng
                   UPDATE NHACUNGCAP
@@ -779,7 +1485,27 @@
             END
       END
       GO
+                  --cập nhật công nợ của nhà cung cấp với cửa hàng
+                  UPDATE NHACUNGCAP
+                  SET CONGNO = (
+                        SELECT SUM(CONGNO)
+                        FROM DONHANGNHAP
+                        WHERE NHACUNGCAP.MANCC = DONHANGNHAP.MANCC
+                  )
+            END
+      END
+      GO
 
+      CREATE TRIGGER TRG_DELETE_DONHANGNHAP
+            ON DONHANGNHAP
+            FOR DELETE
+      AS
+      BEGIN
+            --đơn hàng không thể xóa, chỉ có thể thay đổi trạng thái thành đã hủy hoặc giao hàng không thành công
+            PRINT N'KHÔNG THỂ XÓA ĐƠN HÀNG'
+            ROLLBACK TRAN
+      END
+      GO
       CREATE TRIGGER TRG_DELETE_DONHANGNHAP
             ON DONHANGNHAP
             FOR DELETE
@@ -811,6 +1537,26 @@
                   PRINT N'THUỐC KHÔNG NẰM TRONG DANH MỤC THUỐC ĐƯỢC CUNG CẤP BỞI NHÀ CUNG CẤP THEO ĐƠN HÀNG!'
                   ROLLBACK TRAN
             END
+      --tạo trigger khi thêm dữ liệu cho bảng NHAPTHUOC
+      CREATE TRIGGER TRG_INSERT_NHAPTHUOC
+            ON NHAPTHUOC
+            FOR INSERT
+      AS
+      BEGIN
+            --kiểm tra mã thuốc thuộc nhà cung cấp
+            IF (SELECT THUOC FROM inserted) NOT IN (
+                  SELECT MATHUOC FROM THUOC T
+                  WHERE T.MANCC = (
+                        SELECT MANCC FROM DONHANGNHAP D
+                        WHERE D.MADONHANG = (
+                              SELECT MADONHANG FROM inserted
+                        )
+                  )
+            )
+            BEGIN
+                  PRINT N'THUỐC KHÔNG NẰM TRONG DANH MỤC THUỐC ĐƯỢC CUNG CẤP BỞI NHÀ CUNG CẤP THEO ĐƠN HÀNG!'
+                  ROLLBACK TRAN
+            END
 
             --kiểm tra tính hợp lệ của ngày sản xuất (nsx phải trước ngày lập)
             ELSE IF(SELECT NGAYSX FROM inserted) > (
@@ -821,7 +1567,23 @@
                   PRINT N'NGÀY SẢN XUẤT KHÔNG HỢP LỆ!'
                   ROLLBACK TRAN
             END
+            --kiểm tra tính hợp lệ của ngày sản xuất (nsx phải trước ngày lập)
+            ELSE IF(SELECT NGAYSX FROM inserted) > (
+                  SELECT NGAYLAP FROM DONHANGNHAP, inserted
+                  WHERE inserted.MADONHANG = DONHANGNHAP.MADONHANG
+            )
+            BEGIN
+                  PRINT N'NGÀY SẢN XUẤT KHÔNG HỢP LỆ!'
+                  ROLLBACK TRAN
+            END
 
+
+            --kiểm tra sản phẩm còn hạn hay không
+            ELSE IF(SELECT NGAYHETHAN FROM inserted) <= GETDATE()
+            BEGIN
+                  PRINT N'SẢN PHẨM ĐÃ QUÁ HẠN SỬ DỤNG! VUI LÒNG KIỂM TRA LẠI VỚI NHÀ CUNG CẤP'
+                  ROLLBACK TRAN
+            END
 
             --kiểm tra sản phẩm còn hạn hay không
             ELSE IF(SELECT NGAYHETHAN FROM inserted) <= GETDATE()
@@ -863,6 +1625,7 @@
 
             IF(SELECT TRANGTHAIDH FROM DONHANGNHAP D, inserted
                   WHERE D.MADONHANG = inserted.MADONHANG) = N'Đã nhận'
+                  WHERE D.MADONHANG = inserted.MADONHANG) = N'Đã nhận'
             BEGIN
                   --cập nhật lại số lượng của nhóm thuốc
                   UPDATE NHOMTHUOC
@@ -900,6 +1663,17 @@
             ROLLBACK TRAN
       END
       GO
+      GO
+
+      CREATE TRIGGER TRG_DELETE_NHAPTHUOC
+            ON NHAPTHUOC
+            FOR DELETE
+      AS
+      BEGIN
+            PRINT N'KHÔNG THỂ THAY ĐỔI ĐƠN HÀNG'
+            ROLLBACK TRAN
+      END
+      GO
 
       --tạo trigger khi thêm dữ liệu vào bảng XUATTHUOC
       CREATE TRIGGER TRG_INSERT_XUATTHUOC
@@ -914,7 +1688,26 @@
                   PRINT N'SỐ LƯỢNG TỒN KHO KHÔNG ĐỦ!'
                   ROLLBACK TRAN
             END
+      --tạo trigger khi thêm dữ liệu vào bảng XUATTHUOC
+      CREATE TRIGGER TRG_INSERT_XUATTHUOC
+            ON XUATTHUOC
+            FOR INSERT
+      AS
+      BEGIN
+            --kiểm tra số lượng thuốc còn trong kho
+            IF(SELECT SUM(TONKHO) FROM KHOHANG, inserted
+                  WHERE KHOHANG.MATHUOC = inserted.THUOC) < (SELECT SOLUONG FROM inserted)
+            BEGIN
+                  PRINT N'SỐ LƯỢNG TỒN KHO KHÔNG ĐỦ!'
+                  ROLLBACK TRAN
+            END
 
+            --kiểm tra sản phẩm trong kho hàng
+            IF (SELECT THUOC FROM inserted) NOT IN  (SELECT MATHUOC FROM KHOHANG K)
+            BEGIN
+                  PRINT N'SẢN PHẨM KHÔNG TỒN TẠI TRONG KHO HÀNG!'
+                  ROLLBACK TRAN
+            END
             --kiểm tra sản phẩm trong kho hàng
             IF (SELECT THUOC FROM inserted) NOT IN  (SELECT MATHUOC FROM KHOHANG K)
             BEGIN
@@ -1022,7 +1815,17 @@
             END
       END
       GO
+      GO
 
+      CREATE TRIGGER TRG_DELETE_XUATTHUOC
+            ON XUATTHUOC
+            FOR DELETE
+      AS
+      BEGIN
+            PRINT N'KHÔNG THỂ THAY ĐỔI ĐƠN HÀNG'
+            ROLLBACK TRAN
+      END
+      GO
       CREATE TRIGGER TRG_DELETE_XUATTHUOC
             ON XUATTHUOC
             FOR DELETE
@@ -1049,7 +1852,52 @@
             )
       END
       GO
+      --tạo trigger khi xóa dữ liệu trong bảng KHOHANG
+      CREATE TRIGGER TRG_DELETE_KHOHANG
+            ON KHOHANG
+            FOR DELETE
+      AS
+      BEGIN
+            --cập nhật lại số lượng của nhóm thuốc
+            UPDATE NHOMTHUOC
+            SET NHOMTHUOC.SOLUONG -= deleted.TONKHO
+            FROM NHOMTHUOC INNER JOIN deleted
+            ON deleted.MATHUOC IN (
+                  SELECT MATHUOC FROM THUOC
+                  WHERE THUOC.MANHOM = NHOMTHUOC.MANHOM
+            )
+      END
+      GO
 
+      --tạo triger khi thêm dữ liệu vào DONHANGONLINE
+      CREATE TRIGGER TRG_INSERT_DONHANGONLINE
+            ON DONHANGONLINE
+            FOR INSERT
+      AS
+      BEGIN
+            --set mã đơn hàng tự động
+            PRINT N'MÃ ĐƠN HÀNG SẼ ĐƯỢC SET TỰ ĐỘNG'
+
+            DECLARE @result VARCHAR(10) 
+            EXEC usp_TimMaDonHangOnlineTiepTheo @result OUT
+
+            UPDATE DONHANGONLINE
+            SET MADONHANG = @result
+            FROM DONHANGONLINE JOIN inserted
+            ON DONHANGONLINE.MADONHANG = inserted.MADONHANG
+
+            --reset giá trị tổng tiền về 0 khi người dùng nhập giá trị khác
+            IF(SELECT TONGTIEN FROM inserted) !=0
+            BEGIN
+                  PRINT N'TỔNG TIỀN SẼ ĐƯỢC HỆ THỐNG TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG'
+                  PRINT N'RESET TỔNG TIỀN'
+                  UPDATE DONHANGONLINE
+                  SET TONGTIEN = 0
+                  FROM inserted
+                  WHERE DONHANGONLINE.MADONHANG = inserted.MADONHANG
+            END
+      END
+      GO
       --tạo triger khi thêm dữ liệu vào DONHANGONLINE
       CREATE TRIGGER TRG_INSERT_DONHANGONLINE
             ON DONHANGONLINE
@@ -1109,7 +1957,49 @@
             END
       END
       GO
+      CREATE TRIGGER TRG_UPDATE_DONHANGONLINE
+            ON DONHANGONLINE
+            FOR UPDATE
+      AS
+      BEGIN
+            --đơn hàng chỉ có thể hủy khi đang trong trạng thái đang lập đơn
+            IF ((SELECT TRANGTHAIDH FROM deleted) != N'Đang lập đơn' AND (SELECT TRANGTHAIDH FROM inserted) = N'Đã hủy')
+            BEGIN
+                  PRINT N'KHÔNG THỂ HỦY ĐƠN HÀNG'
+                  ROLLBACK TRAN
+            END
 
+            --thông báo khi hủy đơn hàng
+            IF ((SELECT TRANGTHAIDH FROM deleted) = N'Đang lập đơn' AND (SELECT TRANGTHAIDH FROM inserted) = N'Đã hủy') OR (SELECT TRANGTHAIDH FROM inserted) = N'Giao không thành công'
+            BEGIN
+                  PRINT N'ĐƠN HÀNG ĐÃ ĐƯỢC HỦY'
+            END
+
+            --thông báo khi đặt hàng thành công
+            IF ((SELECT TRANGTHAIDH FROM inserted) != N'Đang lập đơn' AND (SELECT TRANGTHAIDH FROM deleted) = N'Đã đặt')
+            BEGIN
+                  PRINT N'ĐƠN HÀNG ĐÃ ĐƯỢC ĐẶT THÀNH CÔNG'
+                  DELETE GIOHANG
+                  FROM DONXUATONLINECHITIET D, inserted
+                  WHERE GIOHANG.USERNAME = inserted.USERNAME
+                  AND D.THUOC = GIOHANG.MATHUOC
+            END
+      END
+      GO
+
+      --tạo trigger khi thêm dữ liệu vào bảng DONXUATONLINECHITIET
+      CREATE TRIGGER TRG_INSERT_DONXUATONLINECHITIET
+            ON DONXUATONLINECHITIET
+            FOR INSERT
+      AS
+      BEGIN
+            --kiểm tra số lượng thuốc còn trong kho
+            IF(SELECT SUM(TONKHO) FROM KHOHANG, inserted
+                  WHERE KHOHANG.MATHUOC = inserted.THUOC) < (SELECT SOLUONG FROM inserted)
+            BEGIN
+                  PRINT N'SỐ LƯỢNG TỒN KHO KHÔNG ĐỦ!'
+                  ROLLBACK TRAN
+            END
       --tạo trigger khi thêm dữ liệu vào bảng DONXUATONLINECHITIET
       CREATE TRIGGER TRG_INSERT_DONXUATONLINECHITIET
             ON DONXUATONLINECHITIET
@@ -1130,7 +2020,25 @@
                   PRINT N'SẢN PHẨM KHÔNG TỒN TẠI TRONG KHO HÀNG!'
                   ROLLBACK TRAN
             END
+            --kiểm tra thuốc có tồn tại trong kho hàng không
+            IF (SELECT THUOC FROM inserted) NOT IN  (SELECT MATHUOC FROM KHOHANG K)
+            BEGIN
+                  PRINT N'SẢN PHẨM KHÔNG TỒN TẠI TRONG KHO HÀNG!'
+                  ROLLBACK TRAN
+            END
 
+            --kiểm tra thuốc đã được thêm vào giỏ hàng của người dùng không
+            IF NOT EXISTS (
+                  SELECT inserted.MADONHANG FROM DONXUATONLINECHITIET D, inserted, GIOHANG G
+                  WHERE D.MADONHANG = inserted.MADONHANG
+                  AND D.THUOC = inserted.THUOC
+                  AND D.THUOC = G.MATHUOC
+                  AND G.USERNAME = (SELECT USERNAME FROM DONHANGONLINE WHERE MADONHANG = inserted.MADONHANG)
+            )
+            BEGIN
+                  PRINT N'THUỐC CHƯA CÓ TRONG GIỎ HÀNG, HÃY THỬ LẠI!'
+                  ROLLBACK TRAN
+            END
             --kiểm tra thuốc đã được thêm vào giỏ hàng của người dùng không
             IF NOT EXISTS (
                   SELECT inserted.MADONHANG FROM DONXUATONLINECHITIET D, inserted, GIOHANG G
@@ -1161,7 +2069,31 @@
             AND DONXUATONLINECHITIET.THUOC = inserted.THUOC
             AND DONXUATONLINECHITIET.THUOC = G.MATHUOC     
             AND G.USERNAME = (SELECT USERNAME FROM DONHANGONLINE WHERE MADONHANG = inserted.MADONHANG)
+            --không thể thêm sản phẩm vào đơn hàng đã được đặt thành công
+            IF (SELECT TRANGTHAIDH FROM DONHANGONLINE, inserted WHERE inserted.MADONHANG = DONHANGONLINE.MADONHANG) != N'Đang lập đơn'
+            BEGIN
+                  PRINT N'ĐƠN HÀNG ĐÃ ĐƯỢC ĐẶT THÀNH CÔNG, KHÔNG THỂ THÊM SẢN PHẨM VÀO ĐƠN HÀNG NÀY!'
+                  ROLLBACK TRAN
+            END
+            
+            --cập nhật dữ liệu cho thuộc tính đơn vị tính, thành tiền và số lượng của bảng xuất online
+            UPDATE DONXUATONLINECHITIET
+            SET THANHTIEN = G.THANHTIEN,
+            DONVITINH = G.DONVITINH,
+            SOLUONG = G.SOLUONG
+            FROM inserted, DONXUATONLINECHITIET, GIOHANG G
+            WHERE DONXUATONLINECHITIET.MADONHANG = inserted.MADONHANG
+            AND DONXUATONLINECHITIET.THUOC = inserted.THUOC
+            AND DONXUATONLINECHITIET.THUOC = G.MATHUOC     
+            AND G.USERNAME = (SELECT USERNAME FROM DONHANGONLINE WHERE MADONHANG = inserted.MADONHANG)
 
+            -- cập nhật lại tổng tiền của đơn hàng
+            UPDATE DONHANGONLINE
+            SET TONGTIEN = TONGTIEN + D.THANHTIEN
+            FROM DONHANGONLINE, inserted, DONXUATONLINECHITIET D
+            WHERE DONHANGONLINE.MADONHANG = inserted.MADONHANG
+            AND D.THUOC = inserted.THUOC
+            AND D.MADONHANG = inserted.MADONHANG
             -- cập nhật lại tổng tiền của đơn hàng
             UPDATE DONHANGONLINE
             SET TONGTIEN = TONGTIEN + D.THANHTIEN
@@ -1181,14 +2113,38 @@
                         SELECT MATHUOC FROM THUOC T
                         WHERE T.MANHOM = NHOMTHUOC.MANHOM
                   )
+            IF(SELECT TRANGTHAIDH FROM DONHANGONLINE D, inserted
+                        WHERE D.MADONHANG = inserted.MADONHANG) != N'Đã đặt'
+            BEGIN
+                  -- Cập nhật số lượng nhóm thuốc
+                  UPDATE NHOMTHUOC
+                  SET NHOMTHUOC.SOLUONG -= inserted.SOLUONG
+                  FROM NHOMTHUOC INNER JOIN inserted
+                  ON inserted.THUOC IN (
+                        SELECT MATHUOC FROM THUOC T
+                        WHERE T.MANHOM = NHOMTHUOC.MANHOM
+                  )
 
+                  --cập nhật số lượng tồn kho
+                  DECLARE @NHHUUTIEN DATE
+                  SELECT @NHHUUTIEN = MIN(NGAYHETHAN) FROM KHOHANG, inserted WHERE KHOHANG.MATHUOC = inserted.THUOC
                   --cập nhật số lượng tồn kho
                   DECLARE @NHHUUTIEN DATE
                   SELECT @NHHUUTIEN = MIN(NGAYHETHAN) FROM KHOHANG, inserted WHERE KHOHANG.MATHUOC = inserted.THUOC
 
                   DECLARE @TONKHOUUTIEN INT
                   SELECT @TONKHOUUTIEN = TONKHO FROM KHOHANG, inserted WHERE NGAYHETHAN = @NHHUUTIEN AND KHOHANG.MATHUOC = inserted.THUOC
+                  DECLARE @TONKHOUUTIEN INT
+                  SELECT @TONKHOUUTIEN = TONKHO FROM KHOHANG, inserted WHERE NGAYHETHAN = @NHHUUTIEN AND KHOHANG.MATHUOC = inserted.THUOC
 
+                  IF @TONKHOUUTIEN > (SELECT SOLUONG FROM inserted)
+                  BEGIN
+                        UPDATE KHOHANG
+                        SET TONKHO -= inserted.SOLUONG
+                        FROM inserted JOIN KHOHANG
+                        ON NGAYHETHAN = @NHHUUTIEN
+                        AND KHOHANG.MATHUOC = inserted.THUOC
+                  END
                   IF @TONKHOUUTIEN > (SELECT SOLUONG FROM inserted)
                   BEGIN
                         UPDATE KHOHANG
@@ -1209,6 +2165,17 @@
                               WHERE K.NGAYHETHAN != @NHHUUTIEN
                               AND KHOHANG.MATHUOC = K.MATHUOC
                         )
+                  ELSE
+                  BEGIN
+                        UPDATE KHOHANG
+                        SET TONKHO = TONKHO - inserted.SOLUONG + @TONKHOUUTIEN
+                        FROM inserted JOIN KHOHANG
+                        ON KHOHANG.MATHUOC = inserted.THUOC
+                        AND NGAYHETHAN = (
+                              SELECT MIN(NGAYHETHAN) FROM KHOHANG K
+                              WHERE K.NGAYHETHAN != @NHHUUTIEN
+                              AND KHOHANG.MATHUOC = K.MATHUOC
+                        )
 
                         DELETE KHOHANG
                         WHERE NGAYHETHAN = @NHHUUTIEN
@@ -1217,7 +2184,43 @@
             END
       END
       GO
+                        DELETE KHOHANG
+                        WHERE NGAYHETHAN = @NHHUUTIEN
+                        AND KHOHANG.MATHUOC = (SELECT THUOC FROM inserted)
+                  END
+            END
+      END
+      GO
 
+
+      CREATE TRIGGER TRG_DELETE_DONXUATONLINECHITIET
+            ON DONXUATONLINECHITIET
+            FOR DELETE
+      AS
+      BEGIN
+            --chỉ có thể hủy đơn hàng hoặc thay đổi trạng thái thành giao hàng không thành công
+            PRINT N'KHÔNG THỂ THAY ĐỔI ĐƠN HÀNG'
+            ROLLBACK TRAN
+      END
+      GO
+
+      --tạo trigger khi thêm hoặc sửa dữ liệu ở bảng NGUOIDUNG
+      CREATE TRIGGER TRG_INSERT_TAIKHOAN
+            ON TAIKHOAN
+            AFTER INSERT, UPDATE
+      AS
+      BEGIN
+            --kiểm tra email nhập vào đúng
+      IF EXISTS(
+                  SELECT EMAIL FROM inserted
+                  WHERE EMAIL NOT LIKE '%_@__%.__%'
+      )
+      BEGIN
+            PRINT N'EMAIL KHÔNG ĐÚNG, HÃY THỬ LẠI!'
+            ROLLBACK TRAN
+      END
+      END
+      GO
 
       CREATE TRIGGER TRG_DELETE_DONXUATONLINECHITIET
             ON DONXUATONLINECHITIET
@@ -1475,7 +2478,31 @@
             VALUES ('N004', N'Hóa chất thú y', 0)
       INSERT INTO NHOMTHUOC
             VALUES ('N005', N'Vi sinh vật', 0)
+      --thêm dữ liệu cho bảng nhóm thuốc
+      INSERT INTO NHOMTHUOC
+            VALUES ('N001', N'Chế phẩm sinh học', 0)
+      INSERT INTO NHOMTHUOC
+            VALUES ('N002', N'Dược phẩm', 0)
+      INSERT INTO NHOMTHUOC
+            VALUES ('N003', N'Vaccine', 0)
+      INSERT INTO NHOMTHUOC
+            VALUES ('N004', N'Hóa chất thú y', 0)
+      INSERT INTO NHOMTHUOC
+            VALUES ('N005', N'Vi sinh vật', 0)
 
+      --thêm dữ liệu cho bảng nhà cung cấp
+      INSERT INTO NHACUNGCAP(MANCC, TENNCC, DIACHI, DIENTHOAI)
+            VALUES ('3600278732', N'Công ty TNHH Minh Huy', N'Số 528 đường 21 tháng 4, Phường Xuân Bình, Thành phố Long khánh, Đồng Nai', '02513876071')
+      INSERT INTO NHACUNGCAP(MANCC, TENNCC, DIACHI, DIENTHOAI)
+            VALUES ('0311987413', N'Công ty cổ phần Sài Gòn V.E.T', N'Số 315 đường Nam Kỳ Khởi Nghĩa, Phường 17, Quận 3, TP.HCM', '0838466888')
+      INSERT INTO NHACUNGCAP(MANCC, TENNCC, DIACHI, DIENTHOAI)
+            VALUES ('0102137268', N'Công ty cổ phần thuốc thú y Toàn Thắng', N'Số 9 A3, đường Láng, Phường Láng Thượng, Đống Đa, Hà Nội', '0102137268')
+      INSERT INTO NHACUNGCAP(MANCC, TENNCC, DIACHI, DIENTHOAI)
+            VALUES ('0105298457', N'Công ty đầu tư và phát triển công nghệ Sakan VN', N'Lô D1+D2+D3+D4, Xã Đông Thọ, Yên Phong, Bắc Ninh', '0105298457')
+      INSERT INTO NHACUNGCAP(MANCC, TENNCC, DIACHI, DIENTHOAI)
+            VALUES ('0301460240', N'Công ty TM & SX thuốc thú Thịnh Á', N'220 Phạm Thế Hiển, Phường 2, Quận 8, Thành phố Hồ Chí Minh', '02838515503')
+      INSERT INTO NHACUNGCAP(MANCC, TENNCC, DIACHI, DIENTHOAI)
+            VALUES ('0305110871', N'Công ty cổ phần UV', N'Lô số 18, Đường D1, khu công nghiệp An Hạ, Xã Phạm Văn Hai, Bình Chánh, TP.HCM', '02837685370')
       --thêm dữ liệu cho bảng nhà cung cấp
       INSERT INTO NHACUNGCAP(MANCC, TENNCC, DIACHI, DIENTHOAI)
             VALUES ('3600278732', N'Công ty TNHH Minh Huy', N'Số 528 đường 21 tháng 4, Phường Xuân Bình, Thành phố Long khánh, Đồng Nai', '02513876071')
@@ -1522,7 +2549,26 @@
             ('NV002', N'Cù Đức Trường', '08/07/1994', N'Dược sĩ đại học', N'30/1 TMT 13, Phường Trung Mỹ Tây, Quận 12, TP HCM', N'Nam', N'Trưởng bộ phận', N'Bán hàng'),
             ('NV003', N'Võ Thị Thanh Trúc', '03/07/1990', N'Thạc sĩ', N'193/2/7 Đường Số 6, Phường Bình Hưng Hòa B, Quận Bình Tân, TP HCM', N'Nữ', N'Nhân viên', N'Bán hàng'),
             ('NV004', N'Lê Trương Trọng Tấn', '18/10/1995', N'Dược sĩ đại học', N'18 Tân Thới Nhất 17, Phường Tân Thới Nhất, Quận 12, TP HCM', N'Nam', N'Nhân viên', N'Quản lý')
+      --thêm dữ liệu cho bảng nhân viên
+      INSERT INTO NHANVIEN
+      VALUES ('NV001', N'Nguyễn Quốc Thái', '26/12/1989', N'Dược sĩ đại học', N'49/1 Tân Trụ, Phường 15, Quận Tân Bình, TP HCM', N'Nam', N'Nhân viên', N'Kho'),
+            ('NV002', N'Cù Đức Trường', '08/07/1994', N'Dược sĩ đại học', N'30/1 TMT 13, Phường Trung Mỹ Tây, Quận 12, TP HCM', N'Nam', N'Trưởng bộ phận', N'Bán hàng'),
+            ('NV003', N'Võ Thị Thanh Trúc', '03/07/1990', N'Thạc sĩ', N'193/2/7 Đường Số 6, Phường Bình Hưng Hòa B, Quận Bình Tân, TP HCM', N'Nữ', N'Nhân viên', N'Bán hàng'),
+            ('NV004', N'Lê Trương Trọng Tấn', '18/10/1995', N'Dược sĩ đại học', N'18 Tân Thới Nhất 17, Phường Tân Thới Nhất, Quận 12, TP HCM', N'Nam', N'Nhân viên', N'Quản lý')
 
+      --thêm dữ liệu cho bảng khách hàng
+      INSERT INTO KHACHHANG
+            VALUES ('KH001', N'Trần Thành Luân', N'48/1 Đỗ Nhuận, Phường Sơn Kỳ, Quận Tân Phú, TP HCM', '0367512498', N'Khách sỉ', 0)
+      INSERT INTO KHACHHANG
+            VALUES ('KH002', N'Bùi Phan Bảo Ngọc', N'48/1 Đỗ Nhuận, Phường Sơn Kỳ, Quận Tân Phú, TP HCM', '0379699529', N'Khách lẻ', 0)
+      INSERT INTO KHACHHANG
+            VALUES ('KH003', N'Bùi Phan Bảo Ngọc', N'66/9 Trần Văn Quang, Phường 10, Quận Tân Bình, TP HCM', '0334275096', N'Khách lẻ', 0)
+      INSERT INTO KHACHHANG
+            VALUES ('KH004', N'Nguyễn Phan Như Quỳnh', N'48/1 Đỗ Nhuận, Phường Sơn Kỳ, Quận Tân Phú, TP HCM', '0913630913', N'Khách sỉ', 0)
+      INSERT INTO KHACHHANG
+            VALUES ('KH005', N'Huỳnh Vũ Chí Thiện', N'100 Lê Văn Sỹ, Phường 2, Quận Tân Bình, TP HCM', '0908655684', N'Khách sỉ', 0)
+      INSERT INTO KHACHHANG
+            VALUES ('KH006', N'Khách vãng lai', NULL, NULL, N'Khách lẻ', 0)
       --thêm dữ liệu cho bảng khách hàng
       INSERT INTO KHACHHANG
             VALUES ('KH001', N'Trần Thành Luân', N'48/1 Đỗ Nhuận, Phường Sơn Kỳ, Quận Tân Phú, TP HCM', '0367512498', N'Khách sỉ', 0)
@@ -1570,7 +2616,101 @@
             VALUES ('0102137268', 'NV001', N'Đang vận chuyển', '10/04/2023', 0)
       INSERT INTO DONHANGNHAP(MANCC, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
             VALUES ('0311987413', 'NV004', N'Đang chuẩn bị', '26/04/2023', 0)
+      --thêm dữ liệu cho bảng đơn hàng nhập
+      INSERT INTO DONHANGNHAP(MANCC, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('3600278732', 'NV001', N'Đã nhận', '22/12/2022', 2550000)
+      INSERT INTO DONHANGNHAP(MANCC, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('0311987413', 'NV001', N'Đã nhận', '24/12/2022', 4650000)
+      INSERT INTO DONHANGNHAP(MANCC, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('0102137268', 'NV004', N'Đã nhận', '26/12/2022', 0)
+      INSERT INTO DONHANGNHAP(MANCC, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('0105298457', 'NV001', N'Đã nhận', '29/12/2022', 10840000)
+      INSERT INTO DONHANGNHAP(MANCC, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('0301460240', 'NV001', N'Đã nhận', '01/01/2023', 16000000)
+      INSERT INTO DONHANGNHAP(MANCC, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('0305110871', 'NV001', N'Đã nhận', '12/01/2023',0)
+      INSERT INTO DONHANGNHAP(MANCC, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('3600278732', 'NV004', N'Đã nhận', '18/01/2023', 2400000)
+      INSERT INTO DONHANGNHAP(MANCC, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('0311987413', 'NV001', N'Đã nhận', '23/01/2023', 2050000)
+      INSERT INTO DONHANGNHAP(MANCC, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('0102137268', 'NV001', N'Đã nhận', '02/02/2023', 6680000)
+      INSERT INTO DONHANGNHAP(MANCC, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('0105298457', 'NV001', N'Đã nhận', '09/02/2023', 2200000)
+      INSERT INTO DONHANGNHAP(MANCC, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('0301460240', 'NV004', N'Đang vận chuyển', '20/02/2023', 0)
+      INSERT INTO DONHANGNHAP(MANCC, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('0305110871', 'NV001', N'Đang chuẩn bị', '06/03/2023', 0)
+      INSERT INTO DONHANGNHAP(MANCC, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('3600278732', 'NV004', N'Đã nhận', '19/03/2023', 1500000)
+      INSERT INTO DONHANGNHAP(MANCC, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('0311987413', 'NV001', N'Giao không thành công', '28/03/2023', 0)
+      INSERT INTO DONHANGNHAP(MANCC, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('0102137268', 'NV001', N'Đang vận chuyển', '10/04/2023', 0)
+      INSERT INTO DONHANGNHAP(MANCC, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('0311987413', 'NV004', N'Đang chuẩn bị', '26/04/2023', 0)
 
+      --thêm dữ liệu cho bảng đơn hàng xuất
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH001','NV002', N'Đã giao', '22/02/2023', 0)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH002','NV002', N'Đã giao', '24/02/2023', 275000)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH006','NV003',N'Đã giao', '26/02/2023', 77000)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH006','NV002', N'Đã giao', '27/02/2023', 225500)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH003','NV003', N'Đã giao', '01/03/2023', 220000)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH005','NV003', N'Đã giao', '12/03/2023', 214000)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH004','NV004', N'Đã giao', '18/03/2023', 0)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH005','NV004', N'Đã giao', '23/03/2023', 0)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH006','NV003', N'Đã giao', '02/03/2023', 93500)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH006','NV002', N'Đã giao', '09/03/2023', 165000)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH006','NV003', N'Đang vận chuyển', '20/03/2023', 0)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH006','NV004', N'Đang chuẩn bị', '06/04/2023', 0)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH006','NV002', N'Đã giao', '19/03/2023', 442200)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH001','NV003', N'Giao không thành công', '28/04/2023', 0)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH004','NV002', N'Đang vận chuyển', '10/04/2023', 0)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH002','NV004', N'Đang chuẩn bị', '26/04/2023', 0)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH001','NV002', N'Đã giao', '22/05/2023', 310300)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH002','NV003', N'Đã giao', '24/05/2023', 1599400)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH006','NV004', N'Đã giao', '26/03/2023', 125400)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH006','NV002', N'Đã giao', '29/03/2023', 178200)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH003','NV003', N'Đã giao', '01/01/2023', 253000)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH005','NV002', N'Đã giao', '12/01/2023', 0)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH004','NV003', N'Đã giao', '18/01/2023', 107000)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH005','NV004', N'Đã giao', '23/01/2023', 112350)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH006','NV004', N'Đã giao', '02/02/2023', 165000)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH006','NV003', N'Đang chuẩn bị', '09/02/2023', 0)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH006','NV002', N'Đang vận chuyển', '20/02/2023', 0)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH006','NV003', N'Đang chuẩn bị', '06/03/2023', 0)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH006','NV003', N'Đã giao', '19/03/2023', 275000)
+      INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
+            VALUES ('KH001','NV004', N'Giao không thành công', '28/03/2023', 0)
       --thêm dữ liệu cho bảng đơn hàng xuất
       INSERT INTO DONHANGXUAT(MAKH, MANV, TRANGTHAIDH, NGAYLAP, DATHANHTOAN)
             VALUES ('KH001','NV002', N'Đã giao', '22/02/2023', 0)
@@ -1724,8 +2864,284 @@
             VALUES ('DN016', 'HCM-X2-164', 30, '07/12/2022', '07/12/2023')
       INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
             VALUES ('DN016', 'HCM-X2-198', 10, '07/12/2022', '05/12/2023')
+      --thêm dữ liệu cho bảng nhập thuốc
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN001', 'HCM-X4-25', 30, '10/12/2022', '29/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN001', 'HCM-X4-79', 30, '10/12/2022', '29/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN002', 'HCM-X2-16', 40, '01/12/2022', '01/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN002', 'HCM-X2-164', 30, '03/02/2022', '03/02/2024')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN002', 'HCM-X2-198', 50, '12/01/2022', '12/01/2024')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN003', 'BN.TS2-15', 25,'13/01/2022', '13/01/2024')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN003', 'BN.TS2-51', 40, '20/12/2022', '20/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN003', 'ETT-163', 30, '12/12/2022', '12/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN003', 'ETT-165', 40, '12/12/2022', '12/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN003', 'ETT-50', 30, '12/12/2022', '12/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN003', 'ETT-94', 40, '12/12/2022', '12/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN003', 'GDA-10', 20, '12/12/2022', '12/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN004', 'CME-3', 20, '30/11/2022', '30/11/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN004', 'LBF-1', 30, '30/11/2022', '30/11/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN004', 'SAK-118', 50, '28/11/2022', '28/11/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN004', 'SAK-169', 20, '28/11/2022', '28/11/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN004', 'SAK-185', 40, '28/11/2022', '28/11/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN004', 'SAK-37', 60, '28/11/2022', '28/11/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN005', 'BD.TS5-19', 30, '23/12/2022', '23/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN005', 'BD.TS5-4', 20, '23/12/2022', '23/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN005', 'BD.TS5-5', 20, '20/12/2022', '20/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN006', 'UV-2', 30, '10/01/2023', '10/01/2024')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN006', 'UV-65', 50, '10/01/2023', '10/01/2024')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN007', 'HCM-X4-25', 20, '02/12/2022', '02/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN007', 'HCM-X4-79', 40, '02/12/2022', '08/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN008', 'HCM-X2-16', 30, '07/12/2022', '07/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN008', 'HCM-X2-164', 10, '24/12/2022', '24/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN009', 'ETT-163', 20, '19/06/2022', '19/06/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN009', 'ETT-165', 20, '19/06/2022', '19/06/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN009', 'BN.TS2-15', 20, '15/12/2022', '15/01/2024')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN009', 'BN.TS2-51', 20, '17/12/2022', '17/01/2024')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN010', 'SAK-118', 30, '02/12/2022', '02/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN010', 'SAK-185', 10, '02/12/2022', '02/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN011', 'BD.TS5-19', 30, '11/11/2022', '11/11/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN011', 'BD.TS5-5', 10, '11/11/2022', '11/11/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN012', 'UV-65', 10, '07/12/2022', '07/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN012', 'UV-2', 10, '07/12/2022', '07/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN013', 'HCM-X4-25', 30, '07/12/2022', '07/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN013', 'HCM-X4-79', 10, '02/12/2022', '02/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN014', 'HCM-X2-16', 30, '02/12/2022', '02/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN014', 'HCM-X2-198', 10, '02/12/2022', '02/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN015', 'ETT-50', 10, '07/12/2022', '07/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN015', 'BN.TS2-51', 10, '07/12/2022', '07/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN016', 'HCM-X2-164', 30, '07/12/2022', '07/12/2023')
+      INSERT INTO NHAPTHUOC(MADONHANG, THUOC, SOLUONG, NGAYSX, NGAYHETHAN)
+            VALUES ('DN016', 'HCM-X2-198', 10, '07/12/2022', '05/12/2023')
 
 
+      --thêm dữ liệu cho bảng xuất thuốc
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX001', 'HCM-X4-25', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX001', 'HCM-X4-79', 3)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX002', 'UV-65', 1)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX002', 'HCM-X4-25', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX003', 'HCM-X4-79', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX004', 'HCM-X2-16', 3)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX004', 'HCM-X2-164', 1)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX005', 'ETT-163', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX006', 'ETT-165', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX007', 'BN.TS2-15', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX007', 'BN.TS2-51', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX007', 'SAK-118', 3)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX008', 'SAK-185', 1)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX008', 'HCM-X4-25', 3)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX009', 'HCM-X4-79', 1)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX009', 'HCM-X2-16', 1)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX010', 'HCM-X2-164', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX010', 'HCM-X2-198', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX011', 'ETT-163', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX011', 'ETT-165', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX012', 'UV-65', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX012', 'BN.TS2-15', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX013', 'BN.TS2-15', 3)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX013', 'BN.TS2-51', 1)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX013', 'ETT-163', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX014', 'LBF-1', 3)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX014', 'SAK-118', 1)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX015', 'SAK-169', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX016', 'SAK-185', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX016', 'SAK-37', 3)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX017', 'ETT-165', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX017', 'ETT-50', 3)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX018', 'ETT-94', 4)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX018', 'GDA-10', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX019', 'CME-3', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX020', 'LBF-1', 3)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX020', 'SAK-118', 1)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX021', 'SAK-169', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX021', 'SAK-185', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX022', 'SAK-37', 3)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX023', 'HCM-X4-25', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX024', 'HCM-X4-79', 3)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX025', 'UV-65', 1)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX026', 'HCM-X4-25', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX026', 'HCM-X4-79', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX027', 'BD.TS5-19', 1)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX027', 'BD.TS5-4', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX028', 'BD.TS5-5', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX028', 'UV-2', 3)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX029', 'UV-65', 1)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX029', 'HCM-X4-25', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX030', 'HCM-X4-79', 2)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX030', 'HCM-X2-16', 3)
+      INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
+            VALUES ('DX030', 'HCM-X2-164', 1)
+
+      --thêm dữ liệu vào bảng TAIKHOAN
+      INSERT INTO TAIKHOAN
+            VALUES ('ouoctiiai', '12345678', 'luphi2612@gmail.com', 0)
+      INSERT INTO TAIKHOAN
+            VALUES ('tanle', '78787878', 'tanle@gmail.com', 0)
+      INSERT INTO TAIKHOAN
+            VALUES ('idolTruong', '987654321', 'ductruong@gmail.com', 0)
+      INSERT INTO TAIKHOAN
+            VALUES ('vtttruc', 'matkhau', 'thanhtruc23@gmail.com', 0)
+      INSERT INTO TAIKHOAN
+            VALUES ('vuthien', 'lamgicomatkhau', 'anhtraimua@gmail.com', 0)
+      INSERT INTO TAIKHOAN
+            VALUES ('baongocc', 'bahoangjavascript', 'bpbn@gmail.com', 0)
+      INSERT INTO TAIKHOAN
+            VALUES ('baongann', 'bahoanhtml', 'html@gmail.com', 0)
+
+      --thêm dữ liệu vào bảng GIOHANG
+      INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG)
+            VALUES ('ouoctiiai', 'HCM-X4-25', 3)
+      INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG)
+            VALUES ('ouoctiiai', 'HCM-X2-198', 2)
+      INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG)
+            VALUES ('ouoctiiai', 'BN.TS2-51', 3)
+      INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG)
+            VALUES ('tanle', 'BD.TS5-4', 1)
+      INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG)
+            VALUES ('tanle', 'ETT-165', 5)
+      INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG)
+            VALUES ('tanle', 'SAK-118', 1)
+      INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG)
+            VALUES ('idolTruong', 'GDA-10', 2)
+      INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG)
+            VALUES ('idolTruong', 'LBF-1', 2)
+      INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG)
+            VALUES ('idolTruong', 'ETT-94', 3)
+      INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG)
+            VALUES ('vtttruc', 'CME-3', 2)
+      INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG)
+            VALUES ('vtttruc', 'HCM-X4-25', 1)
+      INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG)
+            VALUES ('vuthien', 'HCM-X2-198', 4)
+      INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG)
+            VALUES ('vuthien', 'SAK-118', 4)
+      INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG)
+            VALUES ('baongocc', 'BD.TS5-19', 5)
+      INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG)
+            VALUES ('baongocc', 'BN.TS2-15', 1)
+      INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG)
+            VALUES ('baongocc', 'HCM-X2-164', 2)
+      INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG)
+            VALUES ('baongann', 'GDA-10', 3)
+
+      --thêm dữ liệu vào bảng đơn hàng online
+      INSERT INTO DONHANGONLINE (USERNAME, DIENTHOAI, DIACHI, TRANGTHAIDH, TONGTIEN)
+            VALUES ('ouoctiiai', '0985206123', N'123 Lê Trọng Tấn', N'Đang lập đơn', 0)
+      INSERT INTO DONHANGONLINE (USERNAME, DIENTHOAI, DIACHI, TRANGTHAIDH, TONGTIEN)
+            VALUES ('idolTruong', '0375833381', N'655 Tân Trụ', N'Đang lập đơn', 0)
+      INSERT INTO DONHANGONLINE (USERNAME, DIENTHOAI, DIACHI, TRANGTHAIDH, TONGTIEN)
+            VALUES ('vuthien', '0392162671', N'48 Đỗ Nhuận', N'Đang lập đơn', 0)
+      INSERT INTO DONHANGONLINE (USERNAME, DIENTHOAI, DIACHI, TRANGTHAIDH, TONGTIEN)
+            VALUES ('baongocc', '0389713558', N'254 Trường Chinh', N'Đang lập đơn', 0)
+
+      --thêm dữ liệu vào bảng đơn xuất online chi tiết
+      INSERT INTO DONXUATONLINECHITIET (MADONHANG, THUOC)
+            VALUES ('DHO001', 'HCM-X4-25')
+      INSERT INTO DONXUATONLINECHITIET (MADONHANG, THUOC)
+            VALUES ('DHO001', 'HCM-X2-198')
+      INSERT INTO DONXUATONLINECHITIET (MADONHANG, THUOC)
+            VALUES ('DHO004', 'BD.TS5-19')
+      INSERT INTO DONXUATONLINECHITIET (MADONHANG, THUOC)
+            VALUES ('DHO002', 'LBF-1')
+      INSERT INTO DONXUATONLINECHITIET (MADONHANG, THUOC)
+            VALUES ('DHO002', 'ETT-94')
+      INSERT INTO DONXUATONLINECHITIET (MADONHANG, THUOC)
+            VALUES ('DHO003', 'SAK-118')
       --thêm dữ liệu cho bảng xuất thuốc
       INSERT INTO XUATTHUOC(MADONHANG, THUOC, SOLUONG)
             VALUES ('DX001', 'HCM-X4-25', 2)
