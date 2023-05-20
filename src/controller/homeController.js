@@ -302,7 +302,7 @@ let getSearch = async (req, res) => {
     if (result.recordset.length == 0) {
         return res.render('sp.ejs', { user: req.session.user, THUOC: result.recordset, pageNumber: -1, pageSize: 0, message: 'Không tìm thấy sản phẩm nào' })
     }
-    return res.render('sp.ejs', { user: req.session.user, THUOC: result.recordset, message: '' })
+    return res.render('sp.ejs', { user: req.session.user, THUOC: result.recordset, pageNumber: -1, pageSize: 0, message: '' })
 }
 
 let updateDONHANG = async (req, res) => {
