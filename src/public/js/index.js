@@ -10,13 +10,13 @@ function ValidateForm(form)
     function showError(input){
         input.parentElement.classList.add('invalid')
         if(input.id === 'email'){
-            input.parentElement.querySelector('.form-message').innerHTML = ('Invalid email')
+            input.parentElement.querySelector('.form-message').innerHTML = ('email có dạng abc@abc.com')
         }
         if(input.id === 'password'){
             input.parentElement.querySelector('.form-message').innerHTML = ('Invalid password')
         }
         if(input.id === 'username'){
-            input.parentElement.querySelector('.form-message').innerHTML = ('Invalid username')
+            input.parentElement.querySelector('.form-message').innerHTML = ('username phải từ 5 ký tự trở lên')
         }
         if(input.id === 'rePassword'){
             input.parentElement.querySelector('.form-message').innerHTML = ('Invalid rePassword')

@@ -139,10 +139,16 @@ button{
     margin-bottom: 10px;
 }
 
-.form-group.invalid .form-control {
+.form-group.invalid .form-control 
+{
     border-color: #f33a58;
-  }
+}
   
-  .form-group.invalid .form-message {
-    color: #f33a58;
-  }
+.form-group.invalid .form-message 
+{
+    color: #ec3636;
+    font-style: italic;
+    top: 30px;
+    position: relative;
+}
+
