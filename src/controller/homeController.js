@@ -37,15 +37,12 @@ let getConnect = async (req, res) => {
 
 let getTHUOC = async (req, res) => {
     let MATHUOC = req.params.MATHUOC;
-    console.log(MATHUOC);
     const pool = await connectDB();
     try {
         const result = await pool.request().query(`select THUOC.*, PROFILEPICTURE.TENANH from THUOC, PROFILEPICTURE where THUOC.MATHUOC = '${MATHUOC}' and THUOC.MATHUOC = PROFILEPICTURE.MATHUOC`)
         const LOAISD = result.recordset[0].LOAISD;
-        console.log(LOAISD);
         const result2 = await pool.request().query(`select * from ALBUMPICTURES where MATHUOC = '${MATHUOC}'`);
         const result1 = await pool.request().query(`select THUOC.*, PROFILEPICTURE.TENANH from THUOC, PROFILEPICTURE where THUOC.MATHUOC = PROFILEPICTURE.MATHUOC and THUOC.LOAISD = N'${result.recordset[0].LOAISD}'`);
-        console.log(result.recordset, result1.recordset);
         return res.render("thuoc.ejs", { THUOC: result.recordset[0], user: req.session.user, appRoot: appRoot.path, ALBUMPICTURES: result2.recordset, THUOCLOAISD: result1.recordset });
     }
     catch (err) {
@@ -73,7 +70,7 @@ let newTHUOC = async (req, res) => {
             return res.send(req.fileValidationError);
         }
         else if (!req.files) {
-            return res.render('upload.ejs', { user: req.session.user, message: 'Please select an image to upload' });
+            return res.render('themthuoc.ejs', { user: req.session.user, message: 'Please select an image to upload' });
         }
         else if (err instanceof multer.MulterError) {
             console.log(err);
@@ -172,17 +169,15 @@ let addToCart = async (req, res) => {
     if (!req.session.user) {
         return res.redirect('/login');
     }
-    // Tấn mới thêm cái tên ảnh để test hiện ảnh trong trang giỏ hàng
     let TENANH = req.params.TENANH;
     let MATHUOC = req.params.MATHUOC;
     let SOLUONG = req.body.SOLUONG || 1;
     let USERNAME = req.session.user.USERNAME;
     let THANHTIEN = req.body.GIALE;
-    console.log(MATHUOC, SOLUONG, USERNAME);
     const pool = await connectDB();
     // const re = await pool.request().query(`SELECT * FROM GIOHANG WHERE USERNAME = '${USERNAME}' AND MATHUOC = '${MATHUOC}'`)
     // if (re.recordset.length == 0) {
-    const result = await pool.request().query(`INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG, TENANH) VALUES ('${USERNAME}', '${TENANH}', '${MATHUOC}', ${SOLUONG})`)
+    const result = await pool.request().query(`INSERT INTO GIOHANG (USERNAME, MATHUOC, SOLUONG) VALUES ('${USERNAME}', '${MATHUOC}', ${SOLUONG})`)
     // }
     // else {
     //     const result = await pool.request().query(`UPDATE GIOHANG SET SOLUONG = SOLUONG + '${SOLUONG}' WHERE USERNAME = '${USERNAME}' AND MATHUOC = '${MATHUOC}'`)
@@ -197,8 +192,7 @@ let getCart = async (req, res) => {
     let USERNAME = req.session.user.USERNAME;
     const pool = await connectDB();
     const result = await pool.request().query(`SELECT * FROM GIOHANG WHERE USERNAME = '${USERNAME}'`)
-    const result2 = await pool.request().query(`SELECT * FROM THUOC WHERE MATHUOC IN (SELECT MATHUOC FROM GIOHANG WHERE USERNAME = '${USERNAME}')`)
-    // biến lấy tên ảnh
+    const result2 = await pool.request().query(`SELECT THUOC.*, TENANH FROM THUOC, PROFILEPICTURE WHERE THUOC.MATHUOC = PROFILEPICTURE.MATHUOC AND THUOC.MATHUOC IN (SELECT MATHUOC FROM GIOHANG WHERE USERNAME = '${USERNAME}')`)
     const tongTien = await pool.request().query(`SELECT SUM(THANHTIEN) AS TONGTIEN FROM GIOHANG WHERE USERNAME = '${USERNAME}'`)
     return res.render("cart.ejs", { user: req.session.user, GIOHANG: result.recordset, THUOC: result2.recordset, TONGTIEN: tongTien.recordset[0].TONGTIEN });
 }
