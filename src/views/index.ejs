@@ -13,11 +13,11 @@
     <link href="https://cdn.jsdelivr.net/gh/hung1001/font-awesome-pro@4cac1a6/css/all.css" rel="stylesheet" type="text/css" />
   </head>
   
-  <body>
+  <body class="px-5" style="padding-top: 5rem;">
     <header>
       <%- include('../views/nav.ejs' , {active: "user"}) %>
     </header>
-    <section class="main-container1">
+    <section class="main-container1" style="margin: 0 -3rem">
       <div class="jumbotron d-flex align-items-start flex-end justify-content-end">
         <div class="d-flex-row" style="max-width: 450px;">
           <h1>4T VetPharma</h1>
@@ -26,7 +26,7 @@
       </div>
     </section>
     <section>
-      <div id="carouselExampleAutoplaying" class="carousel slide" data-bs-ride="carousel">
+      <div id="carouselExampleAutoplaying" class="carousel slide" data-bs-ride="carousel" style="margin: 0 -3rem">
         <div class="carousel-indicators">
           <button type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
           <button type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide-to="1" aria-label="Slide 2"></button>
@@ -76,6 +76,7 @@
               <div class="card-body">
                 <h5 class="card-title"><%= THUOC[index].TENTHUOC %></h5>
                 <p class="card-text"><%= THUOC[index].CONGDUNG %></p>
+                <a href="/thuoc/<%= THUOC[index].MATHUOC %>" class="stretched-link"></a>
               </div>
             </div>
           </div>  
@@ -94,6 +95,7 @@
               <div class="card-body">
                 <h5 class="card-title"><%= THUOC[index].TENTHUOC %></h5>
                 <p class="card-text"><%= THUOC[index].DANGBAOCHE %></p>
+                <a href="/thuoc/<%= THUOC[index].MATHUOC %>" class="stretched-link"></a>
               </div>
             </div>
           </div>  

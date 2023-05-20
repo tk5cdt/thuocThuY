@@ -122,28 +122,28 @@ let updateTHUOC = async (req, res) => {
 
 let getLOAISD = async (req, res) => {
     let LOAISD = req.params.LOAISD;
-    if(LOAISD === 'thucung') {
+    if (LOAISD === 'thucung') {
         LOAISD = 'Thú cưng';
     }
-    else if(LOAISD === 'thuysan') {
+    else if (LOAISD === 'thuysan') {
         LOAISD = 'Thủy sản';
     }
-    else if(LOAISD === 'giacam') {
+    else if (LOAISD === 'giacam') {
         LOAISD = 'Gia cầm';
     }
-    else if(LOAISD === 'giasuc') {
+    else if (LOAISD === 'giasuc') {
         LOAISD = 'Gia súc';
     }
     const pool = await connectDB();
     const result = await pool.request().query(`select THUOC.*, TENANH from THUOC join PROFILEPICTURE on THUOC.MATHUOC = PROFILEPICTURE.MATHUOC where LOAISD = N'${LOAISD}'`);
-    return res.render("sp.ejs", { THUOC: result.recordset, user: req.session.user, pageNumber: -1, pageSize: 10, message: ""});
+    return res.render("sp.ejs", { THUOC: result.recordset, user: req.session.user, pageNumber: -1, pageSize: 10, message: "" });
 }
 
 let getsp = async (req, res) => {
     const pool = await connectDB();
     try {
         const result = await pool.request().query('select THUOC.*, TENANH from THUOC join PROFILEPICTURE on THUOC.MATHUOC = PROFILEPICTURE.MATHUOC');
-        return res.render("sp.ejs", { THUOC: result.recordset, user: req.session.user, message: ""});
+        return res.render("sp.ejs", { THUOC: result.recordset, user: req.session.user, message: "" });
     }
     catch (err) {
         console.log(err);
@@ -208,12 +208,12 @@ let admin = async (req, res) => {
     }
     const pool = await connectDB();
     const doanhthuThang = []
-    for(let i = 1; i <= 12; i++) {
+    for (let i = 1; i <= 12; i++) {
         const result = await pool.request().query(`SELECT dbo.UF_TinhDoanhThuTheoThang(${i}, YEAR(GETDATE())) as DOANHTHU`)
         doanhthuThang.push(result.recordset[0].DOANHTHU)
     }
     const doanhthuQuy = []
-    for(let i = 1; i <= 4; i++) {
+    for (let i = 1; i <= 4; i++) {
         const result = await pool.request().query(`SELECT dbo.UF_TinhDoanhThuTheoQuy(${i}, YEAR(GETDATE())) as DOANHTHU`)
         doanhthuQuy.push(result.recordset[0].DOANHTHU)
     }
@@ -283,27 +283,39 @@ let handleUploadMultiPic = async (req, res) => {
 }
 
 let getSearch = async (req, res) => {
-    let search = req.body.search;
-    let pool = await connectDB();
-    const user = req.session.user;
-    if (search == '') {
+    try {
+        let search = req.body.search;
+        let pool = await connectDB();
+        const user = req.session.user;
+
+        if (search == '') {
+            if (user && user.QUANTRI == 1) {
+                return res.redirect('/admin');
+            }
+            return res.redirect('/');
+        }
+
+        let result = await pool.request().query(`SELECT THUOC.*, TENANH FROM THUOC, PROFILEPICTURE WHERE THUOC.MATHUOC = PROFILEPICTURE.MATHUOC and (TENTHUOC LIKE N'%${search}%' OR THUOC.MATHUOC LIKE '%${search}%' OR LOAISD LIKE N'%${search}%' OR CONGDUNG LIKE N'%${search}%')`);
+
         if (user && user.QUANTRI == 1) {
-            return res.redirect('/admin')
+            if (result.recordset.length == 0) {
+                return res.render('db.ejs', { user: req.session.user, THUOC: result.recordset, pageNumber: -1, pageSize: 0, message: 'Không tìm thấy sản phẩm nào' });
+            }
+            return res.render('db.ejs', { user: req.session.user, THUOC: result.recordset, pageNumber: -1, pageSize: 0, message: '' });
         }
-        return res.redirect('/')
-    }
-    let result = await pool.request().query(`SELECT THUOC.*, TENANH FROM THUOC, PROFILEPICTURE WHERE THUOC.MATHUOC = PROFILEPICTURE.MATHUOC and (TENTHUOC LIKE N'%${search}%' OR THUOC.MATHUOC LIKE '%${search}%' OR LOAISD LIKE N'%${search}%' OR CONGDUNG LIKE N'%${search}%')`)
-    if(user && user.QUANTRI == 1){
+
         if (result.recordset.length == 0) {
-            return res.render('db.ejs', { user: req.session.user, THUOC: result.recordset, pageNumber: -1, pageSize: 0, message: 'Không tìm thấy sản phẩm nào' })
+            return res.render('sp.ejs', { user: req.session.user, THUOC: result.recordset, pageNumber: -1, pageSize: 0, message: 'Không tìm thấy sản phẩm nào' });
         }
-        return res.render('db.ejs', { user: req.session.user, THUOC: result.recordset, pageNumber: -1, pageSize: 0, message: '' })
+
+        return res.render('sp.ejs', { user: req.session.user, THUOC: result.recordset, pageNumber: -1, pageSize: 0, message: '' });
+    } catch (error) {
+        // Handle the error appropriately
+        console.error('Error in getSearch:', error);
+        return res.status(500).send('Internal Server Error');
     }
-    if (result.recordset.length == 0) {
-        return res.render('sp.ejs', { user: req.session.user, THUOC: result.recordset, pageNumber: -1, pageSize: 0, message: 'Không tìm thấy sản phẩm nào' })
-    }
-    return res.render('sp.ejs', { user: req.session.user, THUOC: result.recordset, pageNumber: -1, pageSize: 0, message: '' })
-}
+};
+
 
 let updateDONHANG = async (req, res) => {
     let pool = await connectDB();
@@ -313,6 +325,44 @@ let updateDONHANG = async (req, res) => {
     let result = await pool.request().query(`UPDATE DONHANGONLINE SET TRANGTHAIDH = N'${TRANGTHAI}' WHERE MADONHANG = '${MADONHANG}'`)
     return res.redirect('/admin')
 }
+
+const thanhToan = async (req, res) => {
+    let user = req.session.user;
+    if (!user) {
+        return res.redirect('/login');
+    }
+
+    let DIENTHOAI = req.body.DIENTHOAI;
+    let DIACHI = req.body.DIACHI;
+    let GIOHANG = JSON.parse(req.body.GIOHANG);
+    let THUOC = JSON.parse(req.body.THUOC);
+    if (GIOHANG.length == 0) {
+        return res.redirect('/cart');
+    }
+    console.log(GIOHANG, THUOC, DIENTHOAI, DIACHI);
+
+    try {
+        let pool = await connectDB(); // Establish a database connection
+        let result = await pool.request().query(`INSERT INTO DONHANGONLINE (USERNAME, DIENTHOAI, DIACHI) VALUES ('${user.USERNAME}', N'${DIENTHOAI}', N'${DIACHI}')`);
+        let result2 = await pool.request().query(`SELECT TOP 1 MADONHANG FROM DONHANGONLINE ORDER BY MADONHANG DESC`);
+        let MADONHANG = result2.recordset[0].MADONHANG;
+
+        for (let i = 0; i < GIOHANG.length; i++) {
+            for (let j = 0; j < THUOC.length; j++) {
+                if (GIOHANG[i].MATHUOC == THUOC[j].MATHUOC) {
+                    let result3 = await pool.request().query(`INSERT INTO DONXUATONLINECHITIET (MADONHANG, THUOC, SOLUONG, DONVITINH) VALUES ('${MADONHANG}', '${THUOC[j].MATHUOC}', '${GIOHANG[i].SOLUONG}', N'${THUOC[j].QCDONGGOI}')`);
+                }
+            }
+        }
+
+        let result4 = await pool.request().query(`DELETE FROM GIOHANG WHERE USERNAME = '${user.USERNAME}'`);
+
+        res.status(200).json({ message: "Payment successful" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error occurred during payment" });
+    }
+};
 
 module.exports = {
     getHompage: getHompage,
@@ -337,4 +387,5 @@ module.exports = {
     getSearch: getSearch,
     updateDONHANG: updateDONHANG,
     getLOAISD: getLOAISD,
+    thanhToan: thanhToan,
 }

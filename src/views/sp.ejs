@@ -42,6 +42,7 @@
                   <div class="card-body">
                     <h5 class="card-title"><%= THUOC[index].TENTHUOC %></h5>
                     <p class="card-text"><%= THUOC[index].CONGDUNG %></p>
+                    <a href="/thuoc/<%= THUOC[index].MATHUOC %>" class="stretched-link"></a>
                   </div>
                 </div>
               </div>  
@@ -49,7 +50,7 @@
               </div>
     </div>
     
-    <nav aria-label="Page navigation example" style="margin: 10px">
+    <nav aria-label="Page navigation example" style="margin: 20px">
         <ul class="pagination justify-content-center">
         <!-- Hiển thị nút Previous nếu không phải trang đầu tiên -->
         <% if (pageNumber == -1) { %>

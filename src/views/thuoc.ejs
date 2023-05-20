@@ -26,15 +26,15 @@
     <header>
         <%- include('../views/nav.ejs' , {active: "thuoc"}) %>
     </header>
-    <div class="container mt-5 mb-5" style="padding-top: 100px;">
+    <div class="container mt-5 mb-5 w-100" style="padding-top: 100px;">
         <div class="row d-flex justify-content-center">
             <div class="col-md-12">
-                <div class="card" style="transform: none; box-shadow: none;">
+                <div class="card w-100" style="transform: none; box-shadow: none;">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="images p-3">
-                                <div class="text-center p-4"> <img id="main-image"
-                                        src="/public/uploads/<%= THUOC.MATHUOC %>/<%= THUOC.TENANH %>" width="250" />
+                                <div class="text-center p-md-4"> <img class="w-100" id="main-image"
+                                        src="/public/uploads/<%= THUOC.MATHUOC %>/<%= THUOC.TENANH %>" />
                                 </div>
                                 <div class="thumbnail text-center">
                                     <% for( let index=0; index < ALBUMPICTURES.length; index++ ) { %>
@@ -60,10 +60,10 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="about">
+                            <p class="about p-2">
                                 Thành phần: <%= THUOC.THANHPHAN %>
                             </p>
-                            <p class="about">
+                            <p class="about p-2">
                                 Công dụng: <%= THUOC.CONGDUNG %>
                             </p>
                             <div class="soluong mt-5">
@@ -110,22 +110,36 @@
                 style="text-align: center; margin-bottom: 100px; font-size: 45px; font-style: italic; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: rgb(228, 42, 42);">
                 SẢN PHẨM LIÊN QUAN</h1>
             <div class="row row-cols-1 row-cols-md-3 g-4">
-                <% for( let index = 0; index < THUOC.length; index++ ) { %>
-                    <div class="col d-flex align-items-stretch">
-                        <div class="card shadow border-0">
-                            <img src="/public/uploads/<%= THUOCLOAISD[index].MATHUOC %>/<%= THUOCLOAISD[index].TENANH %>" alt="" class="card-img-top">
-                            <div class="card-body">
-                                <h5 class="card-title"><%= THUOCLOAISD[index].TENTHUOC %></h5>
-                                <p class="card-text"><%= THUOCLOAISD[index].CONGDUNG %></p>
+                <% if (THUOCLOAISD.length < 3) { %>
+                    <% for( let index = 0; index < THUOC.length; index++ ) { %>
+                        <div class="col d-flex align-items-stretch">
+                            <div class="card shadow border-0">
+                                <img src="/public/uploads/<%= THUOCLOAISD[index].MATHUOC %>/<%= THUOCLOAISD[index].TENANH %>" alt="" class="card-img-top">
+                                <div class="card-body">
+                                    <h5 class="card-title"><%= THUOCLOAISD[index].TENTHUOC %></h5>
+                                    <p class="card-text"><%= THUOCLOAISD[index].CONGDUNG %></p>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    <% } %>
+                <% } else { %>
+                    <% for( let index = 0; index < 3; index++ ) { %>
+                        <div class="col d-flex align-items-stretch">
+                            <div class="card shadow border-0">
+                                <img src="/public/uploads/<%= THUOCLOAISD[index].MATHUOC %>/<%= THUOCLOAISD[index].TENANH %>" alt="" class="card-img-top">
+                                <div class="card-body">
+                                    <h5 class="card-title"><%= THUOCLOAISD[index].TENTHUOC %></h5>
+                                    <p class="card-text"><%= THUOCLOAISD[index].CONGDUNG %></p>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
                 <% } %>
             </div>
         </div>
     </section>
     <div class="d-flex justify-content-center align-items-center">
-        <a href="/sp/<%= THUOC.LOAISD %>" class="btn btn-danger text-uppercase px-4 mx-auto" type="submit">Xem thêm</a>
+        <a href="/sp/<%= THUOC.LOAISD %>" class="btn btn-danger text-uppercase px-4 mx-auto mt-5" type="submit">Xem thêm</a>
     </div>
     <div class="foot">
         <%- include('../views/footer.ejs') %>
