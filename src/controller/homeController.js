@@ -207,6 +207,7 @@ let admin = async (req, res) => {
         return res.redirect('/login')
     }
     const pool = await connectDB();
+    await pool.request().query(`SET DATEFORMAT DMY`)
     const doanhthuThang = []
     for (let i = 1; i <= 12; i++) {
         const result = await pool.request().query(`SELECT dbo.UF_TinhDoanhThuTheoThang(${i}, YEAR(GETDATE())) as DOANHTHU`)
@@ -220,7 +221,9 @@ let admin = async (req, res) => {
     const result = await pool.request().query(`SELECT dbo.UF_TinhDoanhThuTheoNam(YEAR(GETDATE())) as DOANHTHU`)
     const doanhthuNam = result.recordset[0].DOANHTHU
     const result2 = await pool.request().query(`SELECT * FROM DONHANGONLINE`)
-    return res.render("admin.ejs", { user: req.session.user, doanhthuThang: doanhthuThang, doanhthuQuy: doanhthuQuy, doanhthuNam: doanhthuNam, DONHANGONLINE: result2.recordset });
+    const CongNoNCC = await pool.request().query(`SELECT TENNCC, CONGNO, FORMAT(NGAYNO, 'dd/MM/yyyy') as NGAYNO, FORMAT(HANNO, 'dd/MM/yyyy') as HANNO FROM CongNoNCC`)
+    const CongNoKH = await pool.request().query(`SELECT TENKHACH, CONGNO, FORMAT(NGAYNO, 'dd/MM/yyyy') as NGAYNO, FORMAT(HANNO, 'dd/MM/yyyy') as HANNO FROM CongNoKhachHang`)
+    return res.render("admin.ejs", { user: req.session.user, doanhthuThang: doanhthuThang, doanhthuQuy: doanhthuQuy, doanhthuNam: doanhthuNam, DONHANGONLINE: result2.recordset, CongNoNCC: CongNoNCC.recordset, CongNoKH: CongNoKH.recordset });
 }
 
 let getUploadPage = async (req, res) => {
