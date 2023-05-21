@@ -10,16 +10,16 @@ function ValidateForm(form)
     function showError(input){
         input.parentElement.classList.add('invalid')
         if(input.id === 'email'){
-            input.parentElement.querySelector('.form-message').innerHTML = ('* email có dạng abc@abc.com')
+            input.parentElement.querySelector('.form-message').innerHTML = ('* Email có dạng abc@domain.com')
         }
         if(input.id === 'password'){
-            input.parentElement.querySelector('.form-message').innerHTML = ('* Invalid password')
+            input.parentElement.querySelector('.form-message').innerHTML = ('* Mật khẩu không hợp lệ')
         }
         if(input.id === 'username'){
-            input.parentElement.querySelector('.form-message').innerHTML = ('* username phải từ 5 ký tự trở lên')
+            input.parentElement.querySelector('.form-message').innerHTML = ('* Username phải từ 3 ký tự trở lên')
         }
         if(input.id === 'rePassword'){
-            input.parentElement.querySelector('.form-message').innerHTML = ('* Invalid rePassword')
+            input.parentElement.querySelector('.form-message').innerHTML = ('* Mật khẩu không khớp')
         }
     }
 

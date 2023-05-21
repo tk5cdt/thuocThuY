@@ -28,7 +28,7 @@
         <div class="row">
             <div class="col-md-6 d-flex align-items-stretch">
                 <div class="card bg-light border-primary mb-3 w-100" style="max-width: 49rem;">
-                    <div class="card-header">Doanh thu</div>
+                    <div class="card-header"><h4>Doanh thu</h4></div>
                     <div class="card-body">
                         <h5 class="card-title">Doanh thu theo tháng</h5>
                         <% for( let index = 0; index < doanhthuThang.length; index++ ) { %>
@@ -46,12 +46,14 @@
                         <% } %>
                         <h5 class="card-title">Doanh thu theo năm</h5>
                         <p>Số tiền: <%= doanhthuNam %>₫</p>
-                        </div>
+                        <hr>
+                        <p>Công nợ</p>
+                    </div>
                 </div>
             </div>
             <div class="col-md-6 d-flex align-items-stretch justify-content-center">
                 <div class="card bg-light border-success mb-3 w-100" style="max-width: 49rem;">
-                    <div class="card-header">Đơn hàng</div>
+                    <div class="card-header"><h4>Đơn hàng</h4></div>
                     <div class="card-body overflow-auto">
                         <table class="table table-bordered text-center align-middle">
                             <thead>
