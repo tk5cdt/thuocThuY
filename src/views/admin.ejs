@@ -51,25 +51,77 @@
         <div class="col-md-6 d-flex align-items-stretch">
             <div class="card bg-light border-primary mb-3 w-100">
                 <div class="card-header">
-                    <h4>Cộng nợ</h4>
+                    <h4>Công nợ</h4>
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title">Doanh thu theo tháng</h5>
-                    <% for( let index=0; index < doanhthuThang.length; index++ ) { %>
-                    <% if (doanhthuThang[index]==null) { %>
-                    <% continue; %>
-                    <% } %>
-                    <p>Tháng <%= index + 1 %>: <%= doanhthuThang[index] %>₫</p>
-                    <% } %>
-                    <h5 class="card-title">Doanh thu theo quý</h5>
-                    <% for( let index=0; index < doanhthuQuy.length; index++ ) { %>
-                    <% if (doanhthuQuy[index]==null) { %>
-                    <% continue; %>
-                    <% } %>
-                    <p>Quý <%= index + 1 %>: <%= doanhthuQuy[index] %>₫</p>
-                    <% } %>
-                    <h5 class="card-title">Doanh thu theo năm</h5>
-                    <p>Số tiền: <%= doanhthuNam %>₫</p>
+                    <h5 class="card-title">Công nợ NCC</h5>
+                    <table class="table table-responsive-md table-bordered text-center align-middle ">
+                        <thead>
+                            <tr>
+                                <th scope="col">STT</th>
+                                <th scope="col">Tên NCC</th>
+                                <th scope="col">Công nợ</th>
+                                <th scope="col">Ngày nợ</th>
+                                <th scope="col">Hạn nợ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for( let index=0; index < CongNoNCC.length; index++ ) { %>
+                            <tr>
+                                <th scope="row">
+                                    <%= index + 1 %>
+                                </th>
+                                <td>
+                                    <p><%= CongNoNCC[index].TENNCC %></p>
+                                </td>
+                                <td>
+                                    <%= CongNoNCC[index].CONGNO %>
+                                </td>
+                                <td>
+                                    <%= CongNoNCC[index].NGAYNO %>
+                                </td>
+                                <td>
+                                    <%= CongNoNCC[index].HANNO %>
+                                </td>
+                            </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Công nợ NCC</h5>
+                    <table class="table table-responsive-md table-bordered text-center align-middle ">
+                        <thead>
+                            <tr>
+                                <th scope="col">STT</th>
+                                <th scope="col">Tên khách</th>
+                                <th scope="col">Công nợ</th>
+                                <th scope="col">Ngày nợ</th>
+                                <th scope="col">Hạn nợ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for( let index=0; index < CongNoNCC.length; index++ ) { %>
+                            <tr>
+                                <th scope="row">
+                                    <%= index + 1 %>
+                                </th>
+                                <td>
+                                    <p><%= CongNoKH[index].TENKHACH %></p>
+                                </td>
+                                <td>
+                                    <%= CongNoKH[index].CONGNO %>
+                                </td>
+                                <td>
+                                    <%= CongNoKH[index].NGAYNO %>
+                                </td>
+                                <td>
+                                    <%= CongNoKH[index].HANNO %>
+                                </td>
+                            </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
