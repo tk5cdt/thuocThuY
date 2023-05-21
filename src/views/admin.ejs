@@ -53,13 +53,13 @@
                 <div class="card-header">
                     <h4>Công nợ</h4>
                 </div>
-                <div class="card-body">
-                    <h5 class="card-title">Công nợ NCC</h5>
+                <div class="card-body overflow-auto">
+                    <h5 class="card-title">Công nợ nhà cung cấp</h5>
                     <table class="table table-responsive-md table-bordered text-center align-middle ">
                         <thead>
                             <tr>
                                 <th scope="col">STT</th>
-                                <th scope="col">Tên NCC</th>
+                                <th scope="col">Nhà cung cấp</th>
                                 <th scope="col">Công nợ</th>
                                 <th scope="col">Ngày nợ</th>
                                 <th scope="col">Hạn nợ</th>
@@ -88,13 +88,13 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="card-body">
-                    <h5 class="card-title">Công nợ NCC</h5>
+                <div class="card-body overflow-auto">
+                    <h5 class="card-title">Công nợ khách hàng</h5>
                     <table class="table table-responsive-md table-bordered text-center align-middle ">
                         <thead>
                             <tr>
                                 <th scope="col">STT</th>
-                                <th scope="col">Tên khách</th>
+                                <th scope="col">Khách hàng</th>
                                 <th scope="col">Công nợ</th>
                                 <th scope="col">Ngày nợ</th>
                                 <th scope="col">Hạn nợ</th>
@@ -175,7 +175,7 @@
                                 <form action="/admin/updateDONHANG" method="POST">
                                     <input type="hidden" name="MADONHANG" value="<%= DONHANGONLINE[index].MADONHANG %>">
                                     <select class="form-control form-control-sm" onchange="this.form.submit()" name="TRANGTHAI">
-                                        <option>status</option>
+                                        <option>Trạng thái đơn hàng</option>
                                         <option value="Đã đặt">Đã đặt</option>
                                         <option value="Đã huỷ">Đã huỷ</option>
                                         <option value="Đang chuẩn bị">Đang chuẩn bị</option>
