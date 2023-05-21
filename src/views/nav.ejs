@@ -25,39 +25,55 @@
           <li class="nav-item">
             <a class="nav-link <%if(active=="info"){%>active<%}%>"  href="/info">Về chúng tôi</a>
           </li>
-          <li>
-        </li>
-    </ul>
-    <% if (user) { %>
-        <% if (!user.QUANTRI) { %>
+        </ul>
+        <% if (user) { %>
+          <% if (!user.QUANTRI) { %>
+            <div class="d-md-flex justify-content-md-between align-items-md-center">
+              <div class="d-flex align-items-center">
+                <% if (user) { %>
+                  <span class="m-md-0 p-0">Hello <%= user.USERNAME %></span>
+                  <form action="/logout" method="get">
+                    <button type="submit" class="btn btn-light"><ion-icon name="log-out-outline" style="transform: translate(0,2px);"></ion-icon></button>
+                  </form>
+                <% } %>
+              </div>
+              <form class="d-flex" role="search">
+                <input class="form-control me-2" type="search" placeholder="" aria-label="Search" name="search" id="search">
+                <button class="btn btn-outline-success" formaction="/search" formmethod="post" type="submit" hidden>Search</button>
+              </form>
+            </div>
             <div id="actions">
                 <div class="item d-flex">
-                    <a href="/logout" style="color: midnightblue; margin-top: 10px; margin-right: 10px;">Logout</a>
-                    <a id="login" href="/cart">
-                        <button class="taikhoan" style="width: 40px; height: 40px;"> 
-                          <div class="ti-shopping-cart" ></div>
-                        </button>
-                    </a>
-                    <a id="login" href="/donhang">
-                        <button class="taikhoan" style="width: 40px; height: 40px;"> 
-                          <i class="fal fa-money-check" style="translate: -1px -3px;"></i>
-                        </button>
-                    </a>
+                  <a id="login" href="/cart">
+                    <button class="taikhoan" style="width: 40px; height: 40px;"> 
+                      <div class="ti-shopping-cart" ></div>
+                    </button>
+                  </a>
+                  <a id="login" href="/donhang">
+                    <button class="taikhoan" style="width: 40px; height: 40px;"> 
+                      <i class="fal fa-money-check" style="translate: -1px -3px;"></i>
+                    </button>
+                  </a>
+                  <a id="login" href="/logout">
+                    <button class="taikhoan" style="width: 40px; height: 40px;">
+                      <i class="far fa-sign-out" style="translate: -1px -3px;"></i>
+                    </button>
+                  </a>
                 </div>
             </div>
+          <% } %>
+            <% } else { %>
+              <div id="actions">
+                  <div class="item">
+                      <a id="login" href="/login">
+                        <button class="taikhoan"> 
+                            ĐĂNG NHẬP
+                          <i class="ti-user"></i>
+                        </button>
+                      </a>
+                  </div>
+              </div>
             <% } %>
-                <% } else { %>
-                    <div id="actions">
-                        <div class="item">
-                            <a id="login" href="/login">
-                              <button class="taikhoan"> 
-                                 ĐĂNG NHẬP
-                                <i class="ti-user"></i>
-                              </button>
-                            </a>
-                        </div>
-                    </div>
-                    <% } %>
       </div>
     </div>
 </nav>

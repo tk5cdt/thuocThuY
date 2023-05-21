@@ -6,6 +6,12 @@
     font-family: 'poppins', sans-serif;
 }
 
+.form-value .lam-mau
+{
+    color: #04ffea;
+    text-decoration: none;
+    font-style: italic;
+}
 section {
     display: flex;
     justify-content: center;

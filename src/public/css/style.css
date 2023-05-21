@@ -53,7 +53,6 @@ body {
 
 .taikhoan {
     color: black;
-    background-color: rgb(4, 121, 255);
     border-radius: 5px;
     padding: 10px;
 }
@@ -65,7 +64,7 @@ body {
 }
 
 .taikhoan:hover {
-    background-color: yellow;
+    background-color: rgb(70, 236, 120);
 }
 
 #actions .item {
@@ -81,7 +80,7 @@ body {
     height: 520px;
     padding: 100px 60px;
     margin: 0px;
-    background-image: url(https://res.cloudinary.com/dk-find-out/image/upload/q_80,w_1920,f_auto/MA_00891784_oyxmrg.jpg);
+    background-image: url(https://res.cloudinary.com/dk-find-out/image/upload/q_80,w_1920,f_auto/MA_00891784_oyxmrg.jpg), linear-gradient(0, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4));
     background-size: cover;
     background-repeat: no-repeat;
     image-rendering: auto;

@@ -36,16 +36,18 @@
         <div class="d-md-flex justify-content-md-between align-items-md-center">
           <div class="d-flex align-items-center">
             <% if (user) { %>
-              <span class="m-md-0 p-0">Hello <%= user.USERNAME %></span>
-              <form action="/logout" method="get">
-                <button type="submit" class="btn btn-light"><ion-icon name="log-out-outline" style="transform: translate(0,2px);"></ion-icon></button>
-              </form>
-            <% } %>
-          </div>
+              <span class="m-md-3 p-0">Hello <%= user.USERNAME %></span>
+              <% } %>
+            </div>
             <form class="d-flex" role="search">
               <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="search" id="search">
               <button class="btn btn-outline-success" formaction="/search" formmethod="post" type="submit">Search</button>
             </form>
+            <a id="login" href="/logout">
+              <button class="taikhoan" style="width: 40px; height: 40px;">
+                <i class="far fa-sign-out" style="translate: -1px -3px;"></i>
+              </button>
+            </a>
           </div>
       </div>
     </div>
