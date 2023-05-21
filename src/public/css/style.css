@@ -76,6 +76,14 @@ body {
     padding-top: 100px;
 } */
 
+.icon-glass
+{
+    padding-left: 25px;
+    text-indent:20px;
+    background: url(/images/search.png) no-repeat left 10px center;
+    background-size: 15px;
+}
+
 .jumbotron {
     height: 520px;
     padding: 100px 60px;

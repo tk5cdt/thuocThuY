@@ -38,7 +38,7 @@
                 <% } %>
               </div>
               <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="" aria-label="Search" name="search" id="search">
+                <input class="form-control me-2 icon-glass" type="search" placeholder="" aria-label="Search" name="search" id="search">
                 <button class="btn btn-outline-success" formaction="/search" formmethod="post" type="submit" hidden>Search</button>
               </form>
             </div>
@@ -64,13 +64,17 @@
           <% } %>
             <% } else { %>
               <div id="actions">
-                  <div class="item">
-                      <a id="login" href="/login">
-                        <button class="taikhoan"> 
-                            ĐĂNG NHẬP
-                          <i class="ti-user"></i>
-                        </button>
-                      </a>
+                  <div class="item d-flex align-items-center">
+                    <form class="d-flex" role="search">
+                      <input class="form-control me-2 icon-glass" type="search" placeholder="" aria-label="Search" name="search" id="search">
+                      <button class="btn btn-outline-success" formaction="/search" formmethod="post" type="submit" hidden>Search</button>
+                    </form>
+                    <a id="login" href="/login">
+                      <button class="taikhoan"> 
+                          ĐĂNG NHẬP
+                        <i class="ti-user"></i>
+                      </button>
+                    </a>
                   </div>
               </div>
             <% } %>
