@@ -89,6 +89,7 @@ input:valid~label {
 
 .form-group input:focus {
     box-shadow: none !important;
+    color: #fff;
 }
 
 .form-group ion-icon {

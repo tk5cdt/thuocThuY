@@ -9,19 +9,19 @@ import fs from "fs";
 let router = express.Router();
 
 const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
+    destination: function (req, file, cb) {
         //create folder name = MATHUOC
         fs.mkdirSync(appRoot + '/src/public/uploads/' + req.body.MATHUOC, { recursive: true })
         cb(null, appRoot + '/src/public/uploads/' + req.body.MATHUOC);
     },
 
     // By default, multer removes file extensions so add them back
-    filename: function(req, file, cb) {
+    filename: function (req, file, cb) {
         cb(null, file.fieldname + '-' + req.body.MATHUOC + '-' + Date.now() + path.extname(file.originalname));
     }
 });
 
-const imageFilter = function(req, file, cb) {
+const imageFilter = function (req, file, cb) {
     // Accept images only
     if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF)$/)) {
         req.fileValidationError = 'Only image files are allowed!';
@@ -58,11 +58,11 @@ const initWebRoute = (app) => {
     router.get('/admin', homeController.admin)
     router.get('/admin/db', homeController.getConnect)
     router.get('/admin/themthuoc', homeController.themthuoc)
-    router.post('/createNewThuoc',upload.fields([{
+    router.post('/createNewThuoc', upload.fields([{
         name: 'profile_pic', maxCount: 1
     }, {
         name: 'pic', maxCount: 5
-    }]) ,homeController.newTHUOC)
+    }]), homeController.newTHUOC)
     router.get('/admin/upload', homeController.getUploadPage)
     // router.post('/admin/uploadProfilePic', upload.single('profile_pic'), homeController.handleUploadProfilePic)
     // router.post('/admin/uploadMultiple', upload.array('pic', 3), homeController.handleUploadMultiPic)
