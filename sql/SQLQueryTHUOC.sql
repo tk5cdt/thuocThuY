@@ -97,7 +97,7 @@ CREATE TABLE DONHANGNHAP
       MADONHANG VARCHAR(10) NOT NULL DEFAULT 'DN000',
       MANCC VARCHAR(10) NOT NULL,
       MANV VARCHAR(10) NOT NULL,
-      TRANGTHAIDH  NVARCHAR(30) DEFAULT N'Đang lập đơn', --đang lập đơn, đã đặt, đã hủy, đã nhận, nhận không thành công
+      TRANGTHAIDH  NVARCHAR(30) DEFAULT N'Đang chuẩn bị',
       NGAYLAP DATE,
       TONGTIEN MONEY DEFAULT 0,
       DATHANHTOAN MONEY DEFAULT 0,
@@ -166,7 +166,7 @@ CREATE TABLE DONHANGONLINE
       USERNAME VARCHAR(20) NOT NULL,
       DIENTHOAI NCHAR(11) NOT NULL,
       DIACHI NVARCHAR(80) NOT NULL,
-      TRANGTHAIDH NVARCHAR(30) DEFAULT N'Đang lập đơn', --đang lập đơn, đã đặt, đang chuẩn bị, đang vận chuyển, đã giao, giao không thành công
+      TRANGTHAIDH NVARCHAR(30) DEFAULT N'Đang lập đơn',
       TONGTIEN MONEY DEFAULT 0,
       PRIMARY KEY(MADONHANG)
 )
@@ -619,15 +619,14 @@ CREATE TRIGGER TRG_UPDATE_NCC
       FOR UPDATE
 AS
 BEGIN
-      --kiểm tra người dùng nhập vào giá trị công nợ không đúng
+      --kiểm tra người dùng thay đổi vào giá trị công nợ không đúng
       IF EXISTS (
             SELECT * FROM inserted JOIN deleted
             ON inserted.CONGNO != deleted.CONGNO
             AND inserted.CONGNO != (
                   SELECT SUM(CONGNO) FROM DONHANGNHAP D
                   WHERE D.MANCC = inserted.MANCC
-            )
-      )
+            ))
       BEGIN
             PRINT N'CÔNG NỢ CỦA NHÀ CUNG CẤP SẼ ĐƯỢC THAY ĐỔI THEO CÔNG NỢ CỦA ĐƠN HÀNG NHẬP'
             ROLLBACK TRAN
@@ -700,14 +699,13 @@ BEGIN
       END
 
       --reset giá trị tổng tiền về 0 khi người dùng nhập giá trị khác
-      IF(SELECT TONGTIEN FROM inserted) !=0
+      IF (SELECT TONGTIEN FROM inserted) !=0
       BEGIN
             PRINT N'TỔNG TIỀN SẼ ĐƯỢC HỆ THỐNG TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG'
             PRINT N'RESET TỔNG TIỀN'
             UPDATE DONHANGXUAT
             SET TONGTIEN = 0
-            FROM inserted
-            WHERE DONHANGXUAT.MADONHANG = inserted.MADONHANG
+            WHERE DONHANGXUAT.MADONHANG = @result
       END
 
       --reset giá trị công nợ về 0 khi người dùng nhập giá trị khác
@@ -717,8 +715,7 @@ BEGIN
             PRINT N'RESET CÔNG NỢ'
             UPDATE DONHANGXUAT
             SET CONGNO = 0
-            FROM inserted
-            WHERE DONHANGXUAT.MADONHANG = inserted.MADONHANG
+            WHERE DONHANGXUAT.MADONHANG = @result
       END
 END
 GO
@@ -736,6 +733,7 @@ BEGIN
             ROLLBACK TRAN
       END
 
+      --không thể thay đổi đơn hàng đã hủy hoặc đơn hàng giao dông thành công
       IF EXISTS (
             SELECT inserted.TRANGTHAIDH FROM deleted JOIN inserted 
             ON (deleted.TRANGTHAIDH = N'Đã hủy' AND inserted.TRANGTHAIDH != N'Đã hủy') 
@@ -813,8 +811,7 @@ BEGIN
             PRINT N'RESET TỔNG TIỀN'
             UPDATE DONHANGNHAP
             SET TONGTIEN = 0
-            FROM inserted
-            WHERE DONHANGNHAP.MADONHANG = inserted.MADONHANG
+            WHERE DONHANGNHAP.MADONHANG = @result
       END
 
       --reset giá trị công nợ về 0 khi người dùng nhập giá trị khác
@@ -824,8 +821,7 @@ BEGIN
             PRINT N'RESET CÔNG NỢ'
             UPDATE DONHANGNHAP
             SET CONGNO = 0
-            FROM inserted
-            WHERE DONHANGNHAP.MADONHANG = inserted.MADONHANG
+            WHERE DONHANGNHAP.MADONHANG = @result
       END
 END
 GO
@@ -989,11 +985,13 @@ BEGIN
 END
 GO
 
+
 CREATE TRIGGER TRG_DELETE_NHAPTHUOC
       ON NHAPTHUOC
       FOR DELETE
 AS
 BEGIN
+      --chỉ có thể xóa những đơn hàng trong trạng thái đang chuẩn bị
       IF(SELECT TRANGTHAIDH FROM DONHANGNHAP JOIN deleted ON DONHANGNHAP.MADONHANG = deleted.MADONHANG)!= N'Đang chuẩn bị'
       BEGIN
             PRINT N'KHÔNG THỂ THAY ĐỔI ĐƠN HÀNG'
@@ -1260,8 +1258,7 @@ BEGIN
             PRINT N'RESET TỔNG TIỀN'
             UPDATE DONHANGONLINE
             SET TONGTIEN = 0
-            FROM inserted
-            WHERE DONHANGONLINE.MADONHANG = inserted.MADONHANG
+            WHERE DONHANGONLINE.MADONHANG = @result
       END
 END
 GO
@@ -1278,6 +1275,7 @@ BEGIN
             ROLLBACK TRAN
       END
 
+      -- không thể thay đổi những đơn hàng trong trạng thái đã hủy hoặc gioa khôn gthanh công
       IF EXISTS (
             SELECT inserted.TRANGTHAIDH FROM deleted JOIN inserted 
             ON (deleted.TRANGTHAIDH = N'Đã hủy' AND inserted.TRANGTHAIDH != N'Đã hủy') 
