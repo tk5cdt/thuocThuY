@@ -16,12 +16,16 @@
 <body style="padding: 0 1rem;">
     <%- include('../views/adminnav.ejs', {active: "db"}) %>
     <form action="/createNewThuoc" method="post" enctype="multipart/form-data" style="margin-top: 80px;">
-        <center><h1>Thêm thuốc mới</h1></center>
+        <center>
+            <h1>Thêm thuốc mới</h1>
+        </center>
         <% if (message) { %>
+        <center>
             <p style="color: brown;">
                 <%= message %>
             </p>
-            <% } %>
+        </center>
+        <% } %>
         <div class="w-75" style="margin: 0 auto;">
             <div class="row mb-2">
                 <div class="form-group col-md-4">

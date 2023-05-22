@@ -62,7 +62,19 @@ let newTHUOC = async (req, res) => {
     let { MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIASI, GIALE, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG } = req.body;
     const pool = await connectDB();
     try {
-        const result = await pool.request().query(`insert into THUOC(MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIASI, GIALE, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG) values ('${MATHUOC}', N'${TENTHUOC}', '${MANHOM}', N'${LOAISD}', N'${THANHPHAN}', '${MANCC}', '${GIASI}', '${GIALE}', '${GIANHAP}', N'${DANGBAOCHE}', N'${QCDONGGOI}', N'${CONGDUNG}')`)
+        if (!MATHUOC || !TENTHUOC || !MANHOM || !LOAISD || !THANHPHAN || !MANCC || !GIASI || !GIALE || !GIANHAP || !DANGBAOCHE || !QCDONGGOI || !CONGDUNG) {
+            return res.render("themthuoc.ejs", { message: "Vui lòng nhập đầy đủ thông tin", user: req.session.user });
+        }
+        const isExist = await pool.request().query(`select * from THUOC where MATHUOC = '${MATHUOC}'`);
+        if (isExist.recordset.length > 0){
+            return res.render("themthuoc.ejs", { message: "Thuốc đã tồn tại", user: req.session.user });
+        }
+        const result = await pool.request().query(`insert into THUOC(MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIASI, GIALE, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG) values ('${MATHUOC}', N'${TENTHUOC}', '${MANHOM}', N'${LOAISD}', N'${THANHPHAN}', '${MANCC}', '${GIASI}', '${GIALE}', '${GIANHAP}', N'${DANGBAOCHE}', N'${QCDONGGOI}', N'${CONGDUNG}')`, (err, result) => {
+            if (err) {
+                console.log(err);
+                return res.render("themthuoc.ejs", { message: "Mã thuốc đã tồn tại", user: req.session.user });
+            }
+        });
         upload(req, res, function (err) {
             // req.file contains information of uploaded file
             // req.body contains information of text fields, if there were any
@@ -82,17 +94,20 @@ let newTHUOC = async (req, res) => {
                 return res.send(err);
             }
         });
-        let result1 = await pool.request().query(`INSERT INTO PROFILEPICTURE VALUES ('${MATHUOC}', '${req.files.profile_pic[0].filename}')`)
-        let files = req.files.pic;
-        for (let i = 0; i < files.length; i++) {
-            let result2 = await pool.request().query(`INSERT INTO ALBUMPICTURES VALUES ('${MATHUOC}', '${files[i].filename}')`)
+        if (req.files.profile_pic) {
+            let result1 = await pool.request().query(`INSERT INTO PROFILEPICTURE VALUES ('${MATHUOC}', '${req.files.profile_pic[0].filename}')`)
         }
-        return res.redirect('/thuoc/' + MATHUOC);
+        if (req.files.pic) {
+            for (let i = 0; i < req.files.pic.length; i++) {
+                let result2 = await pool.request().query(`INSERT INTO ALBUMPICTURES VALUES ('${MATHUOC}', '${req.files.pic[i].filename}')`)
+            }
+        }
+        return res.redirect('/admin/db');
     }
     catch (err) {
-        return res.redirect('/admin/themthuoc')
+        console.log(err);
+        return res.render("themthuoc.ejs", { message: "Mã thuốc đã tồn tại", user: req.session.user });
     }
-
 }
 
 let deleteTHUOC = async (req, res) => {
