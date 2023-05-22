@@ -145,7 +145,7 @@
       (
             USERNAME VARCHAR(20) NOT NULL,
             MATKHAU VARCHAR(61),
-            EMAIL VARCHAR(50),
+            EMAIL VARCHAR(50), 
             QUANTRI BIT,
             PRIMARY KEY(USERNAME)
       )
