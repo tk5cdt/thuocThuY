@@ -61,46 +61,78 @@ let themthuoc = (req, res) => {
 let newTHUOC = async (req, res) => {
     let { MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIASI, GIALE, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG } = req.body;
     const pool = await connectDB();
-    const result = await pool.request().query(`insert into THUOC(MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIASI, GIALE, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG) values ('${MATHUOC}', N'${TENTHUOC}', '${MANHOM}', N'${LOAISD}', N'${THANHPHAN}', '${MANCC}', '${GIASI}', '${GIALE}', '${GIANHAP}', N'${DANGBAOCHE}', N'${QCDONGGOI}', N'${CONGDUNG}')`)
-    upload(req, res, function (err) {
-        // req.file contains information of uploaded file
-        // req.body contains information of text fields, if there were any
+    try {
+        const result = await pool.request().query(`insert into THUOC(MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIASI, GIALE, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG) values ('${MATHUOC}', N'${TENTHUOC}', '${MANHOM}', N'${LOAISD}', N'${THANHPHAN}', '${MANCC}', '${GIASI}', '${GIALE}', '${GIANHAP}', N'${DANGBAOCHE}', N'${QCDONGGOI}', N'${CONGDUNG}')`)
+        upload(req, res, function (err) {
+            // req.file contains information of uploaded file
+            // req.body contains information of text fields, if there were any
 
-        if (req.fileValidationError) {
-            return res.send(req.fileValidationError);
+            if (req.fileValidationError) {
+                return res.send(req.fileValidationError);
+            }
+            else if (!req.files) {
+                return res.render('themthuoc.ejs', { user: req.session.user, message: 'Please select an image to upload' });
+            }
+            else if (err instanceof multer.MulterError) {
+                console.log(err);
+                return res.send(err);
+            }
+            else if (err) {
+                console.log(err);
+                return res.send(err);
+            }
+        });
+        let result1 = await pool.request().query(`INSERT INTO PROFILEPICTURE VALUES ('${MATHUOC}', '${req.files.profile_pic[0].filename}')`)
+        let files = req.files.pic;
+        for (let i = 0; i < files.length; i++) {
+            let result2 = await pool.request().query(`INSERT INTO ALBUMPICTURES VALUES ('${MATHUOC}', '${files[i].filename}')`)
         }
-        else if (!req.files) {
-            return res.render('themthuoc.ejs', { user: req.session.user, message: 'Please select an image to upload' });
-        }
-        else if (err instanceof multer.MulterError) {
-            console.log(err);
-            return res.send(err);
-        }
-        else if (err) {
-            console.log(err);
-            return res.send(err);
-        }
-    });
-    let result1 = await pool.request().query(`INSERT INTO PROFILEPICTURE VALUES ('${MATHUOC}', '${req.files.profile_pic[0].filename}')`)
-    let files = req.files.pic;
-    for (let i = 0; i < files.length; i++) {
-        let result2 = await pool.request().query(`INSERT INTO ALBUMPICTURES VALUES ('${MATHUOC}', '${files[i].filename}')`)
+        return res.redirect('/thuoc/' + MATHUOC);
     }
-    return res.redirect('/thuoc/' + MATHUOC);
+    catch (err) {
+        return res.redirect('/admin/themthuoc')
+    }
+
 }
 
 let deleteTHUOC = async (req, res) => {
     let MATHUOC = req.body.MATHUOC;
     const pool = await connectDB();
+
     try {
-        const result = await pool.request().query(`delete from THUOC where MATHUOC = '${MATHUOC}'`)
-        let path = `./public/uploads/${MATHUOC}`;
-        fs.rm(path, { recursive: true });
-        return res.redirect('/admin/db')
+        // Delete record from the database
+        const result = await pool.request().query(`DELETE FROM THUOC WHERE MATHUOC = '${MATHUOC}'`);
+
+        // Delete the corresponding directory
+        let path = `./src/public/uploads/${MATHUOC}/`;
+        if (fs.existsSync(path)) {
+            await removeDirectory(path);
+        } else {
+            console.log(`Directory '${path}' does not exist.`);
+        }
+
+        return res.redirect('/admin/db');
+    } catch (err) {
+        console.error('Error deleting THUOC:', err);
+        return res.redirect('/admin/db');
     }
-    catch (err) {
-        return res.redirect('/admin/db')
+}
+
+async function removeDirectory(path) {
+    const files = await fs.promises.readdir(path);
+
+    for (const file of files) {
+        const filePath = `${path}/${file}`;
+        const fileStat = await fs.promises.lstat(filePath);
+
+        if (fileStat.isDirectory()) {
+            await removeDirectory(filePath);
+        } else {
+            await fs.promises.unlink(filePath);
+        }
     }
+
+    await fs.promises.rmdir(path);
 }
 
 let editTHUOC = async (req, res) => {
@@ -377,7 +409,7 @@ let donHang = async (req, res) => {
     if (!user) {
         return res.redirect('/login');
     }
-    try{
+    try {
         let pool = await connectDB();
         let result = await pool.request().query(`SELECT * FROM DONHANGONLINE WHERE USERNAME = '${user.USERNAME}'`);
         return res.render('donhang.ejs', { user: req.session.user, DONHANG: result.recordset });
