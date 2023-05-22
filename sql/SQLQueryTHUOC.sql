@@ -10,7 +10,6 @@
 
       --mặc định kiểu ngày tháng
       SET DATEFORMAT DMY
-
       ---------------------------------------------TẠO CÁC BẢNG-----------------------------------------------
 
       --tạo bảng thuốc
@@ -98,7 +97,7 @@
             MADONHANG VARCHAR(10) NOT NULL DEFAULT 'DN000',
             MANCC VARCHAR(10) NOT NULL,
             MANV VARCHAR(10) NOT NULL,
-            TRANGTHAIDH  NVARCHAR(30) DEFAULT N'Đang chuẩn bị', --đang chuẩn bị, đã hủy, đang vận chuyển, đã giao, giao không thành công
+            TRANGTHAIDH  NVARCHAR(30) DEFAULT N'Đang lập đơn', --đang lập đơn, đã đặt, đã hủy, đã nhận, nhận không thành công
             NGAYLAP DATE,
             TONGTIEN MONEY DEFAULT 0,
             DATHANHTOAN MONEY DEFAULT 0,
@@ -361,6 +360,7 @@
 
       -----------------------------------------------TẠO CÁC PROCEDURE-----------------------------------------
 
+      --tìm mã đơn hàng nhập tiếp theo
       CREATE PROC usp_TimMaDonHangNhapTiepTheo
             @madonhang VARCHAR(10) OUT
       AS
@@ -379,6 +379,7 @@
       END
       GO
 
+      --tìm mã đơn hàng xuất tiếp theo
       CREATE PROC usp_TimMaDonHangXuatTiepTheo
             @madonhang VARCHAR(10) OUT
       AS
@@ -397,6 +398,7 @@
       END
       GO
 
+      --tìm mã đơn hàng Online tiếp theo
       CREATE PROC usp_TimMaDonHangOnlineTiepTheo
             @madonhang VARCHAR(10) OUT
       AS
@@ -453,6 +455,78 @@
             AND DCT.THUOC = THUOC.MATHUOC
             AND D.MADONHANG = @madonhang
       GO
+
+      --thanh toán công nợ cho một đơn hàng nhập
+      CREATE PROC usp_ThanhToanCongNoDHN
+            @madh VARCHAR(6)
+      AS
+      BEGIN
+            IF(SELECT CONGNO FROM DONHANGNHAP WHERE MADONHANG = @madh) = 0
+            BEGIN
+                  PRINT N'ĐƠN HÀNG ĐÃ ĐƯỢC THANH TOÁN'
+            END
+            ELSE
+            BEGIN
+                  UPDATE DONHANGNHAP
+                  SET DATHANHTOAN = TONGTIEN
+                  WHERE DONHANGNHAP.MADONHANG = @madh
+
+                  PRINT N'CÔNG NỢ CỦA ĐƠN HÀNG ĐÃ ĐƯỢC THANH TOÁN THÀNH CÔNG'
+            END
+      END
+      GO
+
+       --thanh toán công nợ cho một đơn hàng xuất
+      CREATE PROC usp_ThanhToanCongNoDHX
+            @madh VARCHAR(6)
+      AS
+      BEGIN
+            IF(SELECT CONGNO FROM DONHANGXUAT WHERE MADONHANG = @madh) = 0
+            BEGIN
+                  PRINT N'ĐƠN HÀNG ĐÃ ĐƯỢC THANH TOÁN'
+            END
+            ELSE
+            BEGIN
+                  UPDATE DONHANGXUAT
+                  SET DATHANHTOAN = TONGTIEN
+                  WHERE DONHANGXUAT.MADONHANG = @madh
+
+                  PRINT N'CÔNG NỢ CỦA ĐƠN HÀNG ĐÃ ĐƯỢC THANH TOÁN THÀNH CÔNG'
+            END
+      END
+      GO
+
+      --trả tiền cho nhà cung cấp
+      CREATE PROC usp_TraNoNhaCungCap
+            @mancc VARCHAR(10)
+      AS
+      BEGIN
+            UPDATE DONHANGNHAP
+            SET DATHANHTOAN = TONGTIEN
+            WHERE DONHANGNHAP.MANCC = @mancc
+            AND CONGNO != 0
+            PRINT N'CÔNG NỢ ĐÃ ĐƯỢC THANH TOÁN THÀNH CÔNG CHO NHÀ CUNG CẤP'
+      END
+      GO
+      
+      --lược sử giao dịch với khách hàng
+      CREATE PROC usp_LuocSuGiaoDichKH
+            @makh VARCHAR(10)
+      AS 
+            SELECT K.TENKHACH, K.LOAIKH, D.MADONHANG, D.NGAYLAP, D.TRANGTHAIDH, D.TONGTIEN, D.DATHANHTOAN, D.CONGNO FROM KHACHHANG K, DONHANGXUAT D
+            WHERE K.MAKH = D.MAKH
+            AND K.MAKH = @makh
+      GO
+
+      --Báo cáo lược sử giao dịch với nhà cung cấp
+      CREATE PROC usp_LuocSuGiaoDichNCC
+            @mancc VARCHAR(10)
+      AS 
+            SELECT N.TENNCC, D.MADONHANG, D.NGAYLAP, D.TRANGTHAIDH, D.TONGTIEN, D.DATHANHTOAN, D.CONGNO FROM NHACUNGCAP N, DONHANGNHAP D
+            WHERE N.MANCC = D.MANCC
+            AND N.MANCC = @mancc
+      GO
+
       ---------------------------------------------TẠO TRIGGER-----------------------------------------------
 
       -- tạo trigger khi thêm dữ liệu vào bảng THUOC
@@ -515,6 +589,25 @@
       END
       GO
 
+      --tạo trigger khi them dữ liệu vào bảng NHACUNGCAP
+      CREATE TRIGGER TRG_INSERT_NCC
+            ON NHACUNGCAP
+            FOR INSERT
+      AS
+      BEGIN
+            --reset giá trị công nợ bằng 0 khi người dùng nhập dữ liệu khác
+            IF (SELECT CONGNO FROM inserted) != 0
+            BEGIN
+                  PRINT N'CÔNG NỢ SẼ ĐƯỢC TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG NHẬP'
+                  PRINT N'RESET CÔNG NỢ = 0'
+                  UPDATE NHACUNGCAP
+                  SET CONGNO = 0
+                  FROM inserted
+                  WHERE NHACUNGCAP.MANCC = inserted.MANCC
+            END
+      END
+      GO
+
       CREATE TRIGGER TRG_UPDATE_NCC
             ON NHACUNGCAP
             FOR UPDATE
@@ -532,25 +625,6 @@
             BEGIN
                   PRINT N'CÔNG NỢ CỦA NHÀ CUNG CẤP SẼ ĐƯỢC THAY ĐỔI THEO CÔNG NỢ CỦA ĐƠN HÀNG NHẬP'
                   ROLLBACK TRAN
-            END
-      END
-      GO
-
-      --tạo trigger khi them dữ liệu vào bảng NHACUNGCAP
-      CREATE TRIGGER TRG_INSERT_NCC
-            ON NHACUNGCAP
-            FOR INSERT
-      AS
-      BEGIN
-            --reset giá trị công nợ bằng 0 khi người dùng nhập dữ liệu khác
-            IF (SELECT CONGNO FROM inserted) != 0
-            BEGIN
-                  PRINT N'CÔNG NỢ SẼ ĐƯỢC TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG NHẬP'
-                  PRINT N'RESET CÔNG NỢ = 0'
-                  UPDATE NHACUNGCAP
-                  SET CONGNO = 0
-                  FROM inserted
-                  WHERE NHACUNGCAP.MANCC = inserted.MANCC
             END
       END
       GO
@@ -656,6 +730,15 @@
                   ROLLBACK TRAN
             END
 
+            IF EXISTS (
+                  SELECT inserted.TRANGTHAIDH FROM deleted, inserted 
+                  WHERE (deleted.TRANGTHAIDH = N'Đã hủy' AND inserted.TRANGTHAIDH != N'Đã hủy') 
+                  OR (deleted.TRANGTHAIDH = N'Giao không thành công' AND inserted.TRANGTHAIDH != N'Giao không thành công'))
+            BEGIN
+                  PRINT N'TRẠNG THÁI ĐƠN HÀNG KHÔNG THỂ THAY ĐỔI'
+                  ROLLBACK TRAN
+            END
+
             -- thông báo khi đơn hàng bị hủy hoặc giao hàng không thành công
             IF ((SELECT TRANGTHAIDH FROM deleted) = N'Đang chuẩn bị' AND (SELECT TRANGTHAIDH FROM inserted) = N'Đã hủy') OR (SELECT TRANGTHAIDH FROM inserted) = N'Giao không thành công'
             BEGIN
@@ -743,7 +826,7 @@
 
       -- tạo trigger khi thay đổi dữ liệu trong bảng DONHANGNHAP
       CREATE TRIGGER TRG_UPDATE_DONHANGNHAP
-            ON  DONHANGNHAP
+            ON  DONHANGNHAP 
             AFTER UPDATE
       AS
       BEGIN
@@ -751,6 +834,15 @@
             IF ((SELECT TRANGTHAIDH FROM deleted) != N'Đang chuẩn bị' AND (SELECT TRANGTHAIDH FROM inserted) = N'Đã hủy')
             BEGIN
                   PRINT N'KHÔNG THỂ HỦY ĐƠN HÀNG'
+                  ROLLBACK TRAN
+            END
+
+            IF EXISTS (
+                  SELECT inserted.TRANGTHAIDH FROM deleted, inserted 
+                  WHERE (deleted.TRANGTHAIDH = N'Đã hủy' AND inserted.TRANGTHAIDH != N'Đã hủy') 
+                  OR (deleted.TRANGTHAIDH = N'Giao không thành công' AND inserted.TRANGTHAIDH != N'Giao không thành công'))
+            BEGIN
+                  PRINT N'TRẠNG THÁI ĐƠN HÀNG KHÔNG THỂ THAY ĐỔI'
                   ROLLBACK TRAN
             END
 
@@ -896,8 +988,17 @@
             FOR DELETE
       AS
       BEGIN
-            PRINT N'KHÔNG THỂ THAY ĐỔI ĐƠN HÀNG'
-            ROLLBACK TRAN
+            IF(SELECT TRANGTHAIDH FROM DONHANGNHAP, deleted WHERE DONHANGNHAP.MADONHANG = deleted.MADONHANG)!= N'Đang chuẩn bị'
+            BEGIN
+                  PRINT N'KHÔNG THỂ THAY ĐỔI ĐƠN HÀNG'
+                  ROLLBACK TRAN
+            END
+            
+            --cập nhật tổng tiền cho bảng đơn hàng nhập
+            UPDATE DONHANGNHAP
+            SET TONGTIEN = TONGTIEN - deleted.THANHTIEN
+            FROM DONHANGNHAP, deleted
+            WHERE DONHANGNHAP.MADONHANG = deleted.MADONHANG
       END
       GO
 
@@ -1028,8 +1129,17 @@
             FOR DELETE
       AS
       BEGIN
-            PRINT N'KHÔNG THỂ THAY ĐỔI ĐƠN HÀNG'
-            ROLLBACK TRAN
+            IF(SELECT TRANGTHAIDH FROM DONHANGXUAT, deleted WHERE DONHANGXUAT.MADONHANG = deleted.MADONHANG)!= N'Đang chuẩn bị'
+            BEGIN
+                  PRINT N'KHÔNG THỂ THAY ĐỔI ĐƠN HÀNG'
+                  ROLLBACK TRAN
+            END
+
+            -- cập nhật lại tổng tiền của đơn hàng
+            UPDATE DONHANGXUAT
+            SET TONGTIEN = TONGTIEN - deleted.THANHTIEN
+            FROM DONHANGXUAT, deleted
+            WHERE DONHANGXUAT.MADONHANG = deleted.MADONHANG
       END
       GO
 
@@ -1047,6 +1157,75 @@
                   SELECT MATHUOC FROM THUOC
                   WHERE THUOC.MANHOM = NHOMTHUOC.MANHOM
             )
+      END
+      GO
+
+      --tạo trigger khi thêm hoặc sửa dữ liệu ở bảng NGUOIDUNG
+      CREATE TRIGGER TRG_INSERT_TAIKHOAN
+            ON TAIKHOAN
+            AFTER INSERT, UPDATE
+      AS
+      BEGIN
+            --kiểm tra email nhập vào đúng
+      IF EXISTS(
+                  SELECT EMAIL FROM inserted
+                  WHERE EMAIL NOT LIKE '%_@__%.__%'
+      )
+      BEGIN
+            PRINT N'EMAIL KHÔNG ĐÚNG, HÃY THỬ LẠI!'
+            ROLLBACK TRAN
+      END
+      END
+      GO
+
+ --tạo trigger khi thêm dữ liệu vào bảng GIOHANG
+      CREATE TRIGGER TRG_INSERT_GIOHANG
+            ON GIOHANG
+            INSTEAD OF INSERT
+      AS
+      BEGIN
+            --reset thành tiền nếu người dùng nhập vào giá trị khác
+            IF(SELECT THANHTIEN FROM inserted)!= NULL
+            BEGIN
+                  PRINT N'THÀNH TIỀN SẼ ĐƯỢC HỆ THỐNG TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG'
+                  PRINT N'UPDATE THÀNH TIỀN'
+                  UPDATE GIOHANG
+                  SET THANHTIEN = 0
+                  FROM inserted
+                  WHERE GIOHANG.MATHUOC = inserted.MATHUOC
+            END
+
+            --nếu thuốc đã được thêm vào giỏ hàng trước đó, số lượng sẽ được thay đổi thành số lượng mới
+            IF EXISTS (
+                  SELECT * FROM inserted, GIOHANG
+                  WHERE inserted.USERNAME = GIOHANG.USERNAME
+                  AND inserted.MATHUOC = GIOHANG.MATHUOC
+            )
+            BEGIN
+                  PRINT N'THUỐC ĐÃ CÓ TRONG GIỎ HÀNG, SỐ LƯỢNG MỚI SẼ ĐƯỢC CẬP NHẬT'
+                  UPDATE GIOHANG
+                  SET SOLUONG = inserted.SOLUONG
+                  FROM inserted
+                  WHERE inserted.USERNAME = GIOHANG.USERNAME
+
+                  --cập nhật lại thành tiền
+                  UPDATE GIOHANG
+                  SET THANHTIEN = GIALE * GIOHANG.SOLUONG
+                  FROM THUOC
+                  WHERE THUOC.MATHUOC = GIOHANG.MATHUOC
+            END
+
+            ELSE
+            BEGIN
+                  INSERT INTO GIOHANG
+                  VALUES (
+                              (SELECT USERNAME FROM inserted),
+                              (SELECT MATHUOC FROM inserted),
+                              (SELECT SOLUONG FROM inserted),
+                              (SELECT QCDONGGOI FROM THUOC, inserted WHERE THUOC.MATHUOC = inserted.MATHUOC),
+                              (SELECT SOLUONG * GIALE FROM THUOC, inserted WHERE THUOC.MATHUOC = inserted.MATHUOC)
+                              )
+            END
       END
       GO
 
@@ -1092,10 +1271,19 @@
                   ROLLBACK TRAN
             END
 
+            IF EXISTS (
+                  SELECT inserted.TRANGTHAIDH FROM deleted, inserted 
+                  WHERE (deleted.TRANGTHAIDH = N'Đã hủy' AND inserted.TRANGTHAIDH != N'Đã hủy') 
+                  OR (deleted.TRANGTHAIDH = N'Giao không thành công' AND inserted.TRANGTHAIDH != N'Giao không thành công'))
+            BEGIN
+                  PRINT N'TRẠNG THÁI ĐƠN HÀNG KHÔNG THỂ THAY ĐỔI'
+                  ROLLBACK TRAN
+            END
+
             --thông báo khi hủy đơn hàng
             IF ((SELECT TRANGTHAIDH FROM deleted) = N'Đang lập đơn' AND (SELECT TRANGTHAIDH FROM inserted) = N'Đã hủy') OR (SELECT TRANGTHAIDH FROM inserted) = N'Giao không thành công'
             BEGIN
-                  PRINT N'ĐƠN HÀNG ĐÃ ĐƯỢC HỦY'
+                  PRINT N'ĐƠN HÀNG ĐÃ NẰM TRONG TRẠNG THÁI KHÔNG THỂ THAY ĐỔI'
             END
 
             --thông báo khi đặt hàng thành công
@@ -1225,80 +1413,21 @@
       AS
       BEGIN
             --chỉ có thể hủy đơn hàng hoặc thay đổi trạng thái thành giao hàng không thành công
-            PRINT N'KHÔNG THỂ THAY ĐỔI ĐƠN HÀNG'
-            ROLLBACK TRAN
+            IF(SELECT TRANGTHAIDH FROM DONHANGONLINE, deleted WHERE DONHANGONLINE.MADONHANG = deleted.MADONHANG)!= N'Đang lập đơn'
+            BEGIN
+                  PRINT N'KHÔNG THỂ THAY ĐỔI ĐƠN HÀNG'
+                  ROLLBACK TRAN
+            END
+
+            -- cập nhật lại tổng tiền của đơn hàng
+            UPDATE DONHANGONLINE
+            SET TONGTIEN = TONGTIEN + deleted.THANHTIEN
+            FROM DONHANGONLINE, deleted
+            WHERE DONHANGONLINE.MADONHANG = deleted.MADONHANG
       END
       GO
 
-      --tạo trigger khi thêm hoặc sửa dữ liệu ở bảng NGUOIDUNG
-      CREATE TRIGGER TRG_INSERT_TAIKHOAN
-            ON TAIKHOAN
-            AFTER INSERT, UPDATE
-      AS
-      BEGIN
-            --kiểm tra email nhập vào đúng
-      IF EXISTS(
-                  SELECT EMAIL FROM inserted
-                  WHERE EMAIL NOT LIKE '%_@__%.__%'
-      )
-      BEGIN
-            PRINT N'EMAIL KHÔNG ĐÚNG, HÃY THỬ LẠI!'
-            ROLLBACK TRAN
-      END
-      END
-      GO
-
- --tạo trigger khi thêm dữ liệu vào bảng GIOHANG
-      CREATE TRIGGER TRG_INSERT_GIOHANG
-            ON GIOHANG
-            INSTEAD OF INSERT
-      AS
-      BEGIN
-            --reset thành tiền nếu người dùng nhập vào giá trị khác
-            IF(SELECT THANHTIEN FROM inserted)!= NULL
-            BEGIN
-                  PRINT N'THÀNH TIỀN SẼ ĐƯỢC HỆ THỐNG TỰ ĐỘNG CẬP NHẬT THEO ĐƠN HÀNG'
-                  PRINT N'UPDATE THÀNH TIỀN'
-                  UPDATE GIOHANG
-                  SET THANHTIEN = 0
-                  FROM inserted
-                  WHERE GIOHANG.MATHUOC = inserted.MATHUOC
-            END
-
-            --nếu thuốc đã được thêm vào giỏ hàng trước đó, số lượng sẽ được cộng dồn
-            IF EXISTS (
-                  SELECT * FROM inserted, GIOHANG
-                  WHERE inserted.USERNAME = GIOHANG.USERNAME
-                  AND inserted.MATHUOC = GIOHANG.MATHUOC
-            )
-            BEGIN
-                  PRINT N'THUỐC ĐÃ CÓ TRONG GIỎ HÀNG, SỐ LƯỢNG MỚI SẼ ĐƯỢC CẬP NHẬT'
-                  UPDATE GIOHANG
-                  SET SOLUONG = inserted.SOLUONG
-                  FROM inserted
-                  WHERE inserted.USERNAME = GIOHANG.USERNAME
-
-                  --cập nhật lại thành tiền
-                  UPDATE GIOHANG
-                  SET THANHTIEN = GIALE * GIOHANG.SOLUONG
-                  FROM THUOC
-                  WHERE THUOC.MATHUOC = GIOHANG.MATHUOC
-            END
-
-            ELSE
-            BEGIN
-                  INSERT INTO GIOHANG
-                  VALUES (
-                              (SELECT USERNAME FROM inserted),
-                              (SELECT MATHUOC FROM inserted),
-                              (SELECT SOLUONG FROM inserted),
-                              (SELECT QCDONGGOI FROM THUOC, inserted WHERE THUOC.MATHUOC = inserted.MATHUOC),
-                              (SELECT SOLUONG * GIALE FROM THUOC, inserted WHERE THUOC.MATHUOC = inserted.MATHUOC)
-                              )
-            END
-      END
-      GO
-
+      
       ----------------------------------------------------CÀI ĐẶT CÁC CHỨC NĂNG-----------------------------------------------------------
 
       --tính hạn thanh toán nợ cho Khách hàng
@@ -1414,7 +1543,76 @@
             AND DATEPART(QUARTER, NGAYLAP) = @quy
       GO
 
+      --Xuất sản phẩm bán chạy theo năm/tháng/quý
+      CREATE FUNCTION UF_XuatSanPhamBanChayTheoNam(@nam INT)
+      RETURNS TABLE
+      AS 
+            RETURN SELECT TOP 1 THUOC.MATHUOC, THUOC.TENTHUOC, THUOC.MANHOM, SUM(X.SOLUONG) AS SOLUONG FROM XUATTHUOC X, THUOC, DONHANGXUAT D
+            WHERE X.THUOC = THUOC.MATHUOC
+            AND YEAR(D.NGAYLAP) = @nam
+            GROUP BY THUOC.MATHUOC, THUOC.TENTHUOC, THUOC.MANHOM
+            ORDER BY SOLUONG DESC
+      GO
 
+      CREATE FUNCTION UF_XuatSanPhamBanChayTheoThang(@thang INT, @nam INT)
+      RETURNS TABLE
+      AS 
+            RETURN SELECT TOP 1 THUOC.MATHUOC, THUOC.TENTHUOC, THUOC.MANHOM, SUM(X.SOLUONG) AS SOLUONG FROM XUATTHUOC X, THUOC, DONHANGXUAT D
+            WHERE X.THUOC = THUOC.MATHUOC
+            AND YEAR(D.NGAYLAP) = @nam
+            AND MONTH(D.NGAYLAP) = @thang
+            GROUP BY THUOC.MATHUOC, THUOC.TENTHUOC, THUOC.MANHOM
+            ORDER BY SOLUONG DESC
+      GO
+
+      CREATE FUNCTION UF_XuatSanPhamBanChayTheoQuy(@quy INT, @nam INT)
+      RETURNS TABLE
+      AS 
+            RETURN SELECT TOP 1 THUOC.MATHUOC, THUOC.TENTHUOC, THUOC.MANHOM, SUM(X.SOLUONG) AS SOLUONG FROM XUATTHUOC X, THUOC, DONHANGXUAT D
+            WHERE X.THUOC = THUOC.MATHUOC
+            AND YEAR(D.NGAYLAP) = @nam
+            AND DATEPART(QUARTER, NGAYLAP) = @quy
+            GROUP BY THUOC.MATHUOC, THUOC.TENTHUOC, THUOC.MANHOM
+            ORDER BY SOLUONG DESC
+      GO
+
+      -- Báo cáo danh sách xuất hàng theo năm 
+      CREATE FUNCTION UF_DanhSachXuatHangTheoNam(@nam INT)
+      RETURNS TABLE
+      AS 
+            RETURN SELECT X.MADONHANG, TENNCC, THUOC.TENTHUOC, X.SOLUONG, X.DONVITINH, D.NGAYLAP
+            FROM XUATTHUOC X, DONHANGXUAT D, NHACUNGCAP NCC, THUOC
+            WHERE D.MADONHANG = X.MADONHANG
+            AND THUOC.MATHUOC = X.THUOC
+            AND THUOC.MANCC = NCC.MANCC
+            AND YEAR(NGAYLAP) = @nam
+      GO
+
+      -- Báo cáo danh sách xuất hàng theo tháng
+      CREATE FUNCTION UF_DanhSachXuatHangTheoThang(@thang INT, @nam INT)
+      RETURNS TABLE
+      AS 
+            RETURN SELECT X.MADONHANG, TENNCC, THUOC.TENTHUOC, X.SOLUONG, X.DONVITINH, D.NGAYLAP
+            FROM XUATTHUOC X, DONHANGXUAT D, NHACUNGCAP NCC, THUOC
+            WHERE D.MADONHANG = X.MADONHANG
+            AND THUOC.MATHUOC = X.THUOC
+            AND THUOC.MANCC = NCC.MANCC
+            AND YEAR(NGAYLAP) = @nam
+            AND MONTH(NGAYLAP) = @thang
+      GO
+
+      --Báo cáo danh sách xuất hàng theo quý
+      CREATE FUNCTION UF_DanhSachXuatHangTheoQuy(@quy INT, @nam INT)
+      RETURNS TABLE
+      AS 
+            RETURN SELECT X.MADONHANG, TENNCC, THUOC.TENTHUOC, X.SOLUONG, X.DONVITINH, D.NGAYLAP
+            FROM XUATTHUOC X, DONHANGXUAT D, NHACUNGCAP NCC, THUOC
+            WHERE D.MADONHANG = X.MADONHANG
+            AND THUOC.MATHUOC = X.THUOC
+            AND THUOC.MANCC = NCC.MANCC
+            AND YEAR(NGAYLAP) = @nam
+            AND DATEPART(QUARTER, NGAYLAP) = @quy
+      GO
       -------------------------------------------------TẠO CÁC BẢNG ẢO------------------------------------------------------
 
       --tạo phiếu bán hàng
@@ -1468,9 +1666,6 @@
       WHERE D.MANCC = N.MANCC
       AND DATHANHTOAN != 0
       GO
-
-
-	--   SELECT * FROM NCCSoLuongThuocCungCapNhieuNhat
 
       ---------------------------------------------THÊM DỮ LIỆU CHO CÁC BẢNG-----------------------------------------------
 
