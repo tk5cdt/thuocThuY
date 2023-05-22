@@ -92,10 +92,15 @@ let newTHUOC = async (req, res) => {
 let deleteTHUOC = async (req, res) => {
     let MATHUOC = req.body.MATHUOC;
     const pool = await connectDB();
-    let path = `./public/uploads/${MATHUOC}`;
-    fs.rmdirSync(path, { recursive: true });
-    const result = await pool.request().query(`delete from THUOC where MATHUOC = '${MATHUOC}'`)
-    return res.redirect('/db')
+    try {
+        const result = await pool.request().query(`delete from THUOC where MATHUOC = '${MATHUOC}'`)
+        let path = `./public/uploads/${MATHUOC}`;
+        fs.rm(path, { recursive: true });
+        return res.redirect('/admin/db')
+    }
+    catch (err) {
+        return res.redirect('/admin/db')
+    }
 }
 
 let editTHUOC = async (req, res) => {
