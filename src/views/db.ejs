@@ -83,11 +83,11 @@
                             </td>
                             <td>
                                 <form action="/thuoc/<%= THUOC[index].MATHUOC %>" method="get">
-                                    <button type="submit"><ion-icon name="document-text-outline"></ion-icon></button>
+                                    <button type="submit" class="rs-bt"><ion-icon name="document-text-outline"></ion-icon></button>
                                 </form>
                                 <form action="/deleteThuoc" method="post" style="margin-top: 2px;">
                                     <input type="hidden" name="MATHUOC" value="<%= THUOC[index].MATHUOC %>">
-                                    <button type="submit"><ion-icon name="trash-outline"></ion-icon></button>
+                                    <button type="submit" class="rs-bt"><ion-icon name="trash-outline"></ion-icon></button>
                                 </form>
                                 <!-- <form action="/editThuoc/<%= THUOC[index].MATHUOC %>" method="get" style="margin: 0%;">
                                     <input type="hidden" name="MATHUOC" value="<%= THUOC[index].MATHUOC %>">

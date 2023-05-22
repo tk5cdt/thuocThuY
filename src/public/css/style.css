@@ -178,3 +178,16 @@ body {
 .form-group.invalid .form-message {
     color: #f33a58;
 }
+
+/* css db */
+.rs-bt
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
