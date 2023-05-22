@@ -1421,7 +1421,7 @@ CREATE TRIGGER TRG_DELETE_DONXUATONLINECHITIET
       FOR DELETE
 AS
 BEGIN
-      --chỉ có thể hủy đơn hàng hoặc thay đổi trạng thái thành giao hàng không thành công
+      --chỉ có thể thay đổi đơn hàng khi trong trạng thái đang lập đơn
       IF(SELECT TRANGTHAIDH FROM DONHANGONLINE JOIN deleted ON DONHANGONLINE.MADONHANG = deleted.MADONHANG)!= N'Đang lập đơn'
       BEGIN
             PRINT N'KHÔNG THỂ THAY ĐỔI ĐƠN HÀNG'
