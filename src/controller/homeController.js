@@ -61,41 +61,93 @@ let themthuoc = (req, res) => {
 let newTHUOC = async (req, res) => {
     let { MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIASI, GIALE, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG } = req.body;
     const pool = await connectDB();
-    const result = await pool.request().query(`insert into THUOC(MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIASI, GIALE, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG) values ('${MATHUOC}', N'${TENTHUOC}', '${MANHOM}', N'${LOAISD}', N'${THANHPHAN}', '${MANCC}', '${GIASI}', '${GIALE}', '${GIANHAP}', N'${DANGBAOCHE}', N'${QCDONGGOI}', N'${CONGDUNG}')`)
-    upload(req, res, function (err) {
-        // req.file contains information of uploaded file
-        // req.body contains information of text fields, if there were any
+    try {
+        if (!MATHUOC || !TENTHUOC || !MANHOM || !LOAISD || !THANHPHAN || !MANCC || !GIASI || !GIALE || !GIANHAP || !DANGBAOCHE || !QCDONGGOI || !CONGDUNG) {
+            return res.render("themthuoc.ejs", { message: "Vui lòng nhập đầy đủ thông tin", user: req.session.user });
+        }
+        const isExist = await pool.request().query(`select * from THUOC where MATHUOC = '${MATHUOC}'`);
+        if (isExist.recordset.length > 0){
+            return res.render("themthuoc.ejs", { message: "Thuốc đã tồn tại", user: req.session.user });
+        }
+        const result = await pool.request().query(`insert into THUOC(MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIASI, GIALE, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG) values ('${MATHUOC}', N'${TENTHUOC}', '${MANHOM}', N'${LOAISD}', N'${THANHPHAN}', '${MANCC}', '${GIASI}', '${GIALE}', '${GIANHAP}', N'${DANGBAOCHE}', N'${QCDONGGOI}', N'${CONGDUNG}')`, (err, result) => {
+            if (err) {
+                console.log(err);
+                return res.render("themthuoc.ejs", { message: "Mã thuốc đã tồn tại", user: req.session.user });
+            }
+        });
+        upload(req, res, function (err) {
+            // req.file contains information of uploaded file
+            // req.body contains information of text fields, if there were any
 
-        if (req.fileValidationError) {
-            return res.send(req.fileValidationError);
+            if (req.fileValidationError) {
+                return res.send(req.fileValidationError);
+            }
+            else if (!req.files) {
+                return res.render('themthuoc.ejs', { user: req.session.user, message: 'Please select an image to upload' });
+            }
+            else if (err instanceof multer.MulterError) {
+                console.log(err);
+                return res.send(err);
+            }
+            else if (err) {
+                console.log(err);
+                return res.send(err);
+            }
+        });
+        if (req.files.profile_pic) {
+            let result1 = await pool.request().query(`INSERT INTO PROFILEPICTURE VALUES ('${MATHUOC}', '${req.files.profile_pic[0].filename}')`)
         }
-        else if (!req.files) {
-            return res.render('themthuoc.ejs', { user: req.session.user, message: 'Please select an image to upload' });
+        if (req.files.pic) {
+            for (let i = 0; i < req.files.pic.length; i++) {
+                let result2 = await pool.request().query(`INSERT INTO ALBUMPICTURES VALUES ('${MATHUOC}', '${req.files.pic[i].filename}')`)
+            }
         }
-        else if (err instanceof multer.MulterError) {
-            console.log(err);
-            return res.send(err);
-        }
-        else if (err) {
-            console.log(err);
-            return res.send(err);
-        }
-    });
-    let result1 = await pool.request().query(`INSERT INTO PROFILEPICTURE VALUES ('${MATHUOC}', '${req.files.profile_pic[0].filename}')`)
-    let files = req.files.pic;
-    for (let i = 0; i < files.length; i++) {
-        let result2 = await pool.request().query(`INSERT INTO ALBUMPICTURES VALUES ('${MATHUOC}', '${files[i].filename}')`)
+        return res.redirect('/admin/db');
     }
-    return res.redirect('/thuoc/' + MATHUOC);
+    catch (err) {
+        console.log(err);
+        return res.render("themthuoc.ejs", { message: "Mã thuốc đã tồn tại", user: req.session.user });
+    }
 }
 
 let deleteTHUOC = async (req, res) => {
     let MATHUOC = req.body.MATHUOC;
     const pool = await connectDB();
-    let path = `./public/uploads/${MATHUOC}`;
-    fs.rmdirSync(path, { recursive: true });
-    const result = await pool.request().query(`delete from THUOC where MATHUOC = '${MATHUOC}'`)
-    return res.redirect('/db')
+
+    try {
+        // Delete record from the database
+        const result = await pool.request().query(`DELETE FROM THUOC WHERE MATHUOC = '${MATHUOC}'`);
+
+        // Delete the corresponding directory
+        let path = `./src/public/uploads/${MATHUOC}/`;
+        if (fs.existsSync(path)) {
+            await removeDirectory(path);
+        } else {
+            console.log(`Directory '${path}' does not exist.`);
+        }
+
+        return res.redirect('/admin/db');
+    } catch (err) {
+        console.error('Error deleting THUOC:', err);
+        return res.redirect('/admin/db');
+    }
+}
+
+async function removeDirectory(path) {
+    const files = await fs.promises.readdir(path);
+
+    for (const file of files) {
+        const filePath = `${path}/${file}`;
+        const fileStat = await fs.promises.lstat(filePath);
+
+        if (fileStat.isDirectory()) {
+            await removeDirectory(filePath);
+        } else {
+            await fs.promises.unlink(filePath);
+        }
+    }
+
+    await fs.promises.rmdir(path);
 }
 
 let editTHUOC = async (req, res) => {
@@ -207,6 +259,7 @@ let admin = async (req, res) => {
         return res.redirect('/login')
     }
     const pool = await connectDB();
+    await pool.request().query(`SET DATEFORMAT DMY`)
     const doanhthuThang = []
     for (let i = 1; i <= 12; i++) {
         const result = await pool.request().query(`SELECT dbo.UF_TinhDoanhThuTheoThang(${i}, YEAR(GETDATE())) as DOANHTHU`)
@@ -220,7 +273,9 @@ let admin = async (req, res) => {
     const result = await pool.request().query(`SELECT dbo.UF_TinhDoanhThuTheoNam(YEAR(GETDATE())) as DOANHTHU`)
     const doanhthuNam = result.recordset[0].DOANHTHU
     const result2 = await pool.request().query(`SELECT * FROM DONHANGONLINE`)
-    return res.render("admin.ejs", { user: req.session.user, doanhthuThang: doanhthuThang, doanhthuQuy: doanhthuQuy, doanhthuNam: doanhthuNam, DONHANGONLINE: result2.recordset });
+    const CongNoNCC = await pool.request().query(`SELECT TENNCC, CONGNO, FORMAT(NGAYNO, 'dd/MM/yyyy') as NGAYNO, FORMAT(HANNO, 'dd/MM/yyyy') as HANNO FROM CongNoNCC`)
+    const CongNoKH = await pool.request().query(`SELECT TENKHACH, CONGNO, FORMAT(NGAYNO, 'dd/MM/yyyy') as NGAYNO, FORMAT(HANNO, 'dd/MM/yyyy') as HANNO FROM CongNoKhachHang`)
+    return res.render("admin.ejs", { user: req.session.user, doanhthuThang: doanhthuThang, doanhthuQuy: doanhthuQuy, doanhthuNam: doanhthuNam, DONHANGONLINE: result2.recordset, CongNoNCC: CongNoNCC.recordset, CongNoKH: CongNoKH.recordset });
 }
 
 let getUploadPage = async (req, res) => {
@@ -357,12 +412,28 @@ const thanhToan = async (req, res) => {
 
         let result4 = await pool.request().query(`DELETE FROM GIOHANG WHERE USERNAME = '${user.USERNAME}'`);
 
-        res.status(200).json({ message: "Payment successful" });
+        res.redirect('/donhang')
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error occurred during payment" });
     }
 };
+
+let donHang = async (req, res) => {
+    let user = req.session.user;
+    if (!user) {
+        return res.redirect('/login');
+    }
+    try {
+        let pool = await connectDB();
+        let result = await pool.request().query(`SELECT * FROM DONHANGONLINE WHERE USERNAME = '${user.USERNAME}'`);
+        return res.render('donhang.ejs', { user: req.session.user, DONHANG: result.recordset });
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).send('Internal Server Error');
+    }
+}
 
 module.exports = {
     getHompage: getHompage,
@@ -388,4 +459,5 @@ module.exports = {
     updateDONHANG: updateDONHANG,
     getLOAISD: getLOAISD,
     thanhToan: thanhToan,
+    donHang: donHang,
 }

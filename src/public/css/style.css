@@ -1,18 +1,42 @@
-*{
-    padding:0;
-    margin:0;
+* {
+    padding: 0;
+    margin: 0;
     box-sizing: border-box;
-    font-family:'Poppins', sans-serif;
+    font-family: 'Poppins', sans-serif;
     cursor: pointer;
 }
 
-body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,blockquote,th,td { 
-    margin:0;
-    padding:0;
+body,
+div,
+dl,
+dt,
+dd,
+ul,
+ol,
+li,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+pre,
+form,
+fieldset,
+input,
+textarea,
+p,
+blockquote,
+th,
+td {
+    margin: 0;
+    padding: 0;
 }
-html,body {
-    margin:0;
-    padding:0;
+
+html,
+body {
+    margin: 0;
+    padding: 0;
 }
 
 .wrapper {
@@ -21,77 +45,82 @@ html,body {
     height: auto;
 }
 
-#login{
+#login {
     color: black;
     margin-right: 10px;
 }
 
 
-.taikhoan{
+.taikhoan {
     color: black;
-    background-color: rgb(4, 121, 255);
     border-radius: 5px;
     padding: 10px;
 }
 
-.taikhoan a{
+.taikhoan a {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.taikhoan:hover{
-    background-color: yellow;
-}
-#actions .item {
-    margin-left:22px;
+.taikhoan:hover {
+    background-color: rgb(70, 236, 120);
 }
 
-.main-container1
+#actions .item {
+    margin-left: 22px;
+}
+
+/* .main-container1
 {
     padding-top: 100px;
+} */
+
+.icon-glass
+{
+    padding-left: 25px;
+    text-indent:20px;
+    background: url(/images/search.png) no-repeat left 10px center;
+    background-size: 15px;
 }
 
-.jumbotron
-{
+.jumbotron {
     height: 520px;
     padding: 100px 60px;
     margin: 0px;
-    background-image: url(https://res.cloudinary.com/dk-find-out/image/upload/q_80,w_1920,f_auto/MA_00891784_oyxmrg.jpg);
+    background-image: url(https://res.cloudinary.com/dk-find-out/image/upload/q_80,w_1920,f_auto/MA_00891784_oyxmrg.jpg), linear-gradient(0, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4));
     background-size: cover;
     background-repeat: no-repeat;
     image-rendering: auto;
     background-color: gray;
 }
 
-.jumbotron h1
-{
-    font-size: 50px;    
-    color:cyan;
+.jumbotron h1 {
+    font-size: 50px;
+    color: cyan;
     font-weight: bold;
 }
 
-.jumbotron p
-{
+.jumbotron p {
     font-size: 28px;
     color: white;
     font-weight: bold;
     font-style: italic;
 }
 
-.card{
-    box-shadow: 0 6px 10px rgba(0,0,0,.08), 0 0 6px rgba(0,0,0,.05);
-    transition: .3s transform cubic-bezier(.155,1.105,.295,1.12),.3s box-shadow,.3s -webkit-transform cubic-bezier(.155,1.105,.295,1.12);
+.card {
+    box-shadow: 0 6px 10px rgba(0, 0, 0, .08), 0 0 6px rgba(0, 0, 0, .05);
+    transition: .3s transform cubic-bezier(.155, 1.105, .295, 1.12), .3s box-shadow, .3s -webkit-transform cubic-bezier(.155, 1.105, .295, 1.12);
     cursor: pointer;
 }
 
-.card:hover{
+.card:hover {
     transform: scale(1.05);
-    box-shadow: 0 10px 20px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, .12), 0 4px 8px rgba(0, 0, 0, .06);
 }
 
-.carousel, .slide
-{
+.carousel,
+.slide {
     padding-top: 50px;
 }
 
@@ -99,10 +128,10 @@ html,body {
     min-height: 100px;
     max-height: 700px;
 }
-  
+
 .card {
     width: 90%;
-    border: 1px solid rgba(0,0,0,.125);
+    border: 1px solid rgba(0, 0, 0, .125);
     border-radius: 5px;
     /* margin-left: 30px;
     margin-bottom: 30px; */
@@ -117,7 +146,7 @@ html,body {
 
 
 /* css /sp */
-#products{
+#products {
     margin-top: 150px;
 }
 
@@ -133,11 +162,32 @@ html,body {
     border-radius: 50%;
     transition: all 0.3s;
     font-size: 0.9rem;
-  }
-  
-  .social-link:hover,
-  .social-link:focus {
+}
+
+.social-link:hover,
+.social-link:focus {
     background: #ddd;
     text-decoration: none;
     color: #555;
-  }
+}
+
+.form-group.invalid .form-control {
+    border-color: #f33a58;
+}
+
+.form-group.invalid .form-message {
+    color: #f33a58;
+}
+
+/* css db */
+.rs-bt
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}

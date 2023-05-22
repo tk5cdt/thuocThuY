@@ -1,17 +1,25 @@
 
 function ValidateForm(form)
 {
+    var username = form.username
     var email = form.email
     var password = form.password
+    var rePassword = form.rePassword
     var isValid = true
 
     function showError(input){
         input.parentElement.classList.add('invalid')
         if(input.id === 'email'){
-            input.parentElement.querySelector('.form-message').innerHTML = ('Invalid email')
+            input.parentElement.querySelector('.form-message').innerHTML = ('* Email có dạng abc@domain.com')
         }
         if(input.id === 'password'){
-            input.parentElement.querySelector('.form-message').innerHTML = ('Invalid password')
+            input.parentElement.querySelector('.form-message').innerHTML = ('* Mật khẩu không hợp lệ')
+        }
+        if(input.id === 'username'){
+            input.parentElement.querySelector('.form-message').innerHTML = ('* Username phải từ 3 ký tự trở lên')
+        }
+        if(input.id === 'rePassword'){
+            input.parentElement.querySelector('.form-message').innerHTML = ('* Mật khẩu không khớp')
         }
     }
 
@@ -20,6 +28,20 @@ function ValidateForm(form)
         input.parentElement.classList.remove('invalid')
         input.parentElement.querySelector('.form-message').innerHTML = null
     }
+
+    //check valid username
+    username.addEventListener('focus', () => {
+        valid(username)
+    })
+
+    username.addEventListener('blur', function(){
+        username.value = username.value.trim()
+        var regexUsername = /^[a-zA-Z0-9]{3,}$/
+        if(!regexUsername.test(username.value)){
+            showError(username)
+            isValid = false
+        }
+    })
 
     //check valid email
     email.addEventListener('focus', () => {
@@ -42,9 +64,22 @@ function ValidateForm(form)
 
     password.addEventListener('blur', function(){
         password.value = password.value.trim()
-        var regexPassword = /^[a-zA-Z0-9]{10,}$/
+        var regexPassword = /^[a-zA-Z0-9]{3,}$/
         if(!regexPassword.test(password.value)){
             showError(password)
+            isValid = false
+        }
+    })
+
+    //check valid rePassword
+    rePassword.addEventListener('focus', () => {
+        valid(rePassword)
+    })
+
+    rePassword.addEventListener('blur', function(){
+        rePassword.value = rePassword.value.trim()
+        if(rePassword.value !== password.value || rePassword.value === ''){
+            showError(rePassword)
             isValid = false
         }
     })
@@ -61,19 +96,11 @@ function ValidateForm(form)
         //if email or password is empty or invalid, prevent submit
         isEmpty(email)
         isEmpty(password)
+        isEmpty(username)
+        isEmpty(rePassword)
         if(!isValid){
             e.preventDefault()
-            alert('Please fill in all fields')
-        }
-        else{
-            //go to bai5b.html
-            window.location.href = 'bai5b.html'
+            alert('Please check all fields')
         }
     })
 }
-
-let submit = document.querySelector('.form-submit')
-submit.addEventListener('click', function(){
-    var email = document.querySelector('#email')
-    localStorage.setItem('email', email.value)
-})

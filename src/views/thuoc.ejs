@@ -33,14 +33,14 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="images p-3">
-                                <div class="text-center p-md-4"> <img class="w-100" id="main-image"
-                                        src="/public/uploads/<%= THUOC.MATHUOC %>/<%= THUOC.TENANH %>" />
+                                <div class="text-center p-md-4"> <img class="mb-3 w-75" id="main-image"
+                                        src="/public/uploads/<%= THUOC.MATHUOC %>/<%= THUOC.TENANH %>" style="height: 222px;"/>
                                 </div>
                                 <div class="thumbnail text-center">
                                     <% for( let index=0; index < ALBUMPICTURES.length; index++ ) { %>
-                                        <img onclick="change_image(this)"
+                                        <img class="mb-3" onclick="change_image(this)"
                                             src="/public/uploads/<%= THUOC.MATHUOC %>/<%= ALBUMPICTURES[index].TENALBUM %>"
-                                            width="70" alt="ALBUM">
+                                            style="height: 60px; width: 60px;" alt="ALBUM">
                                         <% } %>
                                 </div>
                             </div>
@@ -66,25 +66,25 @@
                             <p class="about p-2">
                                 Công dụng: <%= THUOC.CONGDUNG %>
                             </p>
-                            <div class="soluong mt-5">
+                            <div class="soluong mt-5 mx-2">
                                 <% if (user) { %>
                                     <% if (user.QUANTRI) { %>
                                         <div class="cart my-3 align-items-center">
                                             <form action="/editThuoc/<%= THUOC.MATHUOC %>">
-                                                <button class="btn btn-danger text-uppercase mr-2 px-4"
+                                                <button class="btn btn-danger text-uppercase mr-md-2 m-3 px-4"
                                                     type="submit">Chỉnh sửa</button>
                                             </form>
                                         </div>
                                         <% } else { %>
                                             <h6 class="text-uppercase">Số lượng</h6>
-                                            <div class="cart my-3 align-items-center">
+                                            <div class="cart my-2 align-items-center">
                                                 <form action="/addToCart/<%= THUOC.MATHUOC %>" method="POST"">
                                                     <div class=" wrapper mb-2">
                                                     <span class="minus">-</span>
                                                     <input class="num" type="text" name="SOLUONG" id="SOLUONG" value=1>
                                                     <span class="plus">+</span>
                                             </div>
-                                            <button class="btn btn-danger text-uppercase mr-2 px-4" type="submit">Thêm
+                                            <button class="btn btn-danger text-uppercase my-2" type="submit">Thêm
                                                 vào giỏ hàng</button>
                                             </form>
                                 </div>
@@ -92,7 +92,7 @@
                                 <% } else { %>
                                     <div class="cart my-3 align-items-center">
                                         <a href="/login" class="text-decoration-none"><button
-                                                class="btn btn-danger text-uppercase mr-2 px-4" type="submit">Đăng
+                                                class="btn btn-danger text-uppercase mr-md-2 m-3 px-4" type="submit">Đăng
                                                 nhập</button></a>
                                     </div>
                                     <% } %>
@@ -112,24 +112,32 @@
             <div class="row row-cols-1 row-cols-md-3 g-4">
                 <% if (THUOCLOAISD.length < 3) { %>
                     <% for( let index = 0; index < THUOC.length; index++ ) { %>
-                        <div class="col d-flex align-items-stretch">
+                        <% if (THUOC.MATHUOC === THUOCLOAISD[index].MATHUOC) { %>
+                            <% continue; %>
+                        <% } %>
+                        <div class="col d-flex align-items-stretch justify-content-center">
                             <div class="card shadow border-0">
                                 <img src="/public/uploads/<%= THUOCLOAISD[index].MATHUOC %>/<%= THUOCLOAISD[index].TENANH %>" alt="" class="card-img-top">
                                 <div class="card-body">
                                     <h5 class="card-title"><%= THUOCLOAISD[index].TENTHUOC %></h5>
                                     <p class="card-text"><%= THUOCLOAISD[index].CONGDUNG %></p>
+                                    <a href="/thuoc/<%= THUOCLOAISD[index].MATHUOC %>" class="stretched-link"></a>
                                 </div>
                             </div>
                         </div>
                     <% } %>
                 <% } else { %>
                     <% for( let index = 0; index < 3; index++ ) { %>
-                        <div class="col d-flex align-items-stretch">
+                        <% if (THUOC.MATHUOC === THUOCLOAISD[index].MATHUOC) { %>
+                            <% continue; %>
+                        <% } %>
+                        <div class="col d-flex align-items-stretch justify-content-center">
                             <div class="card shadow border-0">
                                 <img src="/public/uploads/<%= THUOCLOAISD[index].MATHUOC %>/<%= THUOCLOAISD[index].TENANH %>" alt="" class="card-img-top">
                                 <div class="card-body">
                                     <h5 class="card-title"><%= THUOCLOAISD[index].TENTHUOC %></h5>
                                     <p class="card-text"><%= THUOCLOAISD[index].CONGDUNG %></p>
+                                    <a href="/thuoc/<%= THUOCLOAISD[index].MATHUOC %>" class="stretched-link"></a>
                                 </div>
                             </div>
                         </div>
