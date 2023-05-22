@@ -7,10 +7,10 @@ function ValidateForm(form){
         let a = input.parentElement
         a.classList.add('invalid')
         if(input.id === 'DIENTHOAI'){
-            a.querySelector('.form-message').innerHTML = ('Invalid phone number')
+            a.querySelector('.form-message').innerHTML = ('Số điện thoại không hợp lệ')
         }
         if(input.id === 'DIACHI'){
-            input.parentElement.querySelector('.form-message').innerHTML = 'Invalid address'
+            input.parentElement.querySelector('.form-message').innerHTML = ('Địa chỉ không hợp lệ')
         }
     }
 
