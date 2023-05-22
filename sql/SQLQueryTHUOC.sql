@@ -2243,3 +2243,5 @@
       INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
             VALUES ('UV-65', 'pic-UV-65-RODO-UV_3.jpg')
       GO
+
+select* from DONHANGNHAP
