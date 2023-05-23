@@ -175,6 +175,12 @@ let newTHUOC = async (req, res) => {
     } catch (err) {
         console.log(err);
         await transaction.rollback();
+        let path = `./src/public/uploads/${MATHUOC}/`;
+        if (fs.existsSync(path)) {
+            await removeDirectory(path);
+        } else {
+            console.log(`Directory '${path}' does not exist.`);
+        }
         return res.render("themthuoc.ejs", { message: "Không thêm được thuốc", user: req.session.user });
     } finally {
         transaction.release();
