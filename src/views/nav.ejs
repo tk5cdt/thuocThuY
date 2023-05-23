@@ -32,12 +32,9 @@
               <div class="d-flex align-items-center">
                 <% if (user) { %>
                   <span class="m-md-0 p-0">Hello <%= user.USERNAME %></span>
-                  <form action="/logout" method="get">
-                    <button type="submit" class="btn btn-light"><ion-icon name="log-out-outline" style="transform: translate(0,2px);"></ion-icon></button>
-                  </form>
                 <% } %>
               </div>
-              <form class="d-flex" role="search">
+              <form class="d-flex" role="search" style="margin-left: 30px;">
                 <input class="form-control me-2 icon-glass" type="search" placeholder="" aria-label="Search" name="search" id="search">
                 <button class="btn btn-outline-success" formaction="/search" formmethod="post" type="submit" hidden>Search</button>
               </form>
