@@ -6,14 +6,15 @@ import appRoot from 'app-root-path';
 let upload = multer().single('profile_pic');
 let uploadMulti = multer().array('pic');
 
-let getHompage = async (req, res) => {
+let getHomepage = async (req, res) => {
     const user = req.session.user;
     if (user && user.QUANTRI) {
         return res.redirect("/admin");
     }
     const pool = await connectDB();
     const result = await pool.request().query(`select THUOC.*, TENANH from THUOC, PROFILEPICTURE where THUOC.MATHUOC = PROFILEPICTURE.MATHUOC order by MATHUOC offset 0 rows fetch next 10 rows only`);
-    return res.render("index.ejs", { user: req.session.user, appRoot: appRoot.path, THUOC: result.recordset });
+    const SPBANCHAY = await pool.request().query(`SELECT u.*, p.TENANH FROM dbo.UF_XuatSanPhamBanChayTheoNam(YEAR(GETDATE())) AS u JOIN PROFILEPICTURE AS p ON p.MATHUOC = u.MATHUOC`);
+    return res.render("index.ejs", { user: req.session.user, appRoot: appRoot.path, THUOC: result.recordset, SPBANCHAY: SPBANCHAY.recordset });
 }
 
 let getConnect = async (req, res) => {
@@ -436,7 +437,7 @@ let donHang = async (req, res) => {
 }
 
 module.exports = {
-    getHompage: getHompage,
+    getHomepage: getHomepage,
     getConnect: getConnect,
     getTHUOC: getTHUOC,
     themthuoc: themthuoc,
