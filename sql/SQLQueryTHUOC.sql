@@ -2278,189 +2278,191 @@ INSERT INTO ALBUMPICTURES(MATHUOC, TENALBUM)
 GO
 
 ---------------------------------------------------TRUY VẤN-------------------------------------------------------------
-begin TRANSACTION
+-- begin TRANSACTION
 
---xuất danh sách phiếu bán hàng
-SELECT * FROM PhieuBanHang
+-- --xuất danh sách phiếu bán hàng
+-- SELECT * FROM PhieuBanHang
 
---xuất danh sách phiếu mua hàng
-SELECT * from PhieuMuaHang
+-- --xuất danh sách phiếu mua hàng
+-- SELECT * from PhieuMuaHang
 
---báo cáo đơn nhập chi tiết của DN006
-EXEC usp_DonNhapChiTiet 'DN006'
+-- --báo cáo đơn nhập chi tiết của DN006
+-- EXEC usp_DonNhapChiTiet 'DN006'
 
---báo cáo đơn xuất chi tiết của DX007
-EXEC usp_DonXuatChiTiet 'DX007'
+-- --báo cáo đơn xuất chi tiết của DX007
+-- EXEC usp_DonXuatChiTiet 'DX007'
 
---báo cáo đơn online chi tiết của DHO001
-EXEC usp_DonOnlineChiTiet 'DHO001'
+-- --báo cáo đơn online chi tiết của DHO001
+-- EXEC usp_DonOnlineChiTiet 'DHO001'
 
---báo cáo công nợ khách hàng
-SELECT * FROM CongNoKhachHang
+-- --báo cáo công nợ khách hàng
+-- SELECT * FROM CongNoKhachHang
 
---báo cáo công nợ nhà cung cấp
-SELECT * FROM CongNoNCC
+-- --báo cáo công nợ nhà cung cấp
+-- SELECT * FROM CongNoNCC
 
---Báo cáo tồn kho
-SELECT * FROM TonKho
+-- --Báo cáo tồn kho
+-- SELECT * FROM TonKho
 
---tính số tiền thu lại
-SELECT SUM(DATHANHTOAN) FROM DONHANGXUAT
+-- --tính số tiền thu lại
+-- SELECT SUM(DATHANHTOAN) FROM DONHANGXUAT
 
---tính doanh thu năm 2023
-PRINT dbo.UF_TinhDoanhThuTheoNam(2023)
+-- --tính doanh thu năm 2023
+-- PRINT dbo.UF_TinhDoanhThuTheoNam(2023)
 
---tính doanh thu tháng 4 năm 2023
-PRINT dbo.UF_TinhDoanhThuTheoThang(4, 2023)
+-- --tính doanh thu tháng 4 năm 2023
+-- PRINT dbo.UF_TinhDoanhThuTheoThang(4, 2023)
 
---tính doanh thu quý 2 năm 2023
-PRINT dbo.UF_TinhDoanhThuTheoQuy(2, 2023)
+-- --tính doanh thu quý 2 năm 2023
+-- PRINT dbo.UF_TinhDoanhThuTheoQuy(2, 2023)
 
---danh sách nhập hàng năm 2022
-SELECT * FROM dbo.UF_DanhSachNhapHangTheoNam(2022)
+-- --danh sách nhập hàng năm 2022
+-- SELECT * FROM dbo.UF_DanhSachNhapHangTheoNam(2022)
 
---danh sách nhập hàng tháng 4 năm 2023
-SELECT * FROM dbo.UF_DanhSachNhapHangTheoThang(4, 2023)
+-- --danh sách nhập hàng tháng 4 năm 2023
+-- SELECT * FROM dbo.UF_DanhSachNhapHangTheoThang(4, 2023)
 
---danh sách nhập hàng quý 1 năm 2023
-SELECT * FROM dbo.UF_DanhSachNhapHangTheoQuy(1, 2023)
+-- --danh sách nhập hàng quý 1 năm 2023
+-- SELECT * FROM dbo.UF_DanhSachNhapHangTheoQuy(1, 2023)
 
---thông báo công nợ với nhà cung cấp quá 3 tháng
-SELECT * FROM CongNoNCC
-WHERE GETDATE() > DATEADD(MONTH, 3, HANNO)
+-- --thông báo công nợ với nhà cung cấp quá 3 tháng
+-- SELECT * FROM CongNoNCC
+-- WHERE GETDATE() > DATEADD(MONTH, 3, HANNO)
 
---thông báo công nợ với khách hàng quá 3 tháng
-SELECT * FROM CongNoKhachHang
-WHERE GETDATE() > DATEADD(MONTH, 3, HANNO)
+-- --thông báo công nợ với khách hàng quá 3 tháng
+-- SELECT * FROM CongNoKhachHang
+-- WHERE GETDATE() > DATEADD(MONTH, 3, HANNO)
 
---thông báo danh mục thuốc sắp hết hạn(2 tháng)
-SELECT * FROM KHOHANG
-WHERE DATEDIFF(MONTH, GETDATE(), NGAYHETHAN) < 2
+-- --thông báo danh mục thuốc sắp hết hạn(2 tháng)
+-- SELECT * FROM KHOHANG
+-- WHERE DATEDIFF(MONTH, GETDATE(), NGAYHETHAN) < 2
 
---đếm số lượng sản phẩm trong kho dựa theo loài sử dụng
-SELECT LOAISD, (
-    SELECT  SUM(TONKHO) FROM KHOHANG K
-    WHERE K.MATHUOC IN (
-        SELECT MATHUOC FROM THUOC T1
-        WHERE T1.LOAISD = T.LOAISD
-    )
-) AS SOLUONGTHUOC FROM THUOC T
-GROUP BY LOAISD
+-- --đếm số lượng sản phẩm trong kho dựa theo loài sử dụng
+-- SELECT LOAISD, (
+--     SELECT  SUM(TONKHO) FROM KHOHANG K
+--     WHERE K.MATHUOC IN (
+--         SELECT MATHUOC FROM THUOC T1
+--         WHERE T1.LOAISD = T.LOAISD
+--     )
+-- ) AS SOLUONGTHUOC FROM THUOC T
+-- GROUP BY LOAISD
 
---đếm số lượng sản phẩm trong kho dựa theo dạng bào chế
-SELECT DANGBAOCHE, (
-    SELECT  SUM(TONKHO) FROM KHOHANG K
-    WHERE K.MATHUOC IN (
-        SELECT MATHUOC FROM THUOC T1
-        WHERE T1.DANGBAOCHE = T.DANGBAOCHE
-    )
-) AS SOLUONGTHUOC FROM THUOC T
-GROUP BY DANGBAOCHE
+-- --đếm số lượng sản phẩm trong kho dựa theo dạng bào chế
+-- SELECT DANGBAOCHE, (
+--     SELECT  SUM(TONKHO) FROM KHOHANG K
+--     WHERE K.MATHUOC IN (
+--         SELECT MATHUOC FROM THUOC T1
+--         WHERE T1.DANGBAOCHE = T.DANGBAOCHE
+--     )
+-- ) AS SOLUONGTHUOC FROM THUOC T
+-- GROUP BY DANGBAOCHE
 
---xuất nhà cung cấp có nhiều hơn 3 giao dịch
-SELECT * FROM NHACUNGCAP N
-WHERE 3 < (
-    SELECT COUNT(*) FROM DONHANGNHAP D
-    WHERE D.MANCC = N.MANCC
-)
+-- --xuất nhà cung cấp có nhiều hơn 3 giao dịch
+-- SELECT * FROM NHACUNGCAP N
+-- WHERE 3 < (
+--     SELECT COUNT(*) FROM DONHANGNHAP D
+--     WHERE D.MANCC = N.MANCC
+-- )
 
---thay đổi trạng thái cho một đơn hàng
-UPDATE DONHANGNHAP
-SET TRANGTHAIDH = N'Đã Nhận'
-WHERE MADONHANG = 'DN011'
+-- --thay đổi trạng thái cho một đơn hàng
+-- UPDATE DONHANGNHAP
+-- SET TRANGTHAIDH = N'Đã Nhận'
+-- WHERE MADONHANG = 'DN011'
 
---Thay đổi loại khách hàng từ khách lẻ thành khách sỉ cho những khách hàng mua trên 5 đơn hàng ngoại trừ khách vãng lai
-UPDATE KHACHHANG
-SET LOAIKH = N'Khách sỉ'
-WHERE MAKH IN (
-    SELECT MAKH
-    FROM (
-        SELECT MAKH, COUNT(*) AS DONHANG_COUNT
-        FROM DONHANGXUAT
-        WHERE TENKHACH != N'Khách vãng lai'
-        GROUP BY MAKH
-    ) AS DONHANG_TABLE
-    WHERE DONHANG_COUNT > 5
-)
+-- --Thay đổi loại khách hàng từ khách lẻ thành khách sỉ cho những khách hàng mua trên 5 đơn hàng ngoại trừ khách vãng lai
+-- UPDATE KHACHHANG
+-- SET LOAIKH = N'Khách sỉ'
+-- WHERE MAKH IN (
+--     SELECT MAKH
+--     FROM (
+--         SELECT MAKH, COUNT(*) AS DONHANG_COUNT
+--         FROM DONHANGXUAT
+--         WHERE TENKHACH != N'Khách vãng lai'
+--         GROUP BY MAKH
+--     ) AS DONHANG_TABLE
+--     WHERE DONHANG_COUNT > 5
+-- )
 
---Báo cáo thu tiền tổng hợp
-SELECT * FROM dbo.BangThuTien
+-- --Báo cáo thu tiền tổng hợp
+-- SELECT * FROM dbo.BangThuTien
 
---Báo cáo chi tiền tổng hợp
-SELECT * FROM dbo.BangChiTien
+-- --Báo cáo chi tiền tổng hợp
+-- SELECT * FROM dbo.BangChiTien
 
---Xuất những đơn mua hàng của khách sỉ
-SELECT MADONHANG, TENKHACH, LOAIKH, TRANGTHAIDH, NGAYLAP, TONGTIEN, D.CONGNO, dbo.UF_HanNoKH(D.NGAYLAP, K.LOAIKH, D.CONGNO) AS HANNO 
-FROM DONHANGXUAT D JOIN KHACHHANG K
-	  ON D.MAKH = K.MAKH
-	  AND K.LOAIKH = N'Khách sỉ'
+-- --Xuất những đơn mua hàng của khách sỉ
+-- SELECT MADONHANG, TENKHACH, LOAIKH, TRANGTHAIDH, NGAYLAP, TONGTIEN, D.CONGNO, dbo.UF_HanNoKH(D.NGAYLAP, K.LOAIKH, D.CONGNO) AS HANNO 
+-- FROM DONHANGXUAT D JOIN KHACHHANG K
+-- 	  ON D.MAKH = K.MAKH
+-- 	  AND K.LOAIKH = N'Khách sỉ'
 
---Tìm nhà cung cấp có số lượng thuốc đã cung cấp nhiều nhất trong kho
-SELECT TOP 1 N.MANCC, N.TENNCC, COUNT(*) AS SOLUONG FROM NHACUNGCAP N JOIN DONHANGNHAP D
-ON N.MANCC = D.MANCC
-JOIN NHAPTHUOC NCC
-ON D.MADONHANG = NCC.MADONHANG
-GROUP BY N.MANCC, N.TENNCC
-ORDER BY SOLUONG DESC
+-- --Tìm nhà cung cấp có số lượng thuốc đã cung cấp nhiều nhất trong kho
+-- SELECT TOP 1 N.MANCC, N.TENNCC, COUNT(*) AS SOLUONG FROM NHACUNGCAP N JOIN DONHANGNHAP D
+-- ON N.MANCC = D.MANCC
+-- JOIN NHAPTHUOC NCC
+-- ON D.MADONHANG = NCC.MADONHANG
+-- GROUP BY N.MANCC, N.TENNCC
+-- ORDER BY SOLUONG DESC
 
---Báo cáo đơn hàng xuất
-SELECT * FROM DONHANGXUAT
+-- --Báo cáo đơn hàng xuất
+-- SELECT * FROM DONHANGXUAT
 
--- Báo cáo lược sử giao dịch với khách hàng có mã là KH001
-EXEC usp_LuocSuGiaoDichKH 'KH001'
+-- -- Báo cáo lược sử giao dịch với khách hàng có mã là KH001
+-- EXEC usp_LuocSuGiaoDichKH 'KH001'
 
--- Trả nợ, chi tiền nhà cung cấp cho đơn hàng  SELECT * FROM DONHANGNHAP
-EXEC usp_TraNoNhaCungCap '0102137268'
+-- -- Trả nợ, chi tiền nhà cung cấp cho đơn hàng  SELECT * FROM DONHANGNHAP
+-- EXEC usp_TraNoNhaCungCap '0102137268'
 
---thanh toán công nợ cho đơn nhập DN013
-EXEC usp_ThanhToanCongNoDHN 'DN013'
+-- --thanh toán công nợ cho đơn nhập DN013
+-- EXEC usp_ThanhToanCongNoDHN 'DN013'
 
---thanh toán công nợ cho đơn xuất DX001
-EXEC usp_ThanhToanCongNoDHX 'DX001'
+-- --thanh toán công nợ cho đơn xuất DX001
+-- EXEC usp_ThanhToanCongNoDHX 'DX001'
 
--- Báo cáo nhập hàng chi tiết của đơn hàng có mã là DN005
-EXEC usp_DonNhapChiTiet 'DN005'
+-- -- Báo cáo nhập hàng chi tiết của đơn hàng có mã là DN005
+-- EXEC usp_DonNhapChiTiet 'DN005'
 
--- Báo cáo lược sử giao dịch với nhà cung cấp có mã là 0305110871
-EXEC usp_LuocSuGiaoDichNCC '0305110871'
+-- -- Báo cáo lược sử giao dịch với nhà cung cấp có mã là 0305110871
+-- EXEC usp_LuocSuGiaoDichNCC '0305110871'
 
--- Xuất sản phẩm bán chạy nhất năm 2023
-SELECT * FROM dbo.UF_XuatSanPhamBanChayTheoNam(2023)
+-- -- Xuất sản phẩm bán chạy nhất năm 2023
+-- SELECT * FROM dbo.UF_XuatSanPhamBanChayTheoNam(2023)
 
--- Xuất sản phẩm bán chạy nhất tháng 3 năm 2023
-SELECT * FROM dbo.UF_XuatSanPhamBanChayTheoThang(3, 2023)
+-- -- Xuất sản phẩm bán chạy nhất tháng 3 năm 2023
+-- SELECT * FROM dbo.UF_XuatSanPhamBanChayTheoThang(3, 2023)
 
--- Xuất sản phẩm bán chạy nhất trong quý 1 năm 2023 (tháng 1 2 3 năm 2023)
-SELECT * FROM dbo.UF_XuatSanPhamBanChayTheoQuy(1, 2023)
+-- -- Xuất sản phẩm bán chạy nhất trong quý 1 năm 2023 (tháng 1 2 3 năm 2023)
+-- SELECT * FROM dbo.UF_XuatSanPhamBanChayTheoQuy(1, 2023)
 
--- Báo cáo danh sách xuất hàng theo năm 2023
-SELECT * FROM dbo.UF_DanhSachXuatHangTheoNam(2023)
+-- -- Báo cáo danh sách xuất hàng theo năm 2023
+-- SELECT * FROM dbo.UF_DanhSachXuatHangTheoNam(2023)
 
--- Báo cáo danh sách xuất hàng theo tháng 3/2023
-SELECT * FROM dbo.UF_DanhSachXuatHangTheoThang(3, 2023)
+-- -- Báo cáo danh sách xuất hàng theo tháng 3/2023
+-- SELECT * FROM dbo.UF_DanhSachXuatHangTheoThang(3, 2023)
 
--- Báo cáo danh sách xuất hàng theo quý 1/2023
-SELECT * FROM dbo.UF_DanhSachXuatHangTheoQuy(1, 2023)
+-- -- Báo cáo danh sách xuất hàng theo quý 1/2023
+-- SELECT * FROM dbo.UF_DanhSachXuatHangTheoQuy(1, 2023)
 
---tìm những đơn hàng xuất do trưởng bộ phận bán hàng lập
-SELECT * FROM DONHANGXUAT
-WHERE MANV IN (
-    SELECT MANV FROM NHANVIEN 
-    WHERE VITRI = N'Trưởng bộ phận'    
-    AND BOPHAN = N'Bán hàng'
-    )
+-- --tìm những đơn hàng xuất do trưởng bộ phận bán hàng lập
+-- SELECT * FROM DONHANGXUAT
+-- WHERE MANV IN (
+--     SELECT MANV FROM NHANVIEN 
+--     WHERE VITRI = N'Trưởng bộ phận'    
+--     AND BOPHAN = N'Bán hàng'
+--     )
 
---tìm những đơn hàng do nhân viên bộ phận quản lý lập
-SELECT MADONHANG, MANV, TRANGTHAIDH FROM DONHANGNHAP
-WHERE MANV IN (
-    SELECT MANV FROM NHANVIEN    
-    WHERE BOPHAN = N'Quản lý'
-    )
-UNION
-SELECT MADONHANG, MANV, TRANGTHAIDH FROM DONHANGXUAT
-WHERE MANV IN (
-    SELECT MANV FROM NHANVIEN    
-    WHERE BOPHAN = N'Quản lý'
-    )
+-- --tìm những đơn hàng do nhân viên bộ phận quản lý lập
+-- SELECT MADONHANG, MANV, TRANGTHAIDH FROM DONHANGNHAP
+-- WHERE MANV IN (
+--     SELECT MANV FROM NHANVIEN    
+--     WHERE BOPHAN = N'Quản lý'
+--     )
+-- UNION
+-- SELECT MADONHANG, MANV, TRANGTHAIDH FROM DONHANGXUAT
+-- WHERE MANV IN (
+--     SELECT MANV FROM NHANVIEN    
+--     WHERE BOPHAN = N'Quản lý'
+--     )
 
-ROLLBACK TRAN
+-- ROLLBACK TRAN
+-- SELECT *from TAIKHOAN
+-- update TAIKHOAN set QUANTRI = 1 where USERNAME = 'tan'

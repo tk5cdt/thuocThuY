@@ -309,7 +309,7 @@ let addToCart = async (req, res) => {
     // else {
     //     const result = await pool.request().query(`UPDATE GIOHANG SET SOLUONG = SOLUONG + '${SOLUONG}' WHERE USERNAME = '${USERNAME}' AND MATHUOC = '${MATHUOC}'`)
     // }
-    return res.redirect('/cart')
+    return res.redirect('/sp/')
 }
 
 let getCart = async (req, res) => {
