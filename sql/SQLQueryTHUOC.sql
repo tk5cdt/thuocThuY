@@ -2464,5 +2464,4 @@ GO
 --     )
 
 -- ROLLBACK TRAN
--- SELECT *from TAIKHOAN
--- update TAIKHOAN set QUANTRI = 1 where USERNAME = 'tan'
+-- SELECT *from TAIKHOA
