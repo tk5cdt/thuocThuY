@@ -18,7 +18,7 @@
         <%- include('../views/nav.ejs' , {active: "user" }) %>
     </header>
     <div class="align-middle p-3" style="background-color: #eee;">
-        <h5 class="mb-3"><a href="/sp" class="text-body"><i class="fas fa-long-arrow-alt-left me-2"></i>Quay lại</a></h5>
+        <h5 class="mb-3"><a onclick="goBack()" href="#" class="text-body"><i class="fas fa-long-arrow-alt-left me-2"></i>Quay lại</a></h5>
         <hr>
         <div class="row row-cols-1 row-cols-md-2">
             <div class="col-md-12">
@@ -69,5 +69,9 @@
         <%- include('../views/footer.ejs') %>
     </div>
 </body>
-
+<script>
+    function goBack() {
+        window.history.back();
+    }
+</script>
 </html>

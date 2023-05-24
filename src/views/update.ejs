@@ -16,6 +16,13 @@
     <%- include('../views/adminnav.ejs', {active: "db"}) %>
     <form action="/updateTHUOC" method="post" style="margin-top: 80px;">
         <center><h1>Chỉnh sửa thông tin thuốc</h1></center>
+        <% if (message) { %>
+        <center>
+            <p style="color: brown;">
+                <%= message %>
+            </p>
+        </center>
+        <% } %>
         <div class="w-75" style="margin: 0 auto;">
             <div class="row mb-2">
                 <div class="form-group col-md-4">

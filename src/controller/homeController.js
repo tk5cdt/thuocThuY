@@ -236,7 +236,7 @@ let editTHUOC = async (req, res) => {
     let MATHUOC = req.params.MATHUOC;
     const pool = await connectDB();
     const result = await pool.request().query(`select * from THUOC where MATHUOC = '${MATHUOC}'`)
-    return res.render("update.ejs", { THUOC: result.recordset[0], user: req.session.user });
+    return res.render("update.ejs", { THUOC: result.recordset[0], user: req.session.user, message: "" });
 }
 
 let updateTHUOC = async (req, res) => {
@@ -246,9 +246,28 @@ let updateTHUOC = async (req, res) => {
     }
     let { MATHUOC, TENTHUOC, MANHOM, LOAISD, THANHPHAN, MANCC, GIASI, GIALE, GIANHAP, DANGBAOCHE, QCDONGGOI, CONGDUNG } = req.body;
     const pool = await connectDB();
-    const result = await pool.request().query(`update THUOC set TENTHUOC = '${TENTHUOC}', MANHOM = '${MANHOM}', LOAISD = N'${LOAISD}', THANHPHAN = '${THANHPHAN}', MANCC = '${MANCC}', GIASI = '${GIASI}', GIALE = '${GIALE}', GIANHAP = '${GIANHAP}', DANGBAOCHE = N'${DANGBAOCHE}', QCDONGGOI = N'${QCDONGGOI}', CONGDUNG = N'${CONGDUNG}' where MATHUOC = '${MATHUOC}'`)
-    return res.redirect('/admin/db')
+    const transaction = new sql.Transaction(pool);
+
+    try {
+        await transaction.begin();
+
+        const request = transaction.request();
+        await request.query(`update THUOC set TENTHUOC = '${TENTHUOC}', MANHOM = '${MANHOM}', LOAISD = N'${LOAISD}', THANHPHAN = '${THANHPHAN}', MANCC = '${MANCC}', GIASI = '${GIASI}', GIALE = '${GIALE}', GIANHAP = '${GIANHAP}', DANGBAOCHE = N'${DANGBAOCHE}', QCDONGGOI = N'${QCDONGGOI}', CONGDUNG = N'${CONGDUNG}' where MATHUOC = '${MATHUOC}'`);
+
+        await transaction.commit();
+
+        return res.redirect('/admin/db');
+    } catch (error) {
+        await transaction.rollback();
+
+        // Handle the error appropriately
+        console.error('Transaction failed. Rolling back.', error);
+
+        // Return an error response
+        return res.status(500).render("update.ejs", { THUOC: req.body, user: req.session.user, message: "Cập nhật thất bại" });
+    }
 }
+
 
 let getLOAISD = async (req, res) => {
     let LOAISD = req.params.LOAISD;
