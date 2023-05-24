@@ -24,7 +24,11 @@
 
 <body class="px-5">
     <header>
-        <%- include('../views/nav.ejs' , {active: "thuoc"}) %>
+        <% if (user && user.QUANTRI) { %>
+         <%- include('../views/adminnav.ejs', {active: "db"}) %>
+        <% } else { %>
+            <%- include('../views/nav.ejs' , {active: "thuoc"}) %>
+        <% } %>
     </header>
     <div class="container mt-5 mb-5 w-100" style="padding-top: 100px;">
         <div class="row d-flex justify-content-center">

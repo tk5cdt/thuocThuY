@@ -1,18 +1,19 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
     <div class="container-fluid">
-      <a class="navbar-brand" href="/"><img src="/images/logo.jpeg" alt="" style="width: 50px; border-radius: 10px;"></a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link <%if(active=="user"){%>active<%}%>" aria-current="page" href="/">Trang chủ</a>
+        <a class="navbar-brand" href="/"><img src="/images/logo.jpeg" alt="" style="width: 50px; border-radius: 10px;"></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link <%if(active=="user"){%>active<%}%>" aria-current="page" href="/">Trang chủ</a>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle <%if(active=="sp"){%>active<%}%>" href="/sp" role="button" data-bs-toggle="dropdown" aria-expanded="false">Sản phẩm</a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="/sp">Tất cả sản phẩm</a></li>
+              <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item" href="/sp/thuysan">Thuỷ sản</a></li>
               <li><a class="dropdown-item" href="/sp/giacam">Gia cầm</a></li>
               <li><a class="dropdown-item" href="/sp/giasuc">Gia súc</a></li>
@@ -28,53 +29,53 @@
         </ul>
         <% if (user) { %>
           <% if (!user.QUANTRI) { %>
-            <div class="d-md-flex justify-content-md-between align-items-md-center">
-              <div class="d-flex align-items-center">
-                <% if (user) { %>
-                  <span class="m-md-0 p-0">Hello <%= user.USERNAME %></span>
-                <% } %>
-              </div>
-              <form class="d-flex" role="search" style="margin-left: 30px;">
-                <input class="form-control me-2 icon-glass" type="search" placeholder="" aria-label="Search" name="search" id="search">
-                <button class="btn btn-outline-success" formaction="/search" formmethod="post" type="submit" hidden>Search</button>
-              </form>
-            </div>
-            <div id="actions">
-                <div class="item d-flex">
-                  <a id="login" href="/cart">
-                    <button class="taikhoan" style="width: 40px; height: 40px;"> 
-                      <div class="ti-shopping-cart" ></div>
-                    </button>
-                  </a>
-                  <a id="login" href="/donhang">
-                    <button class="taikhoan" style="width: 40px; height: 40px;"> 
-                      <i class="fal fa-money-check" style="translate: -1px -3px;"></i>
-                    </button>
-                  </a>
-                  <a id="login" href="/logout">
+            <div class=" d-md-flex justify-content-md-between align-items-md-center">
+                        <div class="d-flex align-items-center">
+                            <% if (user) { %>
+                            <span class="m-md-0 p-0">Xin chào <%= user.USERNAME %></span>
+                            <% } %>
+                        </div>
+                        <form class="d-flex ms-3 my-2 my-md-0" role="search">
+                            <input class="form-control me-2 icon-glass" type="search" placeholder="" aria-label="Search" name="search" id="search">
+                            <button class="btn btn-outline-success" formaction="/search" formmethod="post" type="submit" hidden>Search</button>
+                        </form>
+        </div>
+        <div id="actions">
+            <div class="item d-flex">
+                <a id="login" href="/cart">
                     <button class="taikhoan" style="width: 40px; height: 40px;">
-                      <i class="far fa-sign-out" style="translate: -1px -3px;"></i>
+                        <div class="ti-shopping-cart"></div>
                     </button>
-                  </a>
-                </div>
+                </a>
+                <a id="login" href="/donhang">
+                    <button class="taikhoan" style="width: 40px; height: 40px;">
+                        <i class="fal fa-money-check" style="translate: -1px -3px;"></i>
+                    </button>
+                </a>
+                <a id="login" href="/logout">
+                    <button class="taikhoan" style="width: 40px; height: 40px;">
+                        <i class="far fa-sign-out" style="translate: -1px -3px;"></i>
+                    </button>
+                </a>
             </div>
-          <% } %>
-            <% } else { %>
-              <div id="actions">
-                  <div class="item d-flex align-items-center">
-                    <form class="d-flex" role="search">
-                      <input class="form-control me-2 icon-glass" type="search" placeholder="" aria-label="Search" name="search" id="search">
-                      <button class="btn btn-outline-success" formaction="/search" formmethod="post" type="submit" hidden>Search</button>
-                    </form>
-                    <a id="login" href="/login">
-                      <button class="taikhoan"> 
-                          ĐĂNG NHẬP
+        </div>
+        <% } %>
+        <% } else { %>
+        <div id="actions">
+            <div class="item d-flex align-items-center">
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2 icon-glass" type="search" placeholder="" aria-label="Search" name="search" id="search">
+                    <button class="btn btn-outline-success" formaction="/search" formmethod="post" type="submit" hidden>Search</button>
+                </form>
+                <a id="login" href="/login">
+                    <button class="taikhoan">
+                        ĐĂNG NHẬP
                         <i class="ti-user"></i>
-                      </button>
-                    </a>
-                  </div>
-              </div>
-            <% } %>
-      </div>
+                    </button>
+                </a>
+            </div>
+        </div>
+        <% } %>
+    </div>
     </div>
 </nav>

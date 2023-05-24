@@ -64,7 +64,8 @@ body {
 }
 
 .taikhoan:hover {
-    background-color: rgb(70, 236, 120);
+    color: white;
+    background-color: midnightblue;
 }
 
 #actions .item {
