@@ -69,7 +69,8 @@
         <div class="special-product">
             <h1 style="text-align: center; padding-top: 100px; margin-bottom: 100px; font-size: 45px; font-style: italic; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: rgb(228, 42, 42);">SẢN PHẨM NỔI BẬT</h1>
             <div class="row row-cols-1 row-cols-md-3 g-4">
-                <% for( let index=0; index < 6; index++ ) { %>
+                <% if (SPBANCHAY.length > 0) { %>
+                 <% for( let index=0; index < 6; index++ ) { %>
                     <div class="col d-flex align-items-stretch justify-content-center">
                         <div class="card">
                             <img class="card-img-top" src="/public/uploads/<%= SPBANCHAY[index].MATHUOC %>/<%= SPBANCHAY[index].TENANH %>" alt="Card image cap">
@@ -81,6 +82,8 @@
                         </div>
                     </div>
                     <% } %>
+                <% } %>
+                
                 </div>
             </div>
         </section>
